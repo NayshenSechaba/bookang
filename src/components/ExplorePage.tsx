@@ -1,16 +1,22 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Star, MapPin, Search, Heart, Bookmark, MoreHorizontal } from 'lucide-react';
+import { Star, MapPin, Search, Heart, Bookmark, MoreHorizontal, Navigation, X } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast";
 
 const ExplorePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [locationPermissionAsked, setLocationPermissionAsked] = useState(false);
+  const [showLocationPrompt, setShowLocationPrompt] = useState(true);
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const { toast } = useToast();
 
-  // Mock data for salons
+  // Mock data for salons with coordinates
   const allSalons = [
     {
       id: 1,
@@ -24,7 +30,8 @@ const ExplorePage = () => {
       distance: '0.5 mi',
       isLiked: false,
       isSaved: false,
-      category: 'popular'
+      category: 'popular',
+      coordinates: { lat: 40.7128, lng: -74.0060 } // NYC coordinates
     },
     {
       id: 2,
@@ -38,7 +45,8 @@ const ExplorePage = () => {
       distance: '1.2 mi',
       isLiked: true,
       isSaved: false,
-      category: 'popular'
+      category: 'popular',
+      coordinates: { lat: 40.7589, lng: -73.9851 }
     },
     {
       id: 3,
@@ -52,7 +60,8 @@ const ExplorePage = () => {
       distance: '2.1 mi',
       isLiked: false,
       isSaved: true,
-      category: 'popular'
+      category: 'popular',
+      coordinates: { lat: 40.7831, lng: -73.9712 }
     },
     {
       id: 4,
@@ -67,7 +76,8 @@ const ExplorePage = () => {
       isLiked: false,
       isSaved: false,
       category: 'new',
-      isNew: true
+      isNew: true,
+      coordinates: { lat: 40.7505, lng: -73.9934 }
     },
     {
       id: 5,
@@ -82,7 +92,8 @@ const ExplorePage = () => {
       isLiked: true,
       isSaved: false,
       category: 'new',
-      isNew: true
+      isNew: true,
+      coordinates: { lat: 40.7282, lng: -74.0776 }
     },
     {
       id: 6,
@@ -96,7 +107,8 @@ const ExplorePage = () => {
       distance: '0.2 mi',
       isLiked: false,
       isSaved: false,
-      category: 'nearby'
+      category: 'nearby',
+      coordinates: { lat: 40.7614, lng: -73.9776 }
     },
     {
       id: 7,
@@ -110,7 +122,8 @@ const ExplorePage = () => {
       distance: '0.3 mi',
       isLiked: false,
       isSaved: true,
-      category: 'nearby'
+      category: 'nearby',
+      coordinates: { lat: 40.7480, lng: -73.9857 }
     },
     {
       id: 8,
@@ -124,11 +137,68 @@ const ExplorePage = () => {
       distance: '0.4 mi',
       isLiked: true,
       isSaved: false,
-      category: 'nearby'
+      category: 'nearby',
+      coordinates: { lat: 40.7549, lng: -73.9840 }
     }
   ];
 
-  // Filter salons
+  // Calculate distance between two coordinates
+  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+    const R = 3959; // Earth's radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  // Request user's location
+  const requestLocation = async () => {
+    setIsLoadingLocation(true);
+    setLocationPermissionAsked(true);
+    
+    if (!navigator.geolocation) {
+      toast({
+        title: "Location not supported",
+        description: "Your browser doesn't support location services.",
+        variant: "destructive"
+      });
+      setIsLoadingLocation(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ lat: latitude, lng: longitude });
+        setShowLocationPrompt(false);
+        setIsLoadingLocation(false);
+        toast({
+          title: "Location enabled",
+          description: "Now showing salons sorted by distance from your location.",
+        });
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        setIsLoadingLocation(false);
+        toast({
+          title: "Location access denied",
+          description: "Enable location permissions to see nearby salons.",
+          variant: "destructive"
+        });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000
+      }
+    );
+  };
+
+  // Filter and sort salons
   const getFilteredSalons = () => {
     let filtered = allSalons;
     
@@ -145,9 +215,80 @@ const ExplorePage = () => {
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(salon => salon.category === selectedCategory);
     }
+
+    // Sort by distance if user location is available
+    if (userLocation) {
+      filtered = filtered.map(salon => ({
+        ...salon,
+        calculatedDistance: calculateDistance(
+          userLocation.lat,
+          userLocation.lng,
+          salon.coordinates.lat,
+          salon.coordinates.lng
+        )
+      })).sort((a, b) => a.calculatedDistance - b.calculatedDistance);
+
+      // Update distance display
+      filtered = filtered.map(salon => ({
+        ...salon,
+        distance: `${salon.calculatedDistance.toFixed(1)} mi`
+      }));
+    }
     
     return filtered;
   };
+
+  // Location prompt component
+  const LocationPrompt = () => (
+    showLocationPrompt && !locationPermissionAsked && (
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start space-x-3">
+            <Navigation className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div>
+              <h3 className="font-medium text-blue-900">Find salons near you</h3>
+              <p className="text-sm text-blue-700 mt-1">
+                Allow location access to see salons sorted by distance from your current location.
+              </p>
+              <div className="flex space-x-2 mt-3">
+                <Button 
+                  size="sm" 
+                  onClick={requestLocation}
+                  disabled={isLoadingLocation}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  {isLoadingLocation ? (
+                    <>Getting location...</>
+                  ) : (
+                    <>
+                      <Navigation className="h-4 w-4 mr-2" />
+                      Enable Location
+                    </>
+                  )}
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => setShowLocationPrompt(false)}
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                >
+                  Maybe later
+                </Button>
+              </div>
+            </div>
+          </div>
+          <Button 
+            size="sm" 
+            variant="ghost" 
+            onClick={() => setShowLocationPrompt(false)}
+            className="text-blue-600 hover:bg-blue-100 p-1"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    )
+  );
 
   // Instagram-like salon card
   const SalonCard = ({ salon }: { salon: any }) => (
@@ -182,7 +323,9 @@ const ExplorePage = () => {
 
           {/* Distance badge */}
           <div className="absolute bottom-3 right-3">
-            <Badge className="bg-white/90 text-gray-900 text-xs px-2 py-1 rounded-full">
+            <Badge className={`text-xs px-2 py-1 rounded-full ${
+              userLocation ? 'bg-blue-500 text-white' : 'bg-white/90 text-gray-900'
+            }`}>
               <MapPin className="h-3 w-3 mr-1" />
               {salon.distance}
             </Badge>
@@ -245,6 +388,9 @@ const ExplorePage = () => {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-4">
+          {/* Location Prompt */}
+          <LocationPrompt />
+          
           {/* Search */}
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -279,6 +425,14 @@ const ExplorePage = () => {
               </Button>
             ))}
           </div>
+
+          {/* Location status */}
+          {userLocation && (
+            <div className="flex items-center justify-center mt-3 text-sm text-green-600">
+              <Navigation className="h-4 w-4 mr-2" />
+              Showing salons sorted by distance from your location
+            </div>
+          )}
         </div>
       </div>
 
