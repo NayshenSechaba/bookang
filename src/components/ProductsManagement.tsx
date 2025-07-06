@@ -1,8 +1,10 @@
 
+import { useState } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { Product } from '@/types/dashboard';
+import ProductEditDialog from './ProductEditDialog';
 
 interface ProductsManagementProps {
   products: Product[];
@@ -19,6 +21,23 @@ const ProductsManagement = ({
   onProductDelete, 
   onProductToggle 
 }: ProductsManagementProps) => {
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
+  const handleEditClick = (product: Product) => {
+    setEditingProduct(product);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditSave = (updatedProduct: Product) => {
+    onProductEdit(updatedProduct);
+  };
+
+  const handleEditClose = () => {
+    setEditingProduct(null);
+    setIsEditDialogOpen(false);
+  };
+
   return (
     <div className="space-y-4 mt-6">
       <div className="flex justify-between items-center">
@@ -72,7 +91,7 @@ const ProductsManagement = ({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onProductEdit(product)}
+                  onClick={() => handleEditClick(product)}
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
@@ -89,6 +108,13 @@ const ProductsManagement = ({
           </div>
         ))}
       </div>
+
+      <ProductEditDialog
+        product={editingProduct}
+        isOpen={isEditDialogOpen}
+        onClose={handleEditClose}
+        onSave={handleEditSave}
+      />
     </div>
   );
 };
