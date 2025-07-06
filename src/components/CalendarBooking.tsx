@@ -29,6 +29,7 @@ const CalendarBooking = () => {
   const [showDayDetails, setShowDayDetails] = useState(false);
   const [showHourlyView, setShowHourlyView] = useState(false);
   const [showAvailableSlots, setShowAvailableSlots] = useState(false);
+  const [showBookingsSummary, setShowBookingsSummary] = useState(false);
   const [hourlyViewDate, setHourlyViewDate] = useState<Date>(new Date());
 
   // Mock booking data
@@ -269,8 +270,8 @@ const CalendarBooking = () => {
 
               {/* Quick stats for the day */}
               <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">
+                <div className="text-center cursor-pointer" onClick={() => setShowBookingsSummary(true)}>
+                  <div className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
                     {selectedDateBookings.length}
                   </div>
                   <p className="text-xs text-gray-600">Appointments</p>
@@ -392,6 +393,84 @@ const CalendarBooking = () => {
           
           <div className="flex justify-end pt-4 border-t">
             <Button onClick={() => setShowHourlyView(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bookings Summary Modal */}
+      <Dialog open={showBookingsSummary} onOpenChange={setShowBookingsSummary}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              Appointments Summary - {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedDateBookings.length} appointments scheduled for this day
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {selectedDateBookings.length > 0 ? (
+              selectedDateBookings.map((booking) => (
+                <div key={booking.id} className="border rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h4 className="font-semibold text-lg">{booking.customerName}</h4>
+                      <p className="text-gray-600">{booking.service}</p>
+                    </div>
+                    <Badge 
+                      variant={
+                        booking.status === 'confirmed' ? 'default' : 
+                        booking.status === 'pending' ? 'secondary' : 'destructive'
+                      }
+                      className={
+                        booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                        booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : ''
+                      }
+                    >
+                      {booking.status}
+                    </Badge>
+                  </div>
+                  
+                  <div className="flex items-center gap-6 text-sm text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      <span>{booking.time}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <DollarSign className="h-4 w-4" />
+                      <span>{booking.cost}</span>
+                    </div>
+                    <div className="text-xs bg-gray-100 px-2 py-1 rounded">
+                      {booking.duration} minutes
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 bg-gray-50 rounded-lg">
+                <CalendarIcon className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                <p className="text-gray-600">No appointments scheduled</p>
+                <p className="text-sm text-gray-500">You're free all day!</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex justify-between items-center pt-4 border-t">
+            <div className="text-sm text-gray-600">
+              Total: {selectedDateBookings.length} appointments
+              {selectedDateBookings.length > 0 && (
+                <span className="ml-2">
+                  • Total earnings: {selectedDateBookings.reduce((sum, booking) => {
+                    const cost = parseInt(booking.cost.replace('R', '').replace(',', ''));
+                    return sum + cost;
+                  }, 0).toLocaleString('en-ZA', { style: 'currency', currency: 'ZAR' })}
+                </span>
+              )}
+            </div>
+            <Button onClick={() => setShowBookingsSummary(false)}>
               Close
             </Button>
           </div>
