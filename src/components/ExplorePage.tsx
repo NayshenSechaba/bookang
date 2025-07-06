@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +6,30 @@ import { Input } from "@/components/ui/input";
 import { Star, MapPin, Search, Heart, Bookmark, MoreHorizontal, Navigation, X } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
+// Define types for better TypeScript support
+interface SalonCoordinates {
+  lat: number;
+  lng: number;
+}
+
+interface Salon {
+  id: number;
+  name: string;
+  rating: number;
+  reviewCount: number;
+  location: string;
+  specialties: string[];
+  priceRange: string;
+  image: string;
+  distance: string;
+  isLiked: boolean;
+  isSaved: boolean;
+  category: string;
+  coordinates: SalonCoordinates;
+  isNew?: boolean;
+  calculatedDistance?: number;
+}
+
 const ExplorePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -14,10 +37,12 @@ const ExplorePage = () => {
   const [locationPermissionAsked, setLocationPermissionAsked] = useState(false);
   const [showLocationPrompt, setShowLocationPrompt] = useState(true);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
+  const [savedItems, setSavedItems] = useState<Set<number>>(new Set());
   const { toast } = useToast();
 
   // Mock data for salons with coordinates
-  const allSalons = [
+  const allSalons: Salon[] = [
     {
       id: 1,
       name: 'Glamour Studio',
@@ -31,7 +56,7 @@ const ExplorePage = () => {
       isLiked: false,
       isSaved: false,
       category: 'popular',
-      coordinates: { lat: 40.7128, lng: -74.0060 } // NYC coordinates
+      coordinates: { lat: 40.7128, lng: -74.0060 }
     },
     {
       id: 2,
@@ -142,6 +167,58 @@ const ExplorePage = () => {
     }
   ];
 
+  // Initialize liked and saved items from salon data
+  useEffect(() => {
+    const initialLiked = new Set<number>();
+    const initialSaved = new Set<number>();
+    
+    allSalons.forEach(salon => {
+      if (salon.isLiked) initialLiked.add(salon.id);
+      if (salon.isSaved) initialSaved.add(salon.id);
+    });
+    
+    setLikedItems(initialLiked);
+    setSavedItems(initialSaved);
+  }, []);
+
+  // Handle like/unlike
+  const toggleLike = (salonId: number) => {
+    const newLikedItems = new Set(likedItems);
+    if (newLikedItems.has(salonId)) {
+      newLikedItems.delete(salonId);
+      toast({
+        title: "Removed from favorites",
+        description: "Salon removed from your liked list.",
+      });
+    } else {
+      newLikedItems.add(salonId);
+      toast({
+        title: "Added to favorites",
+        description: "Salon added to your liked list.",
+      });
+    }
+    setLikedItems(newLikedItems);
+  };
+
+  // Handle save/unsave
+  const toggleSave = (salonId: number) => {
+    const newSavedItems = new Set(savedItems);
+    if (newSavedItems.has(salonId)) {
+      newSavedItems.delete(salonId);
+      toast({
+        title: "Removed from saved",
+        description: "Salon removed from your bookmarks.",
+      });
+    } else {
+      newSavedItems.add(salonId);
+      toast({
+        title: "Saved for later",
+        description: "Salon bookmarked for future reference.",
+      });
+    }
+    setSavedItems(newSavedItems);
+  };
+
   // Calculate distance between two coordinates
   const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
     const R = 3959; // Earth's radius in miles
@@ -199,8 +276,12 @@ const ExplorePage = () => {
   };
 
   // Filter and sort salons
-  const getFilteredSalons = () => {
-    let filtered = allSalons;
+  const getFilteredSalons = (): Salon[] => {
+    let filtered = allSalons.map(salon => ({
+      ...salon,
+      isLiked: likedItems.has(salon.id),
+      isSaved: savedItems.has(salon.id)
+    }));
     
     if (searchQuery) {
       filtered = filtered.filter(salon => 
@@ -226,12 +307,12 @@ const ExplorePage = () => {
           salon.coordinates.lat,
           salon.coordinates.lng
         )
-      })).sort((a, b) => a.calculatedDistance - b.calculatedDistance);
+      })).sort((a, b) => (a.calculatedDistance || 0) - (b.calculatedDistance || 0));
 
       // Update distance display
       filtered = filtered.map(salon => ({
         ...salon,
-        distance: `${salon.calculatedDistance.toFixed(1)} mi`
+        distance: `${salon.calculatedDistance?.toFixed(1)} mi`
       }));
     }
     
@@ -291,7 +372,7 @@ const ExplorePage = () => {
   );
 
   // Instagram-like salon card
-  const SalonCard = ({ salon }: { salon: any }) => (
+  const SalonCard = ({ salon }: { salon: Salon }) => (
     <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="relative">
         {/* Image */}
@@ -365,10 +446,20 @@ const ExplorePage = () => {
           {/* Actions */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Button size="sm" variant="ghost" className="h-8 p-0 hover:bg-transparent">
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                className="h-8 p-0 hover:bg-transparent"
+                onClick={() => toggleLike(salon.id)}
+              >
                 <Heart className={`h-5 w-5 ${salon.isLiked ? 'text-red-500 fill-red-500' : 'text-gray-600'}`} />
               </Button>
-              <Button size="sm" variant="ghost" className="h-8 p-0 hover:bg-transparent">
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                className="h-8 p-0 hover:bg-transparent"
+                onClick={() => toggleSave(salon.id)}
+              >
                 <Bookmark className={`h-5 w-5 ${salon.isSaved ? 'text-purple-600 fill-purple-600' : 'text-gray-600'}`} />
               </Button>
               <span className="text-sm text-gray-500">{salon.reviewCount} reviews</span>
@@ -433,6 +524,18 @@ const ExplorePage = () => {
               Showing salons sorted by distance from your location
             </div>
           )}
+
+          {/* Favorites Counter */}
+          <div className="flex items-center justify-center mt-3 space-x-4 text-sm text-gray-600">
+            <div className="flex items-center space-x-1">
+              <Heart className="h-4 w-4 text-red-500" />
+              <span>{likedItems.size} liked</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Bookmark className="h-4 w-4 text-purple-600" />
+              <span>{savedItems.size} saved</span>
+            </div>
+          </div>
         </div>
       </div>
 
