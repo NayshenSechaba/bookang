@@ -28,6 +28,7 @@ const CalendarBooking = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showDayDetails, setShowDayDetails] = useState(false);
   const [showHourlyView, setShowHourlyView] = useState(false);
+  const [showAvailableSlots, setShowAvailableSlots] = useState(false);
   const [hourlyViewDate, setHourlyViewDate] = useState<Date>(new Date());
 
   // Mock booking data
@@ -127,6 +128,29 @@ const CalendarBooking = () => {
   const hasBookings = (date: Date) => {
     return bookings.some(booking => isSameDay(booking.date, date));
   };
+
+  // Generate available time slots summary for selected date
+  const getAvailableSlotsForDate = (date: Date) => {
+    const timeSlots = generateTimeSlots(date);
+    const availableSlots = timeSlots.filter(slot => slot.available);
+    
+    // Group slots by hour for better display
+    const groupedSlots = availableSlots.reduce((acc, slot) => {
+      const hour = slot.time.split(':')[0];
+      const period = slot.time.includes('AM') ? 'AM' : 'PM';
+      const hourKey = `${hour} ${period}`;
+      
+      if (!acc[hourKey]) {
+        acc[hourKey] = [];
+      }
+      acc[hourKey].push(slot.time);
+      return acc;
+    }, {} as Record<string, string[]>);
+
+    return { availableSlots, groupedSlots };
+  };
+
+  const { availableSlots, groupedSlots } = getAvailableSlotsForDate(selectedDate);
 
   // Custom day content to show booking indicators
   const modifiers = {
@@ -251,9 +275,9 @@ const CalendarBooking = () => {
                   </div>
                   <p className="text-xs text-gray-600">Appointments</p>
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">
-                    {18 - selectedDateBookings.length * 2}
+                <div className="text-center cursor-pointer" onClick={() => setShowAvailableSlots(true)}>
+                  <div className="text-2xl font-bold text-green-600 hover:text-green-700 transition-colors">
+                    {availableSlots.length}
                   </div>
                   <p className="text-xs text-gray-600">Available slots</p>
                 </div>
@@ -368,6 +392,55 @@ const CalendarBooking = () => {
           
           <div className="flex justify-end pt-4 border-t">
             <Button onClick={() => setShowHourlyView(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Available Slots Summary Modal */}
+      <Dialog open={showAvailableSlots} onOpenChange={setShowAvailableSlots}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              Available Slots - {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+            </DialogTitle>
+            <DialogDescription>
+              {availableSlots.length} time slots are available for booking
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {Object.keys(groupedSlots).length > 0 ? (
+              Object.entries(groupedSlots).map(([hour, slots]) => (
+                <div key={hour} className="space-y-2">
+                  <h4 className="font-medium text-gray-900">{hour}</h4>
+                  <div className="grid grid-cols-4 gap-2">
+                    {slots.map((slot) => (
+                      <div
+                        key={slot}
+                        className="p-2 text-center text-sm bg-green-50 border border-green-200 rounded-md text-green-800"
+                      >
+                        {slot}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 bg-gray-50 rounded-lg">
+                <Clock className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                <p className="text-gray-600">No available slots</p>
+                <p className="text-sm text-gray-500">This day is fully booked</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex justify-between items-center pt-4 border-t">
+            <div className="text-sm text-gray-600">
+              Total: {availableSlots.length} available slots
+            </div>
+            <Button onClick={() => setShowAvailableSlots(false)}>
               Close
             </Button>
           </div>
