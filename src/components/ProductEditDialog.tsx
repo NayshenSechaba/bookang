@@ -20,8 +20,11 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false 
     name: '',
     description: '',
     price: 0,
+    costPrice: 0,
+    weight: 0,
     stock: 0,
-    category: 'shampoo' as const
+    category: 'shampoo' as const,
+    isActive: true
   });
 
   useEffect(() => {
@@ -30,16 +33,22 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false 
         name: '',
         description: '',
         price: 0,
+        costPrice: 0,
+        weight: 0,
         stock: 0,
-        category: 'shampoo'
+        category: 'shampoo',
+        isActive: true
       });
     } else if (product) {
       setFormData({
         name: product.name,
         description: product.description,
         price: product.price,
+        costPrice: product.costPrice,
+        weight: product.weight,
         stock: product.stock,
-        category: product.category
+        category: product.category,
+        isActive: product.isActive
       });
     }
   }, [product, isAdding, isOpen]);
@@ -59,7 +68,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isAdding ? 'Add New Product' : 'Edit Product'}</DialogTitle>
         </DialogHeader>
@@ -87,7 +96,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false 
           </div>
           
           <div>
-            <Label htmlFor="price">Price (R)</Label>
+            <Label htmlFor="price">Selling Price (R)</Label>
             <Input
               id="price"
               type="number"
@@ -97,6 +106,34 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false 
               min="0"
               step="0.01"
               placeholder="0.00"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="costPrice">Cost Price (R)</Label>
+            <Input
+              id="costPrice"
+              type="number"
+              value={formData.costPrice}
+              onChange={(e) => handleInputChange('costPrice', Number(e.target.value))}
+              required
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="weight">Weight (g)</Label>
+            <Input
+              id="weight"
+              type="number"
+              value={formData.weight}
+              onChange={(e) => handleInputChange('weight', Number(e.target.value))}
+              required
+              min="0"
+              step="0.1"
+              placeholder="0"
             />
           </div>
           

@@ -41,8 +41,7 @@ const ProductsManagement = ({
     if (isAddingProduct) {
       const newProduct: Product = {
         ...productData,
-        id: Date.now(),
-        isActive: true
+        id: Date.now()
       };
       onProductAdd(newProduct);
     } else if (editingProduct) {
@@ -88,10 +87,13 @@ const ProductsManagement = ({
                   )}
                 </div>
                 <p className="text-gray-600 mb-2">{product.description}</p>
-                <div className="flex gap-4 text-sm text-gray-500">
-                  <span>Price: R{product.price}</span>
+                <div className="grid grid-cols-2 gap-4 text-sm text-gray-500">
+                  <span>Selling Price: R{product.price}</span>
+                  <span>Cost Price: R{product.costPrice}</span>
+                  <span>Weight: {product.weight}g</span>
                   <span>Stock: {product.stock}</span>
                   <span>Category: {product.category}</span>
+                  <span>Profit: R{(product.price - product.costPrice).toFixed(2)}</span>
                 </div>
               </div>
               <div className="flex gap-2">

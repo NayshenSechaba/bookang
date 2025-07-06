@@ -14,6 +14,8 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  costPrice: number;
+  weight: number; // in grams
   stock: number;
   category: 'shampoo' | 'conditioner' | 'styling' | 'treatment' | 'tools';
   isActive: boolean;
