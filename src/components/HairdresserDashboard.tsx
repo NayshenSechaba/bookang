@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Calendar, Clock, Star, DollarSign, Users, TrendingUp, CheckCircle, XCircle, Eye, Plus, Edit, Trash2, Package, Scissors, Camera, Upload } from 'lucide-react';
+import { Calendar, Clock, Star, DollarSign, Users, TrendingUp, CheckCircle, XCircle, Eye, Plus, Edit, Trash2, Package, Scissors, Camera, Upload, Image } from 'lucide-react';
 import CustomAlert from '@/components/CustomAlert';
 import { useForm } from 'react-hook-form';
 
@@ -34,11 +34,51 @@ interface Product {
   isActive: boolean;
 }
 
+interface PortfolioImage {
+  id: number;
+  url: string;
+  title: string;
+  description: string;
+  category: 'haircut' | 'color' | 'styling' | 'treatment';
+  dateAdded: string;
+}
+
 const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
   // State management
   const [showFinanceModal, setShowFinanceModal] = useState(false);
   const [showProfilePictureModal, setShowProfilePictureModal] = useState(false);
+  const [showPortfolioModal, setShowPortfolioModal] = useState(false);
   const [profilePicture, setProfilePicture] = useState<string>('https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face');
+  const [editingPortfolioImage, setEditingPortfolioImage] = useState<PortfolioImage | null>(null);
+
+  // Portfolio images state
+  const [portfolioImages, setPortfolioImages] = useState<PortfolioImage[]>([
+    {
+      id: 1,
+      url: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=400&fit=crop',
+      title: 'Modern Layered Cut',
+      description: 'Stylish layered haircut with modern styling',
+      category: 'haircut',
+      dateAdded: '2024-07-01'
+    },
+    {
+      id: 2,
+      url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=400&fit=crop',
+      title: 'Color Transformation',
+      description: 'Beautiful color transformation with highlights',
+      category: 'color',
+      dateAdded: '2024-06-28'
+    },
+    {
+      id: 3,
+      url: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=400&h=400&fit=crop',
+      title: 'Professional Styling',
+      description: 'Elegant professional styling for special events',
+      category: 'styling',
+      dateAdded: '2024-06-25'
+    }
+  ]);
+
   const [appointments, setAppointments] = useState([
     {
       id: 1,
@@ -166,6 +206,16 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
     }
   });
 
+  // Portfolio form
+  const portfolioForm = useForm({
+    defaultValues: {
+      url: '',
+      title: '',
+      description: '',
+      category: 'haircut'
+    }
+  });
+
   // Mock data for reviews
   const customerReviews = [
     {
@@ -242,6 +292,50 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
     setProfilePicture(data.imageUrl);
     setShowProfilePictureModal(false);
     showAlert('success', 'Profile Picture Updated', 'Your profile picture has been successfully updated.');
+  };
+
+  // Portfolio management functions
+  const handleAddPortfolioImage = () => {
+    setEditingPortfolioImage(null);
+    portfolioForm.reset();
+    setShowPortfolioModal(true);
+  };
+
+  const handleEditPortfolioImage = (image: PortfolioImage) => {
+    setEditingPortfolioImage(image);
+    portfolioForm.reset({
+      url: image.url,
+      title: image.title,
+      description: image.description,
+      category: image.category
+    });
+    setShowPortfolioModal(true);
+  };
+
+  const handlePortfolioSubmit = (data: any) => {
+    if (editingPortfolioImage) {
+      setPortfolioImages(prev => prev.map(image => 
+        image.id === editingPortfolioImage.id 
+          ? { ...image, ...data }
+          : image
+      ));
+      showAlert('success', 'Portfolio Updated', `${data.title} has been successfully updated.`);
+    } else {
+      const newImage: PortfolioImage = {
+        id: Date.now(),
+        ...data,
+        dateAdded: new Date().toISOString().split('T')[0]
+      };
+      setPortfolioImages(prev => [...prev, newImage]);
+      showAlert('success', 'Portfolio Image Added', `${data.title} has been successfully added to your portfolio.`);
+    }
+    setShowPortfolioModal(false);
+  };
+
+  const handleDeletePortfolioImage = (imageId: number) => {
+    const image = portfolioImages.find(img => img.id === imageId);
+    setPortfolioImages(prev => prev.filter(img => img.id !== imageId));
+    showAlert('info', 'Portfolio Image Removed', `${image?.title} has been removed from your portfolio.`);
   };
 
   // Service management functions
@@ -387,7 +481,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
               <Camera className="h-4 w-4" />
             </button>
           </div>
-          <div>
+          <div className="flex-1">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Welcome, {userName}!
             </h1>
@@ -453,6 +547,90 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Portfolio Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Image className="mr-2 h-5 w-5 text-pink-500" />
+                  Style Portfolio
+                </CardTitle>
+                <CardDescription>
+                  Showcase your best work to attract new customers
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold">Your Work</h3>
+                    <Button onClick={handleAddPortfolioImage}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Style Photo
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {portfolioImages.map((image) => (
+                      <div key={image.id} className="relative group">
+                        <div className="aspect-square overflow-hidden rounded-lg border">
+                          <img 
+                            src={image.url}
+                            alt={image.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=400&fit=crop';
+                            }}
+                          />
+                        </div>
+                        
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => handleEditPortfolioImage(image)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => handleDeletePortfolioImage(image.id)}
+                              className="text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="mt-2">
+                          <div className="flex items-center justify-between mb-1">
+                            <h4 className="font-medium text-sm">{image.title}</h4>
+                            <Badge variant="outline" className="text-xs">
+                              {image.category}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-600 line-clamp-2">{image.description}</p>
+                          <p className="text-xs text-gray-400 mt-1">{image.dateAdded}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {portfolioImages.length === 0 && (
+                    <div className="text-center py-12 bg-gray-50 rounded-lg">
+                      <Image className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No portfolio images yet</h3>
+                      <p className="text-gray-600 mb-4">Add photos of your best work to attract customers</p>
+                      <Button onClick={handleAddPortfolioImage}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Your First Photo
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Services & Products Management */}
             <Card>
               <CardHeader>
@@ -817,6 +995,102 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
           </div>
         </div>
       </div>
+
+      {/* Portfolio Modal */}
+      <Dialog open={showPortfolioModal} onOpenChange={setShowPortfolioModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {editingPortfolioImage ? 'Edit Portfolio Image' : 'Add Portfolio Image'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingPortfolioImage ? 'Update your portfolio image details' : 'Add a new image to showcase your work'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...portfolioForm}>
+            <form onSubmit={portfolioForm.handleSubmit(handlePortfolioSubmit)} className="space-y-4">
+              <FormField
+                control={portfolioForm.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image URL</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://example.com/your-style-photo.jpg" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={portfolioForm.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Modern Layered Cut" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={portfolioForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Brief description of this style" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={portfolioForm.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <FormControl>
+                      <select 
+                        className="w-full p-2 border rounded-md"
+                        {...field}
+                      >
+                        <option value="haircut">Haircut</option>
+                        <option value="color">Color</option>
+                        <option value="styling">Styling</option>
+                        <option value="treatment">Treatment</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowPortfolioModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  <Upload className="mr-2 h-4 w-4" />
+                  {editingPortfolioImage ? 'Update Image' : 'Add Image'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
       {/* Service Modal */}
       <Dialog open={showServiceModal} onOpenChange={setShowServiceModal}>
