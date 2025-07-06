@@ -45,8 +45,8 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       date: '2024-07-15',
       time: '2:00 PM',
       status: 'Pending',
-      cost: '$75',
-      commission: '$22.50'
+      cost: 'R1,125',
+      commission: 'R337.50'
     },
     {
       id: 2,
@@ -55,8 +55,8 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       date: '2024-07-15',
       time: '10:00 AM',
       status: 'Confirmed',
-      cost: '$150',
-      commission: '$45.00'
+      cost: 'R2,250',
+      commission: 'R675.00'
     },
     {
       id: 3,
@@ -65,8 +65,8 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       date: '2024-07-15',
       time: '4:00 PM',
       status: 'Pending',
-      cost: '$120',
-      commission: '$36.00'
+      cost: 'R1,800',
+      commission: 'R540.00'
     }
   ]);
 
@@ -85,7 +85,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       name: 'Classic Haircut',
       description: 'Professional hair cutting and styling service',
       duration: 45,
-      price: 50,
+      price: 750,
       category: 'haircut',
       isActive: true
     },
@@ -94,7 +94,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       name: 'Hair Color & Highlights',
       description: 'Full color treatment with highlights',
       duration: 120,
-      price: 150,
+      price: 2250,
       category: 'color',
       isActive: true
     },
@@ -103,7 +103,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       name: 'Deep Conditioning Treatment',
       description: 'Restorative hair treatment for damaged hair',
       duration: 60,
-      price: 80,
+      price: 1200,
       category: 'treatment',
       isActive: true
     }
@@ -114,7 +114,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       id: 1,
       name: 'Premium Shampoo',
       description: 'Professional grade moisturizing shampoo',
-      price: 25,
+      price: 375,
       stock: 15,
       category: 'shampoo',
       isActive: true
@@ -123,7 +123,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       id: 2,
       name: 'Hair Styling Gel',
       description: 'Long-lasting hold styling gel',
-      price: 18,
+      price: 270,
       stock: 8,
       category: 'styling',
       isActive: true
@@ -195,9 +195,9 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
 
   // Financial data
   const financialData = {
-    totalEarnings: '$2,450.00',
-    monthlyCommission: '$735.00',
-    pendingPayments: '$103.50',
+    totalEarnings: 'R36,750.00',
+    monthlyCommission: 'R11,025.00',
+    pendingPayments: 'R1,552.50',
     commissionRate: '30%',
     totalAppointments: 42,
     averageRating: 4.8
@@ -463,7 +463,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
                               <p className="text-gray-600 mb-2">{service.description}</p>
                               <div className="flex gap-4 text-sm text-gray-500">
                                 <span>Duration: {service.duration} min</span>
-                                <span>Price: ${service.price}</span>
+                                <span>Price: R{service.price}</span>
                                 <span>Category: {service.category}</span>
                               </div>
                             </div>
@@ -525,7 +525,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
                               </div>
                               <p className="text-gray-600 mb-2">{product.description}</p>
                               <div className="flex gap-4 text-sm text-gray-500">
-                                <span>Price: ${product.price}</span>
+                                <span>Price: R{product.price}</span>
                                 <span>Stock: {product.stock}</span>
                                 <span>Category: {product.category}</span>
                               </div>
@@ -854,11 +854,11 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price ($)</FormLabel>
+                      <FormLabel>Price (R)</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
-                          placeholder="50"
+                          placeholder="750"
                           {...field}
                           onChange={(e) => field.onChange(parseFloat(e.target.value))}
                         />
@@ -956,12 +956,12 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price ($)</FormLabel>
+                      <FormLabel>Price (R)</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
                           step="0.01"
-                          placeholder="25.00"
+                          placeholder="375.00"
                           {...field}
                           onChange={(e) => field.onChange(parseFloat(e.target.value))}
                         />
