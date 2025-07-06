@@ -1,6 +1,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Scissors, Package, DollarSign } from 'lucide-react';
+import { Calendar, Scissors, Package } from 'lucide-react';
 import { FinancialData } from '@/types/dashboard';
 
 interface QuickStatsProps {
@@ -53,7 +53,6 @@ const QuickStats = ({ data }: QuickStatsProps) => {
               <p className="text-purple-100">Commission Payable</p>
               <p className="text-2xl font-bold">{data.monthlyCommission}</p>
             </div>
-            <DollarSign className="h-8 w-8 text-purple-200" />
           </div>
         </CardContent>
       </Card>
