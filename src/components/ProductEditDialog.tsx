@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,26 +11,42 @@ interface ProductEditDialogProps {
   product: Product | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (updatedProduct: Product) => void;
+  onSave: (productData: Omit<Product, 'id'>) => void;
+  isAdding?: boolean;
 }
 
-const ProductEditDialog = ({ product, isOpen, onClose, onSave }: ProductEditDialogProps) => {
+const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false }: ProductEditDialogProps) => {
   const [formData, setFormData] = useState({
-    name: product?.name || '',
-    description: product?.description || '',
-    price: product?.price || 0,
-    stock: product?.stock || 0,
-    category: product?.category || 'shampoo'
+    name: '',
+    description: '',
+    price: 0,
+    stock: 0,
+    category: 'shampoo' as const
   });
+
+  useEffect(() => {
+    if (isAdding) {
+      setFormData({
+        name: '',
+        description: '',
+        price: 0,
+        stock: 0,
+        category: 'shampoo'
+      });
+    } else if (product) {
+      setFormData({
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        stock: product.stock,
+        category: product.category
+      });
+    }
+  }, [product, isAdding, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (product) {
-      onSave({
-        ...product,
-        ...formData
-      });
-    }
+    onSave(formData);
     onClose();
   };
 
@@ -41,13 +57,11 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave }: ProductEditDial
     }));
   };
 
-  if (!product) return null;
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit Product</DialogTitle>
+          <DialogTitle>{isAdding ? 'Add New Product' : 'Edit Product'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -57,6 +71,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave }: ProductEditDial
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
               required
+              placeholder="Enter product name"
             />
           </div>
           
@@ -67,6 +82,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave }: ProductEditDial
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               required
+              placeholder="Enter product description"
             />
           </div>
           
@@ -80,6 +96,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave }: ProductEditDial
               required
               min="0"
               step="0.01"
+              placeholder="0.00"
             />
           </div>
           
@@ -92,6 +109,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave }: ProductEditDial
               onChange={(e) => handleInputChange('stock', Number(e.target.value))}
               required
               min="0"
+              placeholder="0"
             />
           </div>
           
@@ -117,7 +135,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave }: ProductEditDial
               Cancel
             </Button>
             <Button type="submit">
-              Save Changes
+              {isAdding ? 'Add Product' : 'Save Changes'}
             </Button>
           </div>
         </form>

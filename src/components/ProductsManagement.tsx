@@ -23,18 +23,40 @@ const ProductsManagement = ({
 }: ProductsManagementProps) => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddingProduct, setIsAddingProduct] = useState(false);
 
-  const handleEditClick = (product: Product) => {
-    setEditingProduct(product);
+  const handleAddProductClick = () => {
+    setEditingProduct(null);
+    setIsAddingProduct(true);
     setIsEditDialogOpen(true);
   };
 
-  const handleEditSave = (updatedProduct: Product) => {
-    onProductEdit(updatedProduct);
+  const handleEditClick = (product: Product) => {
+    setEditingProduct(product);
+    setIsAddingProduct(false);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSave = (productData: Omit<Product, 'id'>) => {
+    if (isAddingProduct) {
+      const newProduct: Product = {
+        ...productData,
+        id: Date.now(),
+        isActive: true
+      };
+      onProductAdd(newProduct);
+    } else if (editingProduct) {
+      const updatedProduct: Product = {
+        ...editingProduct,
+        ...productData
+      };
+      onProductEdit(updatedProduct);
+    }
   };
 
   const handleEditClose = () => {
     setEditingProduct(null);
+    setIsAddingProduct(false);
     setIsEditDialogOpen(false);
   };
 
@@ -42,15 +64,7 @@ const ProductsManagement = ({
     <div className="space-y-4 mt-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Your Products</h3>
-        <Button onClick={() => onProductAdd({
-          id: Date.now(),
-          name: 'New Product',
-          description: 'Product description',
-          price: 25,
-          stock: 10,
-          category: 'shampoo',
-          isActive: true
-        })}>
+        <Button onClick={handleAddProductClick}>
           <Plus className="mr-2 h-4 w-4" />
           Add Product
         </Button>
@@ -113,7 +127,8 @@ const ProductsManagement = ({
         product={editingProduct}
         isOpen={isEditDialogOpen}
         onClose={handleEditClose}
-        onSave={handleEditSave}
+        onSave={handleSave}
+        isAdding={isAddingProduct}
       />
     </div>
   );
