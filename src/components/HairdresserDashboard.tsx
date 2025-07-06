@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Calendar, Clock, Star, DollarSign, Users, TrendingUp, CheckCircle, XCircle, Eye, Plus, Edit, Trash2, Package, Scissors } from 'lucide-react';
+import { Calendar, Clock, Star, DollarSign, Users, TrendingUp, CheckCircle, XCircle, Eye, Plus, Edit, Trash2, Package, Scissors, Camera, Upload } from 'lucide-react';
 import CustomAlert from '@/components/CustomAlert';
 import { useForm } from 'react-hook-form';
 
@@ -37,6 +37,8 @@ interface Product {
 const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
   // State management
   const [showFinanceModal, setShowFinanceModal] = useState(false);
+  const [showProfilePictureModal, setShowProfilePictureModal] = useState(false);
+  const [profilePicture, setProfilePicture] = useState<string>('https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face');
   const [appointments, setAppointments] = useState([
     {
       id: 1,
@@ -157,6 +159,13 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
     }
   });
 
+  // Profile picture form
+  const profilePictureForm = useForm({
+    defaultValues: {
+      imageUrl: profilePicture
+    }
+  });
+
   // Mock data for reviews
   const customerReviews = [
     {
@@ -226,6 +235,13 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       showAlert('info', 'Appointment Cancelled', 
         `Appointment with ${appointment?.customerName} has been cancelled. They will be notified and can reschedule if needed.`);
     }
+  };
+
+  // Profile picture functions
+  const handleProfilePictureSubmit = (data: any) => {
+    setProfilePicture(data.imageUrl);
+    setShowProfilePictureModal(false);
+    showAlert('success', 'Profile Picture Updated', 'Your profile picture has been successfully updated.');
   };
 
   // Service management functions
@@ -356,14 +372,29 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        {/* Welcome Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome, {userName}!
-          </h1>
-          <p className="text-gray-600">
-            Manage your appointments, services, products, and track your earnings.
-          </p>
+        {/* Welcome Header with Profile Picture */}
+        <div className="mb-8 flex items-center gap-6">
+          <div className="relative">
+            <img 
+              src={profilePicture}
+              alt="Profile"
+              className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
+            />
+            <button
+              onClick={() => setShowProfilePictureModal(true)}
+              className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+            >
+              <Camera className="h-4 w-4" />
+            </button>
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Welcome, {userName}!
+            </h1>
+            <p className="text-gray-600">
+              Manage your appointments, services, products, and track your earnings.
+            </p>
+          </div>
         </div>
 
         {/* Quick Stats */}
@@ -1024,6 +1055,64 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
                 </Button>
                 <Button type="submit">
                   {editingProduct ? 'Update Product' : 'Add Product'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Profile Picture Modal */}
+      <Dialog open={showProfilePictureModal} onOpenChange={setShowProfilePictureModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Update Profile Picture</DialogTitle>
+            <DialogDescription>
+              Upload a new profile picture by providing an image URL
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...profilePictureForm}>
+            <form onSubmit={profilePictureForm.handleSubmit(handleProfilePictureSubmit)} className="space-y-4">
+              <div className="flex justify-center mb-4">
+                <img 
+                  src={profilePictureForm.watch('imageUrl') || profilePicture}
+                  alt="Preview"
+                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face';
+                  }}
+                />
+              </div>
+              
+              <FormField
+                control={profilePictureForm.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Image URL</FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="https://example.com/your-photo.jpg" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowProfilePictureModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Update Picture
                 </Button>
               </div>
             </form>
