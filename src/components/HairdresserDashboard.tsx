@@ -24,9 +24,9 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
 
   // Mock data - Fixed types to match interfaces
   const financialData: FinancialData = {
-    totalEarnings: '$12,450',
-    monthlyCommission: '$2,890',
-    pendingPayments: '$320',
+    totalEarnings: 'R12,450',
+    monthlyCommission: 'R2,890',
+    pendingPayments: 'R320',
     commissionRate: '15%',
     totalAppointments: 28, // This is now a number as expected
     averageRating: 4.8 // This is now a number as expected
