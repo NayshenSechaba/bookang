@@ -2,6 +2,8 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { CreditCard } from "lucide-react";
 import { Appointment } from '@/types/dashboard';
 
 interface FinancialDetailsDialogProps {
@@ -30,6 +32,13 @@ const FinancialDetailsDialog = ({
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const handlePayCommission = () => {
+    // For demo purposes, using a placeholder payment link
+    // In a real implementation, this would integrate with a payment processor
+    const paymentLink = `https://checkout.stripe.com/pay/demo-commission-${monthlyCommission.replace('R', '')}`;
+    window.open(paymentLink, '_blank');
   };
 
   return (
@@ -85,6 +94,25 @@ const FinancialDetailsDialog = ({
                 ))}
               </TableBody>
             </Table>
+          </div>
+
+          <div className="border-t pt-6">
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold mb-3 text-blue-900">Pay Commission</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-blue-700">Amount Due: <span className="font-semibold">{monthlyCommission}</span></p>
+                  <p className="text-xs text-blue-600 mt-1">Pay your monthly commission securely online</p>
+                </div>
+                <Button 
+                  onClick={handlePayCommission}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Pay Now
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </DialogContent>
