@@ -255,7 +255,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
         <QuickStats data={financialData} />
 
         <Tabs defaultValue="calendar" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-5 lg:w-fit">
+          <TabsList className="grid w-full grid-cols-6 lg:w-fit">
             <TabsTrigger value="calendar" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
@@ -274,6 +274,9 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
             </TabsTrigger>
             <TabsTrigger value="finance" className="flex items-center gap-2">
               <span className="hidden sm:inline">Finance</span>
+            </TabsTrigger>
+            <TabsTrigger value="performance" className="flex items-center gap-2">
+              <span className="hidden sm:inline">Performance</span>
             </TabsTrigger>
           </TabsList>
 
@@ -312,6 +315,17 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
 
           <TabsContent value="finance">
             <FinanceOverview data={financialData} bookings={mockBookings} />
+          </TabsContent>
+
+          <TabsContent value="performance">
+            <Card>
+              <CardHeader>
+                <CardTitle>Performance Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">Performance metrics and analytics will be displayed here.</p>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
