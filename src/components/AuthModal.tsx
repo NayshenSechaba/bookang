@@ -7,7 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Scissors, User, Eye, EyeOff } from 'lucide-react';
+import { Textarea } from "@/components/ui/textarea";
+import { Scissors, User, Eye, EyeOff, Upload, FileText, IdCard } from 'lucide-react';
 import CustomAlert from '@/components/CustomAlert';
 
 interface AuthModalProps {
@@ -33,7 +34,13 @@ const AuthModal = ({
     password: '',
     confirmPassword: '',
     role: 'customer' as 'customer' | 'hairdresser',
-    hairdresserName: ''
+    hairdresserName: '',
+    // Additional hairdresser fields
+    address: '',
+    telephoneNumber: '',
+    idNumber: '',
+    idDocument: null as File | null,
+    companyRegistration: null as File | null
   });
   
   // UI state
@@ -54,6 +61,14 @@ const AuthModal = ({
     }));
   };
 
+  // Handle file uploads
+  const handleFileChange = (field: string, file: File | null) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: file
+    }));
+  };
+
   // Show custom alert
   const showAlert = (type: 'success' | 'error' | 'info', title: string, message: string) => {
     setAlertInfo({ show: true, type, title, message });
@@ -63,6 +78,12 @@ const AuthModal = ({
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  };
+
+  // Validate phone number format
+  const isValidPhone = (phone: string) => {
+    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{10,}$/;
+    return phoneRegex.test(phone);
   };
 
   // Handle login form submission
@@ -94,7 +115,7 @@ const AuthModal = ({
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation checks
+    // Basic validation checks
     if (!formData.email || !formData.password || !formData.confirmPassword) {
       showAlert('error', 'Validation Error', 'Please fill in all required fields.');
       return;
@@ -115,9 +136,37 @@ const AuthModal = ({
       return;
     }
     
-    if (formData.role === 'hairdresser' && !formData.hairdresserName.trim()) {
-      showAlert('error', 'Missing Information', 'Please enter your professional name as a hairdresser.');
-      return;
+    // Additional validation for hairdressers
+    if (formData.role === 'hairdresser') {
+      if (!formData.hairdresserName.trim()) {
+        showAlert('error', 'Missing Information', 'Please enter your professional name as a hairdresser.');
+        return;
+      }
+      
+      if (!formData.address.trim()) {
+        showAlert('error', 'Missing Information', 'Please enter your business address.');
+        return;
+      }
+      
+      if (!formData.telephoneNumber.trim()) {
+        showAlert('error', 'Missing Information', 'Please enter your telephone number.');
+        return;
+      }
+      
+      if (!isValidPhone(formData.telephoneNumber)) {
+        showAlert('error', 'Invalid Phone', 'Please enter a valid telephone number.');
+        return;
+      }
+      
+      if (!formData.idNumber.trim()) {
+        showAlert('error', 'Missing Information', 'Please enter your ID or Passport number.');
+        return;
+      }
+      
+      if (!formData.idDocument) {
+        showAlert('error', 'Missing Document', 'Please upload your ID or Passport document.');
+        return;
+      }
     }
     
     // Simulate successful registration
@@ -136,7 +185,12 @@ const AuthModal = ({
       password: '',
       confirmPassword: '',
       role: 'customer',
-      hairdresserName: ''
+      hairdresserName: '',
+      address: '',
+      telephoneNumber: '',
+      idNumber: '',
+      idDocument: null,
+      companyRegistration: null
     });
     setShowPassword(false);
     setShowConfirmPassword(false);
@@ -151,7 +205,7 @@ const AuthModal = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-center justify-center mb-4">
               <div className="bg-purple-100 p-3 rounded-full">
@@ -251,7 +305,7 @@ const AuthModal = ({
               <CardContent>
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div>
-                    <Label htmlFor="reg-email">Email Address</Label>
+                    <Label htmlFor="reg-email">Email Address *</Label>
                     <Input
                       id="reg-email"
                       type="email"
@@ -263,7 +317,7 @@ const AuthModal = ({
                   </div>
                   
                   <div>
-                    <Label htmlFor="reg-password">Password</Label>
+                    <Label htmlFor="reg-password">Password *</Label>
                     <div className="relative mt-1">
                       <Input
                         id="reg-password"
@@ -289,7 +343,7 @@ const AuthModal = ({
                   </div>
                   
                   <div>
-                    <Label htmlFor="confirm-password">Confirm Password</Label>
+                    <Label htmlFor="confirm-password">Confirm Password *</Label>
                     <div className="relative mt-1">
                       <Input
                         id="confirm-password"
@@ -315,7 +369,7 @@ const AuthModal = ({
                   </div>
                   
                   <div>
-                    <Label htmlFor="role">Account Type</Label>
+                    <Label htmlFor="role">Account Type *</Label>
                     <Select 
                       value={formData.role} 
                       onValueChange={(value: 'customer' | 'hairdresser') => handleInputChange('role', value)}
@@ -331,16 +385,93 @@ const AuthModal = ({
                   </div>
                   
                   {formData.role === 'hairdresser' && (
-                    <div>
-                      <Label htmlFor="hairdresser-name">Your Professional Name</Label>
-                      <Input
-                        id="hairdresser-name"
-                        type="text"
-                        placeholder="Enter your professional name"
-                        value={formData.hairdresserName}
-                        onChange={(e) => handleInputChange('hairdresserName', e.target.value)}
-                        className="mt-1"
-                      />
+                    <div className="space-y-4 p-4 bg-purple-50 rounded-lg border">
+                      <h3 className="font-semibold text-purple-900 flex items-center">
+                        <Scissors className="mr-2 h-4 w-4" />
+                        Professional Information
+                      </h3>
+                      
+                      <div>
+                        <Label htmlFor="hairdresser-name">Professional Name *</Label>
+                        <Input
+                          id="hairdresser-name"
+                          type="text"
+                          placeholder="Enter your professional name"
+                          value={formData.hairdresserName}
+                          onChange={(e) => handleInputChange('hairdresserName', e.target.value)}
+                          className="mt-1"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="address">Business Address *</Label>
+                        <Textarea
+                          id="address"
+                          placeholder="Enter your full business address"
+                          value={formData.address}
+                          onChange={(e) => handleInputChange('address', e.target.value)}
+                          className="mt-1"
+                          rows={3}
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="telephone">Telephone Number *</Label>
+                        <Input
+                          id="telephone"
+                          type="tel"
+                          placeholder="Enter your telephone number"
+                          value={formData.telephoneNumber}
+                          onChange={(e) => handleInputChange('telephoneNumber', e.target.value)}
+                          className="mt-1"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="id-number">ID / Passport Number *</Label>
+                        <Input
+                          id="id-number"
+                          type="text"
+                          placeholder="Enter your ID or Passport number"
+                          value={formData.idNumber}
+                          onChange={(e) => handleInputChange('idNumber', e.target.value)}
+                          className="mt-1"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="id-document" className="flex items-center">
+                          <IdCard className="mr-2 h-4 w-4" />
+                          ID / Passport Document *
+                        </Label>
+                        <Input
+                          id="id-document"
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => handleFileChange('idDocument', e.target.files?.[0] || null)}
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Upload a clear copy of your ID or Passport (PDF, JPG, PNG)
+                        </p>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="company-registration" className="flex items-center">
+                          <FileText className="mr-2 h-4 w-4" />
+                          Company Registration (Optional)
+                        </Label>
+                        <Input
+                          id="company-registration"
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) => handleFileChange('companyRegistration', e.target.files?.[0] || null)}
+                          className="mt-1"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Upload company registration document if applicable (PDF, JPG, PNG)
+                        </p>
+                      </div>
                     </div>
                   )}
                   
