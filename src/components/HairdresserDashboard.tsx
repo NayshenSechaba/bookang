@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,32 +22,101 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
   // All state variables and handlers
   const [profilePicture, setProfilePicture] = useState('/placeholder.svg');
 
-  // Mock data
+  // Mock data - Fixed types to match interfaces
   const financialData: FinancialData = {
     totalEarnings: '$12,450',
     monthlyCommission: '$2,890',
     pendingPayments: '$320',
     commissionRate: '15%',
-    totalAppointments: 28,
-    averageRating: '4.8'
+    totalAppointments: 28, // This is now a number as expected
+    averageRating: 4.8 // This is now a number as expected
   };
 
   const [services, setServices] = useState<Service[]>([
-    { id: 1, name: 'Haircut & Style', price: 85, duration: 60, isActive: true },
-    { id: 2, name: 'Hair Coloring', price: 150, duration: 120, isActive: true },
-    { id: 3, name: 'Hair Treatment', price: 95, duration: 45, isActive: false },
+    { 
+      id: 1, 
+      name: 'Haircut & Style', 
+      description: 'Professional haircut with styling',
+      price: 85, 
+      duration: 60, 
+      category: 'haircut',
+      isActive: true 
+    },
+    { 
+      id: 2, 
+      name: 'Hair Coloring', 
+      description: 'Full hair coloring service',
+      price: 150, 
+      duration: 120, 
+      category: 'color',
+      isActive: true 
+    },
+    { 
+      id: 3, 
+      name: 'Hair Treatment', 
+      description: 'Deep conditioning treatment',
+      price: 95, 
+      duration: 45, 
+      category: 'treatment',
+      isActive: false 
+    },
   ]);
 
   const [products, setProducts] = useState<Product[]>([
-    { id: 1, name: 'Premium Shampoo', price: 25, stock: 15, isActive: true },
-    { id: 2, name: 'Hair Styling Gel', price: 18, stock: 8, isActive: true },
-    { id: 3, name: 'Hair Mask Treatment', price: 35, stock: 0, isActive: false },
+    { 
+      id: 1, 
+      name: 'Premium Shampoo', 
+      description: 'High-quality moisturizing shampoo',
+      price: 25, 
+      stock: 15, 
+      category: 'shampoo',
+      isActive: true 
+    },
+    { 
+      id: 2, 
+      name: 'Hair Styling Gel', 
+      description: 'Strong hold styling gel',
+      price: 18, 
+      stock: 8, 
+      category: 'styling',
+      isActive: true 
+    },
+    { 
+      id: 3, 
+      name: 'Hair Mask Treatment', 
+      description: 'Intensive repair mask',
+      price: 35, 
+      stock: 0, 
+      category: 'treatment',
+      isActive: false 
+    },
   ]);
 
   const [portfolioImages, setPortfolioImages] = useState<PortfolioImage[]>([
-    { id: 1, url: '/placeholder.svg', alt: 'Hair styling work 1', description: 'Modern bob cut' },
-    { id: 2, url: '/placeholder.svg', alt: 'Hair styling work 2', description: 'Balayage highlights' },
-    { id: 3, url: '/placeholder.svg', alt: 'Hair styling work 3', description: 'Wedding updo' },
+    { 
+      id: 1, 
+      url: '/placeholder.svg', 
+      title: 'Modern Bob Cut',
+      description: 'Modern bob cut with layers', 
+      category: 'haircut',
+      dateAdded: '2024-01-15'
+    },
+    { 
+      id: 2, 
+      url: '/placeholder.svg', 
+      title: 'Balayage Highlights',
+      description: 'Beautiful balayage highlights', 
+      category: 'color',
+      dateAdded: '2024-01-12'
+    },
+    { 
+      id: 3, 
+      url: '/placeholder.svg', 
+      title: 'Wedding Updo',
+      description: 'Elegant wedding updo styling', 
+      category: 'styling',
+      dateAdded: '2024-01-10'
+    },
   ]);
 
   const handleUpdateProfilePicture = () => {
@@ -116,7 +186,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
           onUpdateProfilePicture={handleUpdateProfilePicture}
         />
 
-        <QuickStats financialData={financialData} />
+        <QuickStats data={financialData} />
 
         <Tabs defaultValue="calendar" className="space-y-8">
           <TabsList className="grid w-full grid-cols-5 lg:w-fit">
@@ -176,7 +246,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
           </TabsContent>
 
           <TabsContent value="finance">
-            <FinanceOverview financialData={financialData} />
+            <FinanceOverview data={financialData} />
           </TabsContent>
         </Tabs>
       </div>
