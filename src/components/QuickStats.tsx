@@ -1,6 +1,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Scissors, Package, Star } from 'lucide-react';
+import { Calendar, Scissors, Package, TrendingUp, TrendingDown } from 'lucide-react';
 import { FinancialData } from '@/types/dashboard';
 
 interface QuickStatsProps {
@@ -8,6 +8,10 @@ interface QuickStatsProps {
 }
 
 const QuickStats = ({ data }: QuickStatsProps) => {
+  // Mock performance data - in a real app this would come from props
+  const performanceChange = 15.2; // percentage change from previous month
+  const isImprovement = performanceChange > 0;
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
@@ -64,8 +68,18 @@ const QuickStats = ({ data }: QuickStatsProps) => {
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-purple-100">Commission Payable</p>
-              <p className="text-2xl font-bold">{data.monthlyCommission}</p>
+              <p className="text-purple-100">Monthly Performance</p>
+              <div className="flex items-center space-x-2">
+                <p className="text-2xl font-bold">{Math.abs(performanceChange)}%</p>
+                {isImprovement ? (
+                  <TrendingUp className="h-5 w-5 text-green-300" />
+                ) : (
+                  <TrendingDown className="h-5 w-5 text-red-300" />
+                )}
+              </div>
+              <p className="text-xs text-purple-200 mt-1">
+                {isImprovement ? 'Better' : 'Lower'} than last month
+              </p>
             </div>
           </div>
         </CardContent>
