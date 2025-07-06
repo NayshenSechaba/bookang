@@ -1,6 +1,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Scissors, Package } from 'lucide-react';
+import { Calendar, Scissors, Package, Star } from 'lucide-react';
 import { FinancialData } from '@/types/dashboard';
 
 interface QuickStatsProps {
@@ -27,7 +27,21 @@ const QuickStats = ({ data }: QuickStatsProps) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-amber-100">Average Rating</p>
-              <p className="text-2xl font-bold">{data.averageRating}</p>
+              <div className="flex items-center space-x-1">
+                <p className="text-2xl font-bold">{data.averageRating}</p>
+                <div className="flex">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`h-4 w-4 ${
+                        star <= Math.floor(data.averageRating) 
+                          ? 'text-yellow-300 fill-yellow-300' 
+                          : 'text-amber-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
             <Scissors className="h-8 w-8 text-amber-200" />
           </div>
