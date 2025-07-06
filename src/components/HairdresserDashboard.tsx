@@ -143,7 +143,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       description: '',
       duration: 30,
       price: 0,
-      category: 'haircut' as const
+      category: 'haircut'
     }
   });
 
@@ -153,7 +153,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       description: '',
       price: 0,
       stock: 0,
-      category: 'shampoo' as const
+      category: 'shampoo'
     }
   });
 
