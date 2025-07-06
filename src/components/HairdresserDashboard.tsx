@@ -1,15 +1,37 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Calendar, Clock, Star, DollarSign, Users, TrendingUp, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Calendar, Clock, Star, DollarSign, Users, TrendingUp, CheckCircle, XCircle, Eye, Plus, Edit, Trash2, Package, Scissors } from 'lucide-react';
 import CustomAlert from '@/components/CustomAlert';
+import { useForm } from 'react-hook-form';
 
 interface HairdresserDashboardProps {
   userName: string;
+}
+
+interface Service {
+  id: number;
+  name: string;
+  description: string;
+  duration: number; // in minutes
+  price: number;
+  category: 'haircut' | 'color' | 'styling' | 'treatment';
+  isActive: boolean;
+}
+
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  category: 'shampoo' | 'conditioner' | 'styling' | 'treatment' | 'tools';
+  isActive: boolean;
 }
 
 const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
@@ -55,6 +77,85 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
     title: string;
     message: string;
   }>({ show: false, type: 'info', title: '', message: '' });
+
+  // Services and Products state
+  const [services, setServices] = useState<Service[]>([
+    {
+      id: 1,
+      name: 'Classic Haircut',
+      description: 'Professional hair cutting and styling service',
+      duration: 45,
+      price: 50,
+      category: 'haircut',
+      isActive: true
+    },
+    {
+      id: 2,
+      name: 'Hair Color & Highlights',
+      description: 'Full color treatment with highlights',
+      duration: 120,
+      price: 150,
+      category: 'color',
+      isActive: true
+    },
+    {
+      id: 3,
+      name: 'Deep Conditioning Treatment',
+      description: 'Restorative hair treatment for damaged hair',
+      duration: 60,
+      price: 80,
+      category: 'treatment',
+      isActive: true
+    }
+  ]);
+
+  const [products, setProducts] = useState<Product[]>([
+    {
+      id: 1,
+      name: 'Premium Shampoo',
+      description: 'Professional grade moisturizing shampoo',
+      price: 25,
+      stock: 15,
+      category: 'shampoo',
+      isActive: true
+    },
+    {
+      id: 2,
+      name: 'Hair Styling Gel',
+      description: 'Long-lasting hold styling gel',
+      price: 18,
+      stock: 8,
+      category: 'styling',
+      isActive: true
+    }
+  ]);
+
+  // Modal states for services and products
+  const [showServiceModal, setShowServiceModal] = useState(false);
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  // Forms
+  const serviceForm = useForm({
+    defaultValues: {
+      name: '',
+      description: '',
+      duration: 30,
+      price: 0,
+      category: 'haircut' as const
+    }
+  });
+
+  const productForm = useForm({
+    defaultValues: {
+      name: '',
+      description: '',
+      price: 0,
+      stock: 0,
+      category: 'shampoo' as const
+    }
+  });
 
   // Mock data for reviews
   const customerReviews = [
@@ -127,6 +228,113 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
     }
   };
 
+  // Service management functions
+  const handleAddService = () => {
+    setEditingService(null);
+    serviceForm.reset();
+    setShowServiceModal(true);
+  };
+
+  const handleEditService = (service: Service) => {
+    setEditingService(service);
+    serviceForm.reset({
+      name: service.name,
+      description: service.description,
+      duration: service.duration,
+      price: service.price,
+      category: service.category
+    });
+    setShowServiceModal(true);
+  };
+
+  const handleServiceSubmit = (data: any) => {
+    if (editingService) {
+      setServices(prev => prev.map(service => 
+        service.id === editingService.id 
+          ? { ...service, ...data }
+          : service
+      ));
+      showAlert('success', 'Service Updated', `${data.name} has been successfully updated.`);
+    } else {
+      const newService: Service = {
+        id: Date.now(),
+        ...data,
+        isActive: true
+      };
+      setServices(prev => [...prev, newService]);
+      showAlert('success', 'Service Added', `${data.name} has been successfully added to your services.`);
+    }
+    setShowServiceModal(false);
+  };
+
+  const handleDeleteService = (serviceId: number) => {
+    const service = services.find(s => s.id === serviceId);
+    setServices(prev => prev.filter(s => s.id !== serviceId));
+    showAlert('info', 'Service Removed', `${service?.name} has been removed from your services.`);
+  };
+
+  // Product management functions
+  const handleAddProduct = () => {
+    setEditingProduct(null);
+    productForm.reset();
+    setShowProductModal(true);
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    productForm.reset({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      stock: product.stock,
+      category: product.category
+    });
+    setShowProductModal(true);
+  };
+
+  const handleProductSubmit = (data: any) => {
+    if (editingProduct) {
+      setProducts(prev => prev.map(product => 
+        product.id === editingProduct.id 
+          ? { ...product, ...data }
+          : product
+      ));
+      showAlert('success', 'Product Updated', `${data.name} has been successfully updated.`);
+    } else {
+      const newProduct: Product = {
+        id: Date.now(),
+        ...data,
+        isActive: true
+      };
+      setProducts(prev => [...prev, newProduct]);
+      showAlert('success', 'Product Added', `${data.name} has been successfully added to your inventory.`);
+    }
+    setShowProductModal(false);
+  };
+
+  const handleDeleteProduct = (productId: number) => {
+    const product = products.find(p => p.id === productId);
+    setProducts(prev => prev.filter(p => p.id !== productId));
+    showAlert('info', 'Product Removed', `${product?.name} has been removed from your inventory.`);
+  };
+
+  // Toggle service/product active status
+  const toggleServiceStatus = (serviceId: number) => {
+    setServices(prev => prev.map(service => 
+      service.id === serviceId 
+        ? { ...service, isActive: !service.isActive }
+        : service
+    ));
+  };
+
+  const toggleProductStatus = (productId: number) => {
+    setProducts(prev => prev.map(product => 
+      product.id === productId 
+        ? { ...product, isActive: !product.isActive }
+        : product
+    ));
+  };
+
   // Render star rating
   const StarRating = ({ rating }: { rating: number }) => {
     return (
@@ -154,7 +362,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
             Welcome, {userName}!
           </h1>
           <p className="text-gray-600">
-            Manage your appointments, track your earnings, and view customer feedback.
+            Manage your appointments, services, products, and track your earnings.
           </p>
         </div>
 
@@ -176,12 +384,12 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-amber-100">Pending Approvals</p>
+                  <p className="text-amber-100">Active Services</p>
                   <p className="text-2xl font-bold">
-                    {appointments.filter(apt => apt.status === 'Pending').length}
+                    {services.filter(s => s.isActive).length}
                   </p>
                 </div>
-                <Clock className="h-8 w-8 text-amber-200" />
+                <Scissors className="h-8 w-8 text-amber-200" />
               </div>
             </CardContent>
           </Card>
@@ -190,10 +398,10 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-emerald-100">Average Rating</p>
-                  <p className="text-2xl font-bold">{financialData.averageRating}</p>
+                  <p className="text-emerald-100">Products in Stock</p>
+                  <p className="text-2xl font-bold">{products.filter(p => p.isActive).length}</p>
                 </div>
-                <Star className="h-8 w-8 text-emerald-200" />
+                <Package className="h-8 w-8 text-emerald-200" />
               </div>
             </CardContent>
           </Card>
@@ -214,6 +422,147 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Services & Products Management */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Services & Products Management</CardTitle>
+                <CardDescription>
+                  Manage your service offerings and product inventory
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="services" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="services">Services</TabsTrigger>
+                    <TabsTrigger value="products">Products</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="services" className="space-y-4 mt-6">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-semibold">Your Services</h3>
+                      <Button onClick={handleAddService}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Service
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {services.map((service) => (
+                        <div key={service.id} className="border rounded-lg p-4 bg-white">
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h4 className="font-semibold text-lg">{service.name}</h4>
+                                <Badge 
+                                  variant={service.isActive ? 'default' : 'secondary'}
+                                  className={service.isActive ? 'bg-green-100 text-green-800' : ''}
+                                >
+                                  {service.isActive ? 'Active' : 'Inactive'}
+                                </Badge>
+                              </div>
+                              <p className="text-gray-600 mb-2">{service.description}</p>
+                              <div className="flex gap-4 text-sm text-gray-500">
+                                <span>Duration: {service.duration} min</span>
+                                <span>Price: ${service.price}</span>
+                                <span>Category: {service.category}</span>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => toggleServiceStatus(service.id)}
+                              >
+                                {service.isActive ? 'Deactivate' : 'Activate'}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditService(service)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteService(service.id)}
+                                className="text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="products" className="space-y-4 mt-6">
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-semibold">Your Products</h3>
+                      <Button onClick={handleAddProduct}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Product
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {products.map((product) => (
+                        <div key={product.id} className="border rounded-lg p-4 bg-white">
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h4 className="font-semibold text-lg">{product.name}</h4>
+                                <Badge 
+                                  variant={product.isActive ? 'default' : 'secondary'}
+                                  className={product.isActive ? 'bg-green-100 text-green-800' : ''}
+                                >
+                                  {product.isActive ? 'Available' : 'Unavailable'}
+                                </Badge>
+                                {product.stock <= 5 && (
+                                  <Badge variant="destructive">Low Stock</Badge>
+                                )}
+                              </div>
+                              <p className="text-gray-600 mb-2">{product.description}</p>
+                              <div className="flex gap-4 text-sm text-gray-500">
+                                <span>Price: ${product.price}</span>
+                                <span>Stock: {product.stock}</span>
+                                <span>Category: {product.category}</span>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => toggleProductStatus(product.id)}
+                              >
+                                {product.isActive ? 'Hide' : 'Show'}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleEditProduct(product)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleDeleteProduct(product.id)}
+                                className="text-red-600 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+
             {/* Appointments Management */}
             <Card>
               <CardHeader>
@@ -417,15 +766,15 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
                 <div className="space-y-3 text-sm">
                   <div className="flex items-start space-x-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p>Confirm appointments promptly to build trust</p>
+                    <p>Keep your services updated with current pricing</p>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                    <p>Monitor product stock levels regularly</p>
                   </div>
                   <div className="flex items-start space-x-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
                     <p>Respond to reviews to show you care</p>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p>Keep your schedule updated regularly</p>
                   </div>
                   <div className="flex items-start space-x-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
@@ -437,6 +786,250 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
           </div>
         </div>
       </div>
+
+      {/* Service Modal */}
+      <Dialog open={showServiceModal} onOpenChange={setShowServiceModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {editingService ? 'Edit Service' : 'Add New Service'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingService ? 'Update your service details' : 'Add a new service to your offerings'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...serviceForm}>
+            <form onSubmit={serviceForm.handleSubmit(handleServiceSubmit)} className="space-y-4">
+              <FormField
+                control={serviceForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Service Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Classic Haircut" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={serviceForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Brief description of the service" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={serviceForm.control}
+                  name="duration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Duration (minutes)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="45"
+                          {...field}
+                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={serviceForm.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Price ($)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="50"
+                          {...field}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <FormField
+                control={serviceForm.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <FormControl>
+                      <select 
+                        className="w-full p-2 border rounded-md"
+                        {...field}
+                      >
+                        <option value="haircut">Haircut</option>
+                        <option value="color">Color</option>
+                        <option value="styling">Styling</option>
+                        <option value="treatment">Treatment</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowServiceModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  {editingService ? 'Update Service' : 'Add Service'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Product Modal */}
+      <Dialog open={showProductModal} onOpenChange={setShowProductModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {editingProduct ? 'Edit Product' : 'Add New Product'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingProduct ? 'Update your product details' : 'Add a new product to your inventory'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...productForm}>
+            <form onSubmit={productForm.handleSubmit(handleProductSubmit)} className="space-y-4">
+              <FormField
+                control={productForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Premium Shampoo" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={productForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Brief description of the product" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={productForm.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Price ($)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          step="0.01"
+                          placeholder="25.00"
+                          {...field}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={productForm.control}
+                  name="stock"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Stock Quantity</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          placeholder="15"
+                          {...field}
+                          onChange={(e) => field.onChange(parseInt(e.target.value))}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <FormField
+                control={productForm.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <FormControl>
+                      <select 
+                        className="w-full p-2 border rounded-md"
+                        {...field}
+                      >
+                        <option value="shampoo">Shampoo</option>
+                        <option value="conditioner">Conditioner</option>
+                        <option value="styling">Styling</option>
+                        <option value="treatment">Treatment</option>
+                        <option value="tools">Tools</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowProductModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  {editingProduct ? 'Update Product' : 'Add Product'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
       {/* Finance Modal */}
       <Dialog open={showFinanceModal} onOpenChange={setShowFinanceModal}>
