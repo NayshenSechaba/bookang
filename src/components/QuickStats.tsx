@@ -50,7 +50,7 @@ const QuickStats = ({ data }: QuickStatsProps) => {
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-purple-100">Monthly Earnings</p>
+              <p className="text-purple-100">Commission Payable</p>
               <p className="text-2xl font-bold">{data.monthlyCommission}</p>
             </div>
             <DollarSign className="h-8 w-8 text-purple-200" />
