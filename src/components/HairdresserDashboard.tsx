@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,9 +17,10 @@ interface HairdresserDashboardProps {
   userName: string;
 }
 
-const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
+const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboardProps) => {
   // All state variables and handlers
   const [profilePicture, setProfilePicture] = useState('/placeholder.svg');
+  const [userName, setUserName] = useState(initialUserName);
 
   // Mock data - Fixed types to match interfaces
   const financialData: FinancialData = {
@@ -129,6 +129,11 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
     console.log('Update profile picture');
   };
 
+  const handleUserNameChange = (newName: string) => {
+    setUserName(newName);
+    console.log('User name updated to:', newName);
+  };
+
   const handleServiceAdd = (newService: Service) => {
     setServices([...services, newService]);
   };
@@ -190,6 +195,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
           userName={userName}
           profilePicture={profilePicture}
           onUpdateProfilePicture={handleUpdateProfilePicture}
+          onUserNameChange={handleUserNameChange}
         />
 
         <QuickStats data={financialData} />

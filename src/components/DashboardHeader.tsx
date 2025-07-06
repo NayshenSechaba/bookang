@@ -1,13 +1,15 @@
 
 import { Camera } from 'lucide-react';
+import EditableHeader from './EditableHeader';
 
 interface DashboardHeaderProps {
   userName: string;
   profilePicture: string;
   onUpdateProfilePicture: () => void;
+  onUserNameChange: (newName: string) => void;
 }
 
-const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture }: DashboardHeaderProps) => {
+const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture, onUserNameChange }: DashboardHeaderProps) => {
   return (
     <div className="mb-8 flex items-center gap-6">
       <div className="relative">
@@ -24,9 +26,10 @@ const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture }: D
         </button>
       </div>
       <div className="flex-1">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Welcome, {userName}!
-        </h1>
+        <EditableHeader 
+          userName={userName}
+          onUserNameChange={onUserNameChange}
+        />
         <p className="text-gray-600">
           Manage your appointments, services, products, and track your earnings.
         </p>
