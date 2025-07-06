@@ -1,47 +1,27 @@
 import { useState } from 'react';
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Calendar, Clock, Star, DollarSign, Users, TrendingUp, CheckCircle, XCircle, Eye, Plus, Edit, Trash2, Package, Scissors, Camera, Upload, Image } from 'lucide-react';
+import { Calendar, Clock, DollarSign, CheckCircle, XCircle, TrendingUp, Upload } from 'lucide-react';
 import CustomAlert from '@/components/CustomAlert';
 import CalendarBooking from '@/components/CalendarBooking';
+import DashboardHeader from '@/components/DashboardHeader';
+import QuickStats from '@/components/QuickStats';
+import PortfolioSection from '@/components/PortfolioSection';
+import ServicesManagement from '@/components/ServicesManagement';
+import ProductsManagement from '@/components/ProductsManagement';
+import FinanceOverview from '@/components/FinanceOverview';
+import StarRating from '@/components/StarRating';
 import { useForm } from 'react-hook-form';
+
+// Import types
+import { Service, Product, PortfolioImage, Appointment, CustomerReview, FinancialData } from '@/types/dashboard';
 
 interface HairdresserDashboardProps {
   userName: string;
-}
-
-interface Service {
-  id: number;
-  name: string;
-  description: string;
-  duration: number; // in minutes
-  price: number;
-  category: 'haircut' | 'color' | 'styling' | 'treatment';
-  isActive: boolean;
-}
-
-interface Product {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  stock: number;
-  category: 'shampoo' | 'conditioner' | 'styling' | 'treatment' | 'tools';
-  isActive: boolean;
-}
-
-interface PortfolioImage {
-  id: number;
-  url: string;
-  title: string;
-  description: string;
-  category: 'haircut' | 'color' | 'styling' | 'treatment';
-  dateAdded: string;
 }
 
 const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
@@ -80,7 +60,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
     }
   ]);
 
-  const [appointments, setAppointments] = useState([
+  const [appointments, setAppointments] = useState<Appointment[]>([
     {
       id: 1,
       customerName: 'Emily Johnson',
@@ -200,14 +180,12 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
     }
   });
 
-  // Profile picture form
   const profilePictureForm = useForm({
     defaultValues: {
       imageUrl: profilePicture
     }
   });
 
-  // Portfolio form
   const portfolioForm = useForm({
     defaultValues: {
       url: '',
@@ -218,7 +196,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
   });
 
   // Mock data for reviews
-  const customerReviews = [
+  const customerReviews: CustomerReview[] = [
     {
       id: 1,
       customerName: 'Emily Johnson',
@@ -254,7 +232,7 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
   ];
 
   // Financial data
-  const financialData = {
+  const financialData: FinancialData = {
     totalEarnings: 'R36,750.00',
     monthlyCommission: 'R11,025.00',
     pendingPayments: 'R1,552.50',
@@ -446,104 +424,21 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
     ));
   };
 
-  // Render star rating
-  const StarRating = ({ rating }: { rating: number }) => {
-    return (
-      <div className="flex space-x-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={`h-4 w-4 ${
-              star <= rating 
-                ? 'text-yellow-400 fill-yellow-400' 
-                : 'text-gray-300'
-            }`}
-          />
-        ))}
-      </div>
-    );
-  };
-
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        {/* Welcome Header with Profile Picture */}
-        <div className="mb-8 flex items-center gap-6">
-          <div className="relative">
-            <img 
-              src={profilePicture}
-              alt="Profile"
-              className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
-            />
-            <button
-              onClick={() => setShowProfilePictureModal(true)}
-              className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
-            >
-              <Camera className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome, {userName}!
-            </h1>
-            <p className="text-gray-600">
-              Manage your appointments, services, products, and track your earnings.
-            </p>
-          </div>
-        </div>
+        <DashboardHeader 
+          userName={userName}
+          profilePicture={profilePicture}
+          onUpdateProfilePicture={() => setShowProfilePictureModal(true)}
+        />
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-blue-100">Today's Appointments</p>
-                  <p className="text-2xl font-bold">{appointments.length}</p>
-                </div>
-                <Calendar className="h-8 w-8 text-blue-200" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-r from-amber-500 to-amber-600 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-amber-100">Active Services</p>
-                  <p className="text-2xl font-bold">
-                    {services.filter(s => s.isActive).length}
-                  </p>
-                </div>
-                <Scissors className="h-8 w-8 text-amber-200" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-emerald-100">Products in Stock</p>
-                  <p className="text-2xl font-bold">{products.filter(p => p.isActive).length}</p>
-                </div>
-                <Package className="h-8 w-8 text-emerald-200" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-purple-100">Monthly Earnings</p>
-                  <p className="text-2xl font-bold">{financialData.monthlyCommission}</p>
-                </div>
-                <DollarSign className="h-8 w-8 text-purple-200" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <QuickStats 
+          appointmentsCount={appointments.length}
+          services={services}
+          products={products}
+          monthlyCommission={financialData.monthlyCommission}
+        />
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
@@ -552,88 +447,12 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
             <CalendarBooking />
 
             {/* Portfolio Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Image className="mr-2 h-5 w-5 text-pink-500" />
-                  Style Portfolio
-                </CardTitle>
-                <CardDescription>
-                  Showcase your best work to attract new customers
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold">Your Work</h3>
-                    <Button onClick={handleAddPortfolioImage}>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Style Photo
-                    </Button>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {portfolioImages.map((image) => (
-                      <div key={image.id} className="relative group">
-                        <div className="aspect-square overflow-hidden rounded-lg border">
-                          <img 
-                            src={image.url}
-                            alt={image.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=400&fit=crop';
-                            }}
-                          />
-                        </div>
-                        
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              onClick={() => handleEditPortfolioImage(image)}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              onClick={() => handleDeletePortfolioImage(image.id)}
-                              className="text-red-600 hover:bg-red-50"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-2">
-                          <div className="flex items-center justify-between mb-1">
-                            <h4 className="font-medium text-sm">{image.title}</h4>
-                            <Badge variant="outline" className="text-xs">
-                              {image.category}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-gray-600 line-clamp-2">{image.description}</p>
-                          <p className="text-xs text-gray-400 mt-1">{image.dateAdded}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {portfolioImages.length === 0 && (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg">
-                      <Image className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No portfolio images yet</h3>
-                      <p className="text-gray-600 mb-4">Add photos of your best work to attract customers</p>
-                      <Button onClick={handleAddPortfolioImage}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Your First Photo
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <PortfolioSection 
+              portfolioImages={portfolioImages}
+              onAddImage={handleAddPortfolioImage}
+              onEditImage={handleEditPortfolioImage}
+              onDeleteImage={handleDeletePortfolioImage}
+            />
 
             {/* Services & Products Management */}
             <Card>
@@ -650,127 +469,24 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
                     <TabsTrigger value="products">Products</TabsTrigger>
                   </TabsList>
                   
-                  <TabsContent value="services" className="space-y-4 mt-6">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Your Services</h3>
-                      <Button onClick={handleAddService}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Service
-                      </Button>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      {services.map((service) => (
-                        <div key={service.id} className="border rounded-lg p-4 bg-white">
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <h4 className="font-semibold text-lg">{service.name}</h4>
-                                <Badge 
-                                  variant={service.isActive ? 'default' : 'secondary'}
-                                  className={service.isActive ? 'bg-green-100 text-green-800' : ''}
-                                >
-                                  {service.isActive ? 'Active' : 'Inactive'}
-                                </Badge>
-                              </div>
-                              <p className="text-gray-600 mb-2">{service.description}</p>
-                              <div className="flex gap-4 text-sm text-gray-500">
-                                <span>Duration: {service.duration} min</span>
-                                <span>Price: R{service.price}</span>
-                                <span>Category: {service.category}</span>
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => toggleServiceStatus(service.id)}
-                              >
-                                {service.isActive ? 'Deactivate' : 'Activate'}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEditService(service)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleDeleteService(service.id)}
-                                className="text-red-600 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                  <TabsContent value="services">
+                    <ServicesManagement 
+                      services={services}
+                      onAddService={handleAddService}
+                      onEditService={handleEditService}
+                      onDeleteService={handleDeleteService}
+                      onToggleServiceStatus={toggleServiceStatus}
+                    />
                   </TabsContent>
                   
-                  <TabsContent value="products" className="space-y-4 mt-6">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Your Products</h3>
-                      <Button onClick={handleAddProduct}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Product
-                      </Button>
-                    </div>
-                    
-                    <div className="space-y-4">
-                      {products.map((product) => (
-                        <div key={product.id} className="border rounded-lg p-4 bg-white">
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <h4 className="font-semibold text-lg">{product.name}</h4>
-                                <Badge 
-                                  variant={product.isActive ? 'default' : 'secondary'}
-                                  className={product.isActive ? 'bg-green-100 text-green-800' : ''}
-                                >
-                                  {product.isActive ? 'Available' : 'Unavailable'}
-                                </Badge>
-                                {product.stock <= 5 && (
-                                  <Badge variant="destructive">Low Stock</Badge>
-                                )}
-                              </div>
-                              <p className="text-gray-600 mb-2">{product.description}</p>
-                              <div className="flex gap-4 text-sm text-gray-500">
-                                <span>Price: R{product.price}</span>
-                                <span>Stock: {product.stock}</span>
-                                <span>Category: {product.category}</span>
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => toggleProductStatus(product.id)}
-                              >
-                                {product.isActive ? 'Hide' : 'Show'}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleEditProduct(product)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleDeleteProduct(product.id)}
-                                className="text-red-600 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                  <TabsContent value="products">
+                    <ProductsManagement 
+                      products={products}
+                      onAddProduct={handleAddProduct}
+                      onEditProduct={handleEditProduct}
+                      onDeleteProduct={handleDeleteProduct}
+                      onToggleProductStatus={toggleProductStatus}
+                    />
                   </TabsContent>
                 </Tabs>
               </CardContent>
@@ -895,45 +611,10 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Finance Overview */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <DollarSign className="mr-2 h-5 w-5 text-green-500" />
-                  Finance Overview
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Total Earnings</span>
-                    <span className="font-semibold text-lg">{financialData.totalEarnings}</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Monthly Commission</span>
-                    <span className="font-semibold text-green-600">{financialData.monthlyCommission}</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Pending Payments</span>
-                    <span className="font-semibold text-amber-600">{financialData.pendingPayments}</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Commission Rate</span>
-                    <span className="font-semibold">{financialData.commissionRate}</span>
-                  </div>
-                  
-                  <Button 
-                    className="w-full mt-4" 
-                    onClick={() => setShowFinanceModal(true)}
-                  >
-                    <Eye className="mr-2 h-4 w-4" />
-                    View Details
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <FinanceOverview 
+              financialData={financialData}
+              onViewDetails={() => setShowFinanceModal(true)}
+            />
 
             {/* Performance Stats */}
             <Card>
