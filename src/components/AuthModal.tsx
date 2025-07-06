@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,15 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Scissors, User, Eye, EyeOff, Upload, FileText, IdCard } from 'lucide-react';
+import { Scissors, User, Eye, EyeOff, Upload, FileText, IdCard, UserCheck } from 'lucide-react';
 import CustomAlert from '@/components/CustomAlert';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   mode: 'login' | 'register';
-  loginType: 'customer' | 'hairdresser';
-  onAuthSuccess: (role: 'customer' | 'hairdresser', name: string) => void;
+  loginType: 'customer' | 'hairdresser' | 'employee';
+  onAuthSuccess: (role: 'customer' | 'hairdresser' | 'employee', name: string) => void;
   onSwitchMode: (mode: 'login' | 'register') => void;
 }
 
@@ -33,7 +32,7 @@ const AuthModal = ({
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'customer' as 'customer' | 'hairdresser',
+    role: 'customer' as 'customer' | 'hairdresser' | 'employee',
     hairdresserName: '',
     // Additional hairdresser fields
     address: '',
@@ -209,7 +208,11 @@ const AuthModal = ({
           <DialogHeader>
             <div className="flex items-center justify-center mb-4">
               <div className="bg-purple-100 p-3 rounded-full">
-                <Scissors className="h-6 w-6 text-purple-600" />
+                {loginType === 'employee' ? (
+                  <UserCheck className="h-6 w-6 text-purple-600" />
+                ) : (
+                  <Scissors className="h-6 w-6 text-purple-600" />
+                )}
               </div>
             </div>
             <DialogTitle className="text-center text-2xl font-bold">
@@ -230,11 +233,14 @@ const AuthModal = ({
                 <div className="flex items-center justify-center space-x-2 mb-2">
                   {loginType === 'customer' ? (
                     <User className="h-5 w-5 text-purple-600" />
+                  ) : loginType === 'employee' ? (
+                    <UserCheck className="h-5 w-5 text-purple-600" />
                   ) : (
                     <Scissors className="h-5 w-5 text-purple-600" />
                   )}
                   <CardTitle className="text-lg">
-                    {loginType === 'customer' ? 'Customer Login' : 'Business Login'}
+                    {loginType === 'customer' ? 'Customer Login' : 
+                     loginType === 'employee' ? 'Employee Login' : 'Business Login'}
                   </CardTitle>
                 </div>
               </CardHeader>
@@ -372,7 +378,7 @@ const AuthModal = ({
                     <Label htmlFor="role">Account Type *</Label>
                     <Select 
                       value={formData.role} 
-                      onValueChange={(value: 'customer' | 'hairdresser') => handleInputChange('role', value)}
+                      onValueChange={(value: 'customer' | 'hairdresser' | 'employee') => handleInputChange('role', value)}
                     >
                       <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Select your role" />
@@ -380,6 +386,7 @@ const AuthModal = ({
                       <SelectContent>
                         <SelectItem value="customer">Customer</SelectItem>
                         <SelectItem value="hairdresser">Hairdresser</SelectItem>
+                        <SelectItem value="employee">Employee</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
