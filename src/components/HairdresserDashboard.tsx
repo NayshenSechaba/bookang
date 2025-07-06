@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,7 +11,7 @@ import ServicesManagement from './ServicesManagement';
 import ProductsManagement from './ProductsManagement';
 import FinanceOverview from './FinanceOverview';
 import CalendarBooking from './CalendarBooking';
-import { FinancialData, Service, Product, PortfolioImage } from '@/types/dashboard';
+import { FinancialData, Service, Product, PortfolioImage, Appointment } from '@/types/dashboard';
 
 interface HairdresserDashboardProps {
   userName: string;
@@ -32,6 +31,60 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
     totalAppointments: 28, // This is now a number as expected
     averageRating: 4.8 // This is now a number as expected
   };
+
+  // Mock booking data for financial details
+  const mockBookings: Appointment[] = [
+    {
+      id: 1,
+      customerName: 'Sarah Johnson',
+      service: 'Haircut & Style',
+      date: '2024-01-15',
+      time: '10:00 AM',
+      status: 'Completed',
+      cost: 'R85',
+      commission: 'R12.75'
+    },
+    {
+      id: 2,
+      customerName: 'Emily Davis',
+      service: 'Hair Coloring',
+      date: '2024-01-14',
+      time: '2:00 PM',
+      status: 'Completed',
+      cost: 'R150',
+      commission: 'R22.50'
+    },
+    {
+      id: 3,
+      customerName: 'Jessica Wilson',
+      service: 'Hair Treatment',
+      date: '2024-01-12',
+      time: '11:30 AM',
+      status: 'Completed',
+      cost: 'R95',
+      commission: 'R14.25'
+    },
+    {
+      id: 4,
+      customerName: 'Amanda Brown',
+      service: 'Haircut & Style',
+      date: '2024-01-10',
+      time: '3:30 PM',
+      status: 'Completed',
+      cost: 'R85',
+      commission: 'R12.75'
+    },
+    {
+      id: 5,
+      customerName: 'Lisa Martinez',
+      service: 'Hair Coloring',
+      date: '2024-01-08',
+      time: '1:00 PM',
+      status: 'Pending',
+      cost: 'R150',
+      commission: 'R22.50'
+    }
+  ];
 
   const [services, setServices] = useState<Service[]>([
     { 
@@ -258,7 +311,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
           </TabsContent>
 
           <TabsContent value="finance">
-            <FinanceOverview data={financialData} />
+            <FinanceOverview data={financialData} bookings={mockBookings} />
           </TabsContent>
         </Tabs>
       </div>
