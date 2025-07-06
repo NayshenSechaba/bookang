@@ -1,7 +1,6 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { FinancialData } from '@/types/dashboard';
 
 interface FinanceOverviewProps {
@@ -17,7 +16,6 @@ const FinanceOverview = ({ data }: FinanceOverviewProps) => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center">
-          <DollarSign className="mr-2 h-5 w-5 text-green-500" />
           Finance Overview
         </CardTitle>
       </CardHeader>
