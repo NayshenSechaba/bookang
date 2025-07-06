@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Star, Scissors, Calendar, Users, MapPin, TrendingUp, Phone, Mail, HelpCircle } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
 import CustomerDashboard from '@/components/CustomerDashboard';
@@ -107,6 +108,86 @@ const Index = () => {
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
             Connect with professional hairdressers, book appointments seamlessly, and discover the latest trends in hair styling. Your perfect salon experience awaits.
           </p>
+
+          {/* Image Carousel */}
+          <div className="mb-12 max-w-4xl mx-auto">
+            <Carousel 
+              className="w-full"
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+            >
+              <CarouselContent className="-ml-2 md:-ml-4">
+                <CarouselItem className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <div className="relative overflow-hidden rounded-lg shadow-lg">
+                      <img 
+                        src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=300&fit=crop&crop=face"
+                        alt="Happy customer getting hair styled"
+                        className="w-full h-64 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    </div>
+                  </div>
+                </CarouselItem>
+                
+                <CarouselItem className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <div className="relative overflow-hidden rounded-lg shadow-lg">
+                      <img 
+                        src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381a?w=400&h=300&fit=crop&crop=face"
+                        alt="Professional salon with beauty products"
+                        className="w-full h-64 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    </div>
+                  </div>
+                </CarouselItem>
+                
+                <CarouselItem className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <div className="relative overflow-hidden rounded-lg shadow-lg">
+                      <img 
+                        src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400&h=300&fit=crop&crop=face"
+                        alt="Satisfied customer with beautiful hair"
+                        className="w-full h-64 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    </div>
+                  </div>
+                </CarouselItem>
+                
+                <CarouselItem className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <div className="relative overflow-hidden rounded-lg shadow-lg">
+                      <img 
+                        src="https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=400&h=300&fit=crop&crop=face"
+                        alt="Modern salon interior with products"
+                        className="w-full h-64 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    </div>
+                  </div>
+                </CarouselItem>
+                
+                <CarouselItem className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1">
+                    <div className="relative overflow-hidden rounded-lg shadow-lg">
+                      <img 
+                        src="https://images.unsplash.com/photo-1619451334792-150bdae95dc3?w=400&h=300&fit=crop&crop=face"
+                        alt="Happy client during hair treatment"
+                        className="w-full h-64 object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                    </div>
+                  </div>
+                </CarouselItem>
+              </CarouselContent>
+              <CarouselPrevious className="left-2" />
+              <CarouselNext className="right-2" />
+            </Carousel>
+          </div>
 
           {/* Authentication Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
@@ -401,5 +482,3 @@ const Index = () => {
     </div>
   );
 };
-
-export default Index;

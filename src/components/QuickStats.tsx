@@ -1,6 +1,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Scissors, Package, TrendingUp, TrendingDown } from 'lucide-react';
+import { Calendar, Scissors, Package, TrendingUp, TrendingDown, Star } from 'lucide-react';
 import { FinancialData } from '@/types/dashboard';
 
 interface QuickStatsProps {
