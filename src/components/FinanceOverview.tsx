@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,11 +42,6 @@ const FinanceOverview = ({ data, bookings = [] }: FinanceOverviewProps) => {
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Pending Payments</span>
               <span className="font-semibold text-amber-600">{data.pendingPayments}</span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Commission Rate</span>
-              <span className="font-semibold">{data.commissionRate}</span>
             </div>
             
             <Button 
