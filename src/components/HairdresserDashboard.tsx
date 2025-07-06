@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import DashboardHeader from './DashboardHeader';
@@ -117,7 +118,7 @@ const HairdresserDashboard = () => {
 
   // Handlers for Services
   const handleServiceAdd = (newService: Service) => {
-    setServices([...services, { ...newService, id: Date.now() }]);
+    setServices([...services, newService]);
   };
 
   const handleServiceEdit = (updatedService: Service) => {
@@ -138,7 +139,7 @@ const HairdresserDashboard = () => {
 
   // Handlers for Products
   const handleProductAdd = (newProduct: Product) => {
-    setProducts([...products, { ...newProduct, id: Date.now() }]);
+    setProducts([...products, newProduct]);
   };
 
   const handleProductEdit = (updatedProduct: Product) => {
@@ -159,7 +160,7 @@ const HairdresserDashboard = () => {
 
   // Handlers for Portfolio Images
   const handleImageUpload = (newImage: PortfolioImage) => {
-    setPortfolioImages([...portfolioImages, { ...newImage, id: Date.now() }]);
+    setPortfolioImages([...portfolioImages, newImage]);
   };
 
   const handleImageEdit = (updatedImage: PortfolioImage) => {

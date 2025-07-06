@@ -6,13 +6,13 @@ import { Image, Plus, Edit, Trash2 } from 'lucide-react';
 import { PortfolioImage } from '@/types/dashboard';
 
 interface PortfolioSectionProps {
-  portfolioImages: PortfolioImage[];
-  onAddImage: () => void;
-  onEditImage: (image: PortfolioImage) => void;
-  onDeleteImage: (imageId: number) => void;
+  images: PortfolioImage[];
+  onImageUpload: (newImage: PortfolioImage) => void;
+  onImageEdit: (updatedImage: PortfolioImage) => void;
+  onImageDelete: (id: number) => void;
 }
 
-const PortfolioSection = ({ portfolioImages, onAddImage, onEditImage, onDeleteImage }: PortfolioSectionProps) => {
+const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }: PortfolioSectionProps) => {
   return (
     <Card>
       <CardHeader>
@@ -28,14 +28,21 @@ const PortfolioSection = ({ portfolioImages, onAddImage, onEditImage, onDeleteIm
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Your Work</h3>
-            <Button onClick={onAddImage}>
+            <Button onClick={() => onImageUpload({
+              id: Date.now(),
+              url: '/api/placeholder/300/300',
+              title: 'New Style',
+              description: 'A beautiful new style',
+              category: 'haircut',
+              dateAdded: new Date().toISOString().split('T')[0]
+            })}>
               <Plus className="mr-2 h-4 w-4" />
               Add Style Photo
             </Button>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {portfolioImages.map((image) => (
+            {images.map((image) => (
               <div key={image.id} className="relative group">
                 <div className="aspect-square overflow-hidden rounded-lg border">
                   <img 
@@ -53,14 +60,14 @@ const PortfolioSection = ({ portfolioImages, onAddImage, onEditImage, onDeleteIm
                     <Button
                       size="sm"
                       variant="secondary"
-                      onClick={() => onEditImage(image)}
+                      onClick={() => onImageEdit(image)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
                       size="sm"
                       variant="secondary"
-                      onClick={() => onDeleteImage(image.id)}
+                      onClick={() => onImageDelete(image.id)}
                       className="text-red-600 hover:bg-red-50"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -82,12 +89,19 @@ const PortfolioSection = ({ portfolioImages, onAddImage, onEditImage, onDeleteIm
             ))}
           </div>
           
-          {portfolioImages.length === 0 && (
+          {images.length === 0 && (
             <div className="text-center py-12 bg-gray-50 rounded-lg">
               <Image className="mx-auto h-12 w-12 text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No portfolio images yet</h3>
               <p className="text-gray-600 mb-4">Add photos of your best work to attract customers</p>
-              <Button onClick={onAddImage}>
+              <Button onClick={() => onImageUpload({
+                id: Date.now(),
+                url: '/api/placeholder/300/300',
+                title: 'First Style',
+                description: 'Your first portfolio image',
+                category: 'haircut',
+                dateAdded: new Date().toISOString().split('T')[0]
+              })}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Your First Photo
               </Button>

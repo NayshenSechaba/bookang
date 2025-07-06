@@ -6,24 +6,32 @@ import { Service } from '@/types/dashboard';
 
 interface ServicesManagementProps {
   services: Service[];
-  onAddService: () => void;
-  onEditService: (service: Service) => void;
-  onDeleteService: (serviceId: number) => void;
-  onToggleServiceStatus: (serviceId: number) => void;
+  onServiceAdd: (newService: Service) => void;
+  onServiceEdit: (updatedService: Service) => void;
+  onServiceDelete: (id: number) => void;
+  onServiceToggle: (id: number) => void;
 }
 
 const ServicesManagement = ({ 
   services, 
-  onAddService, 
-  onEditService, 
-  onDeleteService, 
-  onToggleServiceStatus 
+  onServiceAdd, 
+  onServiceEdit, 
+  onServiceDelete, 
+  onServiceToggle 
 }: ServicesManagementProps) => {
   return (
     <div className="space-y-4 mt-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Your Services</h3>
-        <Button onClick={onAddService}>
+        <Button onClick={() => onServiceAdd({
+          id: Date.now(),
+          name: 'New Service',
+          description: 'Service description',
+          duration: 60,
+          price: 50,
+          category: 'haircut',
+          isActive: true
+        })}>
           <Plus className="mr-2 h-4 w-4" />
           Add Service
         </Button>
@@ -54,21 +62,21 @@ const ServicesManagement = ({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onToggleServiceStatus(service.id)}
+                  onClick={() => onServiceToggle(service.id)}
                 >
                   {service.isActive ? 'Deactivate' : 'Activate'}
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onEditService(service)}
+                  onClick={() => onServiceEdit(service)}
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onDeleteService(service.id)}
+                  onClick={() => onServiceDelete(service.id)}
                   className="text-red-600 hover:bg-red-50"
                 >
                   <Trash2 className="h-4 w-4" />

@@ -6,24 +6,32 @@ import { Product } from '@/types/dashboard';
 
 interface ProductsManagementProps {
   products: Product[];
-  onAddProduct: () => void;
-  onEditProduct: (product: Product) => void;
-  onDeleteProduct: (productId: number) => void;
-  onToggleProductStatus: (productId: number) => void;
+  onProductAdd: (newProduct: Product) => void;
+  onProductEdit: (updatedProduct: Product) => void;
+  onProductDelete: (id: number) => void;
+  onProductToggle: (id: number) => void;
 }
 
 const ProductsManagement = ({ 
   products, 
-  onAddProduct, 
-  onEditProduct, 
-  onDeleteProduct, 
-  onToggleProductStatus 
+  onProductAdd, 
+  onProductEdit, 
+  onProductDelete, 
+  onProductToggle 
 }: ProductsManagementProps) => {
   return (
     <div className="space-y-4 mt-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Your Products</h3>
-        <Button onClick={onAddProduct}>
+        <Button onClick={() => onProductAdd({
+          id: Date.now(),
+          name: 'New Product',
+          description: 'Product description',
+          price: 25,
+          stock: 10,
+          category: 'shampoo',
+          isActive: true
+        })}>
           <Plus className="mr-2 h-4 w-4" />
           Add Product
         </Button>
@@ -57,21 +65,21 @@ const ProductsManagement = ({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onToggleProductStatus(product.id)}
+                  onClick={() => onProductToggle(product.id)}
                 >
                   {product.isActive ? 'Hide' : 'Show'}
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onEditProduct(product)}
+                  onClick={() => onProductEdit(product)}
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onDeleteProduct(product.id)}
+                  onClick={() => onProductDelete(product.id)}
                   className="text-red-600 hover:bg-red-50"
                 >
                   <Trash2 className="h-4 w-4" />

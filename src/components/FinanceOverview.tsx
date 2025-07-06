@@ -5,11 +5,14 @@ import { DollarSign, Eye } from 'lucide-react';
 import { FinancialData } from '@/types/dashboard';
 
 interface FinanceOverviewProps {
-  financialData: FinancialData;
-  onViewDetails: () => void;
+  data: FinancialData;
 }
 
-const FinanceOverview = ({ financialData, onViewDetails }: FinanceOverviewProps) => {
+const FinanceOverview = ({ data }: FinanceOverviewProps) => {
+  const handleViewDetails = () => {
+    console.log('View financial details');
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -22,27 +25,27 @@ const FinanceOverview = ({ financialData, onViewDetails }: FinanceOverviewProps)
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Total Earnings</span>
-            <span className="font-semibold text-lg">{financialData.totalEarnings}</span>
+            <span className="font-semibold text-lg">{data.totalEarnings}</span>
           </div>
           
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Monthly Commission</span>
-            <span className="font-semibold text-green-600">{financialData.monthlyCommission}</span>
+            <span className="font-semibold text-green-600">{data.monthlyCommission}</span>
           </div>
           
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Pending Payments</span>
-            <span className="font-semibold text-amber-600">{financialData.pendingPayments}</span>
+            <span className="font-semibold text-amber-600">{data.pendingPayments}</span>
           </div>
           
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Commission Rate</span>
-            <span className="font-semibold">{financialData.commissionRate}</span>
+            <span className="font-semibold">{data.commissionRate}</span>
           </div>
           
           <Button 
             className="w-full mt-4" 
-            onClick={onViewDetails}
+            onClick={handleViewDetails}
           >
             <Eye className="mr-2 h-4 w-4" />
             View Details
