@@ -67,7 +67,9 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       id: 1, 
       name: 'Premium Shampoo', 
       description: 'High-quality moisturizing shampoo',
-      price: 25, 
+      price: 25,
+      costPrice: 15,
+      weight: 250, 
       stock: 15, 
       category: 'shampoo',
       isActive: true 
@@ -76,7 +78,9 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       id: 2, 
       name: 'Hair Styling Gel', 
       description: 'Strong hold styling gel',
-      price: 18, 
+      price: 18,
+      costPrice: 12,
+      weight: 150, 
       stock: 8, 
       category: 'styling',
       isActive: true 
@@ -85,7 +89,9 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
       id: 3, 
       name: 'Hair Mask Treatment', 
       description: 'Intensive repair mask',
-      price: 35, 
+      price: 35,
+      costPrice: 20,
+      weight: 200, 
       stock: 0, 
       category: 'treatment',
       isActive: false 
