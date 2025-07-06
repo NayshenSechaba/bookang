@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar, Clock, Star, DollarSign, Users, TrendingUp, CheckCircle, XCircle, Eye, Plus, Edit, Trash2, Package, Scissors, Camera, Upload, Image } from 'lucide-react';
 import CustomAlert from '@/components/CustomAlert';
+import CalendarBooking from '@/components/CalendarBooking';
 import { useForm } from 'react-hook-form';
 
 interface HairdresserDashboardProps {
@@ -547,6 +548,9 @@ const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Calendar Booking Section */}
+            <CalendarBooking />
+
             {/* Portfolio Section */}
             <Card>
               <CardHeader>
