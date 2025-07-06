@@ -1,1183 +1,248 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Calendar, Clock, DollarSign, CheckCircle, XCircle, TrendingUp, Upload } from 'lucide-react';
-import CustomAlert from '@/components/CustomAlert';
-import CalendarBooking from '@/components/CalendarBooking';
-import DashboardHeader from '@/components/DashboardHeader';
-import QuickStats from '@/components/QuickStats';
-import PortfolioSection from '@/components/PortfolioSection';
-import ServicesManagement from '@/components/ServicesManagement';
-import ProductsManagement from '@/components/ProductsManagement';
-import FinanceOverview from '@/components/FinanceOverview';
-import StarRating from '@/components/StarRating';
-import { useForm } from 'react-hook-form';
+import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import DashboardHeader from './DashboardHeader';
+import QuickStats from './QuickStats';
+import PortfolioSection from './PortfolioSection';
+import ServicesManagement from './ServicesManagement';
+import ProductsManagement from './ProductsManagement';
+import FinanceOverview from './FinanceOverview';
+import CalendarBooking from './CalendarBooking';
+import { Service, Product, PortfolioImage, FinancialData } from '@/types/dashboard';
 
-// Import types
-import { Service, Product, PortfolioImage, Appointment, CustomerReview, FinancialData } from '@/types/dashboard';
+// Mock data for services
+const mockServices: Service[] = [
+  {
+    id: 1,
+    name: 'Haircut & Styling',
+    description: 'Professional haircut and styling service',
+    duration: 60,
+    price: 75,
+    category: 'haircut',
+    isActive: true,
+  },
+  {
+    id: 2,
+    name: 'Color & Highlights',
+    description: 'Custom hair color and highlights',
+    duration: 120,
+    price: 150,
+    category: 'color',
+    isActive: true,
+  },
+  {
+    id: 3,
+    name: 'Deep Conditioning Treatment',
+    description: 'Intensive hair repair and hydration',
+    duration: 45,
+    price: 50,
+    category: 'treatment',
+    isActive: true,
+  },
+];
 
-interface HairdresserDashboardProps {
-  userName: string;
-}
+// Mock data for products
+const mockProducts: Product[] = [
+  {
+    id: 1,
+    name: 'Luxury Shampoo',
+    description: 'Sulfate-free shampoo for all hair types',
+    price: 25,
+    stock: 50,
+    category: 'shampoo',
+    isActive: true,
+  },
+  {
+    id: 2,
+    name: 'Hydrating Conditioner',
+    description: 'Intense hydration for dry and damaged hair',
+    price: 25,
+    stock: 50,
+    category: 'conditioner',
+    isActive: true,
+  },
+  {
+    id: 3,
+    name: 'Styling Gel',
+    description: 'Strong hold gel for creating any style',
+    price: 20,
+    stock: 30,
+    category: 'styling',
+    isActive: true,
+  },
+];
 
-const HairdresserDashboard = ({ userName }: HairdresserDashboardProps) => {
-  // State management
-  const [showFinanceModal, setShowFinanceModal] = useState(false);
-  const [showProfilePictureModal, setShowProfilePictureModal] = useState(false);
-  const [showPortfolioModal, setShowPortfolioModal] = useState(false);
-  const [profilePicture, setProfilePicture] = useState<string>('https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face');
-  const [editingPortfolioImage, setEditingPortfolioImage] = useState<PortfolioImage | null>(null);
+// Mock data for portfolio images
+const mockPortfolioImages: PortfolioImage[] = [
+  {
+    id: 1,
+    url: '/api/placeholder/300/300',
+    title: 'Elegant Bob Cut',
+    description: 'A classic bob cut with a modern twist.',
+    category: 'haircut',
+    dateAdded: '2024-01-20',
+  },
+  {
+    id: 2,
+    url: '/api/placeholder/300/300',
+    title: 'Vibrant Balayage',
+    description: 'A stunning balayage with vibrant colors.',
+    category: 'color',
+    dateAdded: '2024-02-15',
+  },
+  {
+    id: 3,
+    url: '/api/placeholder/300/300',
+    title: 'Updo for Special Occasions',
+    description: 'An elegant updo perfect for weddings and parties.',
+    category: 'styling',
+    dateAdded: '2024-03-10',
+  },
+];
 
-  // Portfolio images state
-  const [portfolioImages, setPortfolioImages] = useState<PortfolioImage[]>([
-    {
-      id: 1,
-      url: 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=400&fit=crop',
-      title: 'Modern Layered Cut',
-      description: 'Stylish layered haircut with modern styling',
-      category: 'haircut',
-      dateAdded: '2024-07-01'
-    },
-    {
-      id: 2,
-      url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=400&fit=crop',
-      title: 'Color Transformation',
-      description: 'Beautiful color transformation with highlights',
-      category: 'color',
-      dateAdded: '2024-06-28'
-    },
-    {
-      id: 3,
-      url: 'https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=400&h=400&fit=crop',
-      title: 'Professional Styling',
-      description: 'Elegant professional styling for special events',
-      category: 'styling',
-      dateAdded: '2024-06-25'
-    }
-  ]);
+// Mock financial data
+const mockFinancialData: FinancialData = {
+  totalEarnings: 'R 54,750',
+  monthlyCommission: 'R 4,500',
+  pendingPayments: 'R 1,250',
+  commissionRate: '10%',
+  totalAppointments: 320,
+  averageRating: 4.8,
+};
 
-  const [appointments, setAppointments] = useState<Appointment[]>([
-    {
-      id: 1,
-      customerName: 'Emily Johnson',
-      service: 'Haircut & Styling',
-      date: '2024-07-15',
-      time: '2:00 PM',
-      status: 'Pending',
-      cost: 'R1,125',
-      commission: 'R337.50'
-    },
-    {
-      id: 2,
-      customerName: 'Sarah Williams',
-      service: 'Hair Color & Highlights',
-      date: '2024-07-15',
-      time: '10:00 AM',
-      status: 'Confirmed',
-      cost: 'R2,250',
-      commission: 'R675.00'
-    },
-    {
-      id: 3,
-      customerName: 'Jessica Brown',
-      service: 'Hair Treatment',
-      date: '2024-07-15',
-      time: '4:00 PM',
-      status: 'Pending',
-      cost: 'R1,800',
-      commission: 'R540.00'
-    }
-  ]);
+const HairdresserDashboard = () => {
+  const [activeTab, setActiveTab] = useState('calendar');
+  const [services, setServices] = useState(mockServices);
+  const [products, setProducts] = useState(mockProducts);
+  const [portfolioImages, setPortfolioImages] = useState(mockPortfolioImages);
 
-  // Alert state
-  const [alertInfo, setAlertInfo] = useState<{
-    show: boolean;
-    type: 'success' | 'error' | 'info';
-    title: string;
-    message: string;
-  }>({ show: false, type: 'info', title: '', message: '' });
-
-  // Services and Products state
-  const [services, setServices] = useState<Service[]>([
-    {
-      id: 1,
-      name: 'Classic Haircut',
-      description: 'Professional hair cutting and styling service',
-      duration: 45,
-      price: 750,
-      category: 'haircut',
-      isActive: true
-    },
-    {
-      id: 2,
-      name: 'Hair Color & Highlights',
-      description: 'Full color treatment with highlights',
-      duration: 120,
-      price: 2250,
-      category: 'color',
-      isActive: true
-    },
-    {
-      id: 3,
-      name: 'Deep Conditioning Treatment',
-      description: 'Restorative hair treatment for damaged hair',
-      duration: 60,
-      price: 1200,
-      category: 'treatment',
-      isActive: true
-    }
-  ]);
-
-  const [products, setProducts] = useState<Product[]>([
-    {
-      id: 1,
-      name: 'Premium Shampoo',
-      description: 'Professional grade moisturizing shampoo',
-      price: 375,
-      stock: 15,
-      category: 'shampoo',
-      isActive: true
-    },
-    {
-      id: 2,
-      name: 'Hair Styling Gel',
-      description: 'Long-lasting hold styling gel',
-      price: 270,
-      stock: 8,
-      category: 'styling',
-      isActive: true
-    }
-  ]);
-
-  // Modal states for services and products
-  const [showServiceModal, setShowServiceModal] = useState(false);
-  const [showProductModal, setShowProductModal] = useState(false);
-  const [editingService, setEditingService] = useState<Service | null>(null);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-
-  // Forms
-  const serviceForm = useForm({
-    defaultValues: {
-      name: '',
-      description: '',
-      duration: 30,
-      price: 0,
-      category: 'haircut'
-    }
-  });
-
-  const productForm = useForm({
-    defaultValues: {
-      name: '',
-      description: '',
-      price: 0,
-      stock: 0,
-      category: 'shampoo'
-    }
-  });
-
-  const profilePictureForm = useForm({
-    defaultValues: {
-      imageUrl: profilePicture
-    }
-  });
-
-  const portfolioForm = useForm({
-    defaultValues: {
-      url: '',
-      title: '',
-      description: '',
-      category: 'haircut'
-    }
-  });
-
-  // Mock data for reviews
-  const customerReviews: CustomerReview[] = [
-    {
-      id: 1,
-      customerName: 'Emily Johnson',
-      service: 'Haircut',
-      rating: 5,
-      comment: 'Absolutely amazing! Sarah gave me the perfect haircut. She really listened to what I wanted and delivered exactly that. The salon atmosphere was great too!',
-      date: '2024-06-28'
-    },
-    {
-      id: 2,
-      customerName: 'Maria Garcia',
-      service: 'Hair Color',
-      rating: 5,
-      comment: 'Best hair color experience ever! The results exceeded my expectations. Professional, friendly, and skilled. Will definitely be back!',
-      date: '2024-06-25'
-    },
-    {
-      id: 3,
-      customerName: 'Lisa Chen',
-      service: 'Hair Styling',
-      rating: 4,
-      comment: 'Great service and lovely results. Sarah is very talented and made me feel comfortable throughout the appointment.',
-      date: '2024-06-20'
-    },
-    {
-      id: 4,
-      customerName: 'Anna Wilson',
-      service: 'Hair Treatment',
-      rating: 5,
-      comment: 'My hair has never felt better! The treatment was relaxing and the results speak for themselves. Highly recommend!',
-      date: '2024-06-18'
-    }
-  ];
-
-  // Financial data
-  const financialData: FinancialData = {
-    totalEarnings: 'R36,750.00',
-    monthlyCommission: 'R11,025.00',
-    pendingPayments: 'R1,552.50',
-    commissionRate: '30%',
-    totalAppointments: 42,
-    averageRating: 4.8
+  // Handlers for Services
+  const handleServiceAdd = (newService: Service) => {
+    setServices([...services, { ...newService, id: Date.now() }]);
   };
 
-  // Show custom alert
-  const showAlert = (type: 'success' | 'error' | 'info', title: string, message: string) => {
-    setAlertInfo({ show: true, type, title, message });
-  };
-
-  // Handle appointment actions
-  const handleAppointmentAction = (appointmentId: number, action: 'confirm' | 'cancel') => {
-    setAppointments(prev => 
-      prev.map(apt => 
-        apt.id === appointmentId 
-          ? { ...apt, status: action === 'confirm' ? 'Confirmed' : 'Cancelled' }
-          : apt
-      )
-    );
-
-    const appointment = appointments.find(apt => apt.id === appointmentId);
-    if (action === 'confirm') {
-      showAlert('success', 'Appointment Confirmed', 
-        `Appointment with ${appointment?.customerName} has been confirmed. They will be notified via email.`);
-    } else {
-      showAlert('info', 'Appointment Cancelled', 
-        `Appointment with ${appointment?.customerName} has been cancelled. They will be notified and can reschedule if needed.`);
-    }
-  };
-
-  // Profile picture functions
-  const handleProfilePictureSubmit = (data: any) => {
-    setProfilePicture(data.imageUrl);
-    setShowProfilePictureModal(false);
-    showAlert('success', 'Profile Picture Updated', 'Your profile picture has been successfully updated.');
-  };
-
-  // Portfolio management functions
-  const handleAddPortfolioImage = () => {
-    setEditingPortfolioImage(null);
-    portfolioForm.reset();
-    setShowPortfolioModal(true);
-  };
-
-  const handleEditPortfolioImage = (image: PortfolioImage) => {
-    setEditingPortfolioImage(image);
-    portfolioForm.reset({
-      url: image.url,
-      title: image.title,
-      description: image.description,
-      category: image.category
-    });
-    setShowPortfolioModal(true);
-  };
-
-  const handlePortfolioSubmit = (data: any) => {
-    if (editingPortfolioImage) {
-      setPortfolioImages(prev => prev.map(image => 
-        image.id === editingPortfolioImage.id 
-          ? { ...image, ...data }
-          : image
-      ));
-      showAlert('success', 'Portfolio Updated', `${data.title} has been successfully updated.`);
-    } else {
-      const newImage: PortfolioImage = {
-        id: Date.now(),
-        ...data,
-        dateAdded: new Date().toISOString().split('T')[0]
-      };
-      setPortfolioImages(prev => [...prev, newImage]);
-      showAlert('success', 'Portfolio Image Added', `${data.title} has been successfully added to your portfolio.`);
-    }
-    setShowPortfolioModal(false);
-  };
-
-  const handleDeletePortfolioImage = (imageId: number) => {
-    const image = portfolioImages.find(img => img.id === imageId);
-    setPortfolioImages(prev => prev.filter(img => img.id !== imageId));
-    showAlert('info', 'Portfolio Image Removed', `${image?.title} has been removed from your portfolio.`);
-  };
-
-  // Service management functions
-  const handleAddService = () => {
-    setEditingService(null);
-    serviceForm.reset();
-    setShowServiceModal(true);
-  };
-
-  const handleEditService = (service: Service) => {
-    setEditingService(service);
-    serviceForm.reset({
-      name: service.name,
-      description: service.description,
-      duration: service.duration,
-      price: service.price,
-      category: service.category
-    });
-    setShowServiceModal(true);
-  };
-
-  const handleServiceSubmit = (data: any) => {
-    if (editingService) {
-      setServices(prev => prev.map(service => 
-        service.id === editingService.id 
-          ? { ...service, ...data }
-          : service
-      ));
-      showAlert('success', 'Service Updated', `${data.name} has been successfully updated.`);
-    } else {
-      const newService: Service = {
-        id: Date.now(),
-        ...data,
-        isActive: true
-      };
-      setServices(prev => [...prev, newService]);
-      showAlert('success', 'Service Added', `${data.name} has been successfully added to your services.`);
-    }
-    setShowServiceModal(false);
-  };
-
-  const handleDeleteService = (serviceId: number) => {
-    const service = services.find(s => s.id === serviceId);
-    setServices(prev => prev.filter(s => s.id !== serviceId));
-    showAlert('info', 'Service Removed', `${service?.name} has been removed from your services.`);
-  };
-
-  // Product management functions
-  const handleAddProduct = () => {
-    setEditingProduct(null);
-    productForm.reset();
-    setShowProductModal(true);
-  };
-
-  const handleEditProduct = (product: Product) => {
-    setEditingProduct(product);
-    productForm.reset({
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      stock: product.stock,
-      category: product.category
-    });
-    setShowProductModal(true);
-  };
-
-  const handleProductSubmit = (data: any) => {
-    if (editingProduct) {
-      setProducts(prev => prev.map(product => 
-        product.id === editingProduct.id 
-          ? { ...product, ...data }
-          : product
-      ));
-      showAlert('success', 'Product Updated', `${data.name} has been successfully updated.`);
-    } else {
-      const newProduct: Product = {
-        id: Date.now(),
-        ...data,
-        isActive: true
-      };
-      setProducts(prev => [...prev, newProduct]);
-      showAlert('success', 'Product Added', `${data.name} has been successfully added to your inventory.`);
-    }
-    setShowProductModal(false);
-  };
-
-  const handleDeleteProduct = (productId: number) => {
-    const product = products.find(p => p.id === productId);
-    setProducts(prev => prev.filter(p => p.id !== productId));
-    showAlert('info', 'Product Removed', `${product?.name} has been removed from your inventory.`);
-  };
-
-  // Toggle service/product active status
-  const toggleServiceStatus = (serviceId: number) => {
-    setServices(prev => prev.map(service => 
-      service.id === serviceId 
-        ? { ...service, isActive: !service.isActive }
-        : service
+  const handleServiceEdit = (updatedService: Service) => {
+    setServices(services.map(service =>
+      service.id === updatedService.id ? updatedService : service
     ));
   };
 
-  const toggleProductStatus = (productId: number) => {
-    setProducts(prev => prev.map(product => 
-      product.id === productId 
-        ? { ...product, isActive: !product.isActive }
-        : product
+  const handleServiceDelete = (id: number) => {
+    setServices(services.filter(service => service.id !== id));
+  };
+
+  const handleServiceToggle = (id: number) => {
+    setServices(services.map(service =>
+      service.id === id ? { ...service, isActive: !service.isActive } : service
     ));
+  };
+
+  // Handlers for Products
+  const handleProductAdd = (newProduct: Product) => {
+    setProducts([...products, { ...newProduct, id: Date.now() }]);
+  };
+
+  const handleProductEdit = (updatedProduct: Product) => {
+    setProducts(products.map(product =>
+      product.id === updatedProduct.id ? updatedProduct : product
+    ));
+  };
+
+  const handleProductDelete = (id: number) => {
+    setProducts(products.filter(product => product.id !== id));
+  };
+
+  const handleProductToggle = (id: number) => {
+    setProducts(products.map(product =>
+      product.id === id ? { ...product, isActive: !product.isActive } : product
+    ));
+  };
+
+  // Handlers for Portfolio Images
+  const handleImageUpload = (newImage: PortfolioImage) => {
+    setPortfolioImages([...portfolioImages, { ...newImage, id: Date.now() }]);
+  };
+
+  const handleImageEdit = (updatedImage: PortfolioImage) => {
+    setPortfolioImages(portfolioImages.map(image =>
+      image.id === updatedImage.id ? updatedImage : image
+    ));
+  };
+
+  const handleImageDelete = (id: number) => {
+    setPortfolioImages(portfolioImages.filter(image => image.id !== id));
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-6">
       <div className="max-w-7xl mx-auto">
         <DashboardHeader 
-          userName={userName}
-          profilePicture={profilePicture}
-          onUpdateProfilePicture={() => setShowProfilePictureModal(true)}
+          userName="Sarah Johnson"
+          profilePicture="/api/placeholder/80/80"
+          onUpdateProfilePicture={() => console.log('Update profile picture')}
         />
 
-        <QuickStats 
-          appointmentsCount={appointments.length}
-          services={services}
-          products={products}
-          monthlyCommission={financialData.monthlyCommission}
-        />
+        {/* Quick Stats */}
+        <QuickStats data={mockFinancialData} />
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Calendar Booking Section */}
-            <CalendarBooking />
-
-            {/* Portfolio Section */}
-            <PortfolioSection 
-              portfolioImages={portfolioImages}
-              onAddImage={handleAddPortfolioImage}
-              onEditImage={handleEditPortfolioImage}
-              onDeleteImage={handleDeletePortfolioImage}
-            />
-
-            {/* Services & Products Management */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Services & Products Management</CardTitle>
-                <CardDescription>
-                  Manage your service offerings and product inventory
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="services" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="services">Services</TabsTrigger>
-                    <TabsTrigger value="products">Products</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="services">
-                    <ServicesManagement 
-                      services={services}
-                      onAddService={handleAddService}
-                      onEditService={handleEditService}
-                      onDeleteService={handleDeleteService}
-                      onToggleServiceStatus={toggleServiceStatus}
-                    />
-                  </TabsContent>
-                  
-                  <TabsContent value="products">
-                    <ProductsManagement 
-                      products={products}
-                      onAddProduct={handleAddProduct}
-                      onEditProduct={handleEditProduct}
-                      onDeleteProduct={handleDeleteProduct}
-                      onToggleProductStatus={toggleProductStatus}
-                    />
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-
-            {/* Appointments Management */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Today's Appointments</CardTitle>
-                <CardDescription>
-                  Manage your upcoming appointments and client bookings
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {appointments.map((appointment) => (
-                    <div key={appointment.id} className="border rounded-lg p-4 bg-white">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h3 className="font-semibold text-lg">{appointment.customerName}</h3>
-                          <p className="text-gray-600">{appointment.service}</p>
-                        </div>
-                        <Badge 
-                          variant={
-                            appointment.status === 'Confirmed' ? 'default' : 
-                            appointment.status === 'Pending' ? 'secondary' : 'destructive'
-                          }
-                          className={
-                            appointment.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
-                            appointment.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : ''
-                          }
-                        >
-                          {appointment.status}
-                        </Badge>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-4">
-                        <div className="flex items-center">
-                          <Calendar className="mr-2 h-4 w-4" />
-                          {appointment.date}
-                        </div>
-                        <div className="flex items-center">
-                          <Clock className="mr-2 h-4 w-4" />
-                          {appointment.time}
-                        </div>
-                        <div className="flex items-center">
-                          <DollarSign className="mr-2 h-4 w-4" />
-                          {appointment.cost}
-                        </div>
-                        <div className="flex items-center">
-                          <span className="text-sm font-medium text-purple-600">
-                            Commission: {appointment.commission}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {appointment.status === 'Pending' && (
-                        <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            onClick={() => handleAppointmentAction(appointment.id, 'confirm')}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            Confirm
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleAppointmentAction(appointment.id, 'cancel')}
-                            className="border-red-200 text-red-600 hover:bg-red-50"
-                          >
-                            <XCircle className="mr-2 h-4 w-4" />
-                            Cancel
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Customer Reviews */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Customer Reviews</CardTitle>
-                <CardDescription>
-                  See what your customers are saying about your services
-                  <Badge variant="outline" className="ml-2">Standard Tier Feature</Badge>
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {customerReviews.map((review) => (
-                    <div key={review.id} className="border rounded-lg p-4 bg-white">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h4 className="font-semibold">{review.customerName}</h4>
-                          <p className="text-sm text-gray-600">{review.service} • {review.date}</p>
-                        </div>
-                        <StarRating rating={review.rating} />
-                      </div>
-                      
-                      <p className="text-gray-700 text-sm leading-relaxed">
-                        {review.comment}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm text-blue-800">
-                    <strong>Free Tier:</strong> Individual reviews are available with Standard Tier. 
-                    Currently showing total review count and average rating only.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Main Content Tabs */}
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="border-b border-gray-200">
+            <nav className="flex space-x-8 px-6">
+              {[
+                { key: 'calendar', label: 'Calendar', icon: '📅' },
+                { key: 'portfolio', label: 'Portfolio', icon: '📸' },
+                { key: 'services', label: 'Services', icon: '✂️' },
+                { key: 'products', label: 'Products', icon: '🧴' },
+                { key: 'finances', label: 'Finances', icon: '💰' }
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`py-4 px-2 border-b-2 font-medium text-sm ${
+                    activeTab === tab.key
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <span className="mr-2">{tab.icon}</span>
+                  {tab.label}
+                </button>
+              ))}
+            </nav>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Finance Overview */}
-            <FinanceOverview 
-              financialData={financialData}
-              onViewDetails={() => setShowFinanceModal(true)}
-            />
-
-            {/* Performance Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <TrendingUp className="mr-2 h-5 w-5 text-blue-500" />
-                  Performance
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600 mb-1">
-                      {financialData.totalAppointments}
-                    </div>
-                    <p className="text-gray-600">Total Appointments</p>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-yellow-500 mb-1">
-                      {financialData.averageRating}
-                    </div>
-                    <p className="text-gray-600">Average Rating</p>
-                    <StarRating rating={Math.floor(financialData.averageRating)} />
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-purple-600 mb-1">
-                      {customerReviews.length}
-                    </div>
-                    <p className="text-gray-600">Total Reviews</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Tips */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Professional Tips</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p>Keep your services updated with current pricing</p>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p>Monitor product stock levels regularly</p>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p>Respond to reviews to show you care</p>
-                  </div>
-                  <div className="flex items-start space-x-2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <p>Upload portfolio photos to attract customers</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="p-6">
+            {activeTab === 'calendar' && <CalendarBooking />}
+            {activeTab === 'portfolio' && (
+              <PortfolioSection 
+                images={portfolioImages}
+                onImageUpload={handleImageUpload}
+                onImageEdit={handleImageEdit}
+                onImageDelete={handleImageDelete}
+              />
+            )}
+            {activeTab === 'services' && (
+              <ServicesManagement 
+                services={services}
+                onServiceAdd={handleServiceAdd}
+                onServiceEdit={handleServiceEdit}
+                onServiceDelete={handleServiceDelete}
+                onServiceToggle={handleServiceToggle}
+              />
+            )}
+            {activeTab === 'products' && (
+              <ProductsManagement 
+                products={products}
+                onProductAdd={handleProductAdd}
+                onProductEdit={handleProductEdit}
+                onProductDelete={handleProductDelete}
+                onProductToggle={handleProductToggle}
+              />
+            )}
+            {activeTab === 'finances' && <FinanceOverview data={mockFinancialData} />}
           </div>
         </div>
       </div>
-
-      {/* Portfolio Modal */}
-      <Dialog open={showPortfolioModal} onOpenChange={setShowPortfolioModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {editingPortfolioImage ? 'Edit Portfolio Image' : 'Add Portfolio Image'}
-            </DialogTitle>
-            <DialogDescription>
-              {editingPortfolioImage ? 'Update your portfolio image details' : 'Add a new image to showcase your work'}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Form {...portfolioForm}>
-            <form onSubmit={portfolioForm.handleSubmit(handlePortfolioSubmit)} className="space-y-4">
-              <FormField
-                control={portfolioForm.control}
-                name="url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image URL</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://example.com/your-style-photo.jpg" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={portfolioForm.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Modern Layered Cut" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={portfolioForm.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Brief description of this style" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={portfolioForm.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <FormControl>
-                      <select 
-                        className="w-full p-2 border rounded-md"
-                        {...field}
-                      >
-                        <option value="haircut">Haircut</option>
-                        <option value="color">Color</option>
-                        <option value="styling">Styling</option>
-                        <option value="treatment">Treatment</option>
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setShowPortfolioModal(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  <Upload className="mr-2 h-4 w-4" />
-                  {editingPortfolioImage ? 'Update Image' : 'Add Image'}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Service Modal */}
-      <Dialog open={showServiceModal} onOpenChange={setShowServiceModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {editingService ? 'Edit Service' : 'Add New Service'}
-            </DialogTitle>
-            <DialogDescription>
-              {editingService ? 'Update your service details' : 'Add a new service to your offerings'}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Form {...serviceForm}>
-            <form onSubmit={serviceForm.handleSubmit(handleServiceSubmit)} className="space-y-4">
-              <FormField
-                control={serviceForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Service Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Classic Haircut" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={serviceForm.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Brief description of the service" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={serviceForm.control}
-                  name="duration"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Duration (minutes)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="45"
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={serviceForm.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price (R)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="750"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <FormField
-                control={serviceForm.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <FormControl>
-                      <select 
-                        className="w-full p-2 border rounded-md"
-                        {...field}
-                      >
-                        <option value="haircut">Haircut</option>
-                        <option value="color">Color</option>
-                        <option value="styling">Styling</option>
-                        <option value="treatment">Treatment</option>
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setShowServiceModal(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {editingService ? 'Update Service' : 'Add Service'}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Product Modal */}
-      <Dialog open={showProductModal} onOpenChange={setShowProductModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {editingProduct ? 'Edit Product' : 'Add New Product'}
-            </DialogTitle>
-            <DialogDescription>
-              {editingProduct ? 'Update your product details' : 'Add a new product to your inventory'}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Form {...productForm}>
-            <form onSubmit={productForm.handleSubmit(handleProductSubmit)} className="space-y-4">
-              <FormField
-                control={productForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Premium Shampoo" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={productForm.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Brief description of the product" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={productForm.control}
-                  name="price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price (R)</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          step="0.01"
-                          placeholder="375.00"
-                          {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={productForm.control}
-                  name="stock"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Stock Quantity</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="number" 
-                          placeholder="15"
-                          {...field}
-                          onChange={(e) => field.onChange(parseInt(e.target.value))}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              <FormField
-                control={productForm.control}
-                name="category"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
-                    <FormControl>
-                      <select 
-                        className="w-full p-2 border rounded-md"
-                        {...field}
-                      >
-                        <option value="shampoo">Shampoo</option>
-                        <option value="conditioner">Conditioner</option>
-                        <option value="styling">Styling</option>
-                        <option value="treatment">Treatment</option>
-                        <option value="tools">Tools</option>
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setShowProductModal(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {editingProduct ? 'Update Product' : 'Add Product'}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Profile Picture Modal */}
-      <Dialog open={showProfilePictureModal} onOpenChange={setShowProfilePictureModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Update Profile Picture</DialogTitle>
-            <DialogDescription>
-              Upload a new profile picture by providing an image URL
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Form {...profilePictureForm}>
-            <form onSubmit={profilePictureForm.handleSubmit(handleProfilePictureSubmit)} className="space-y-4">
-              <div className="flex justify-center mb-4">
-                <img 
-                  src={profilePictureForm.watch('imageUrl') || profilePicture}
-                  alt="Preview"
-                  className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face';
-                  }}
-                />
-              </div>
-              
-              <FormField
-                control={profilePictureForm.control}
-                name="imageUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image URL</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="https://example.com/your-photo.jpg" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex justify-end space-x-2 pt-4">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setShowProfilePictureModal(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  <Upload className="mr-2 h-4 w-4" />
-                  Update Picture
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Finance Modal */}
-      <Dialog open={showFinanceModal} onOpenChange={setShowFinanceModal}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Finance Management</DialogTitle>
-            <DialogDescription>
-              Detailed view of your earnings and commission structure
-            </DialogDescription>
-          </DialogHeader>
-          
-          <Tabs defaultValue="earnings" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="earnings">Earnings</TabsTrigger>
-              <TabsTrigger value="commission">Commission</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="earnings" className="space-y-4 mt-6">
-              <div className="space-y-4">
-                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-green-800 font-medium">Total Earnings (This Month)</span>
-                    <span className="text-2xl font-bold text-green-600">{financialData.totalEarnings}</span>
-                  </div>
-                  <p className="text-sm text-green-700">Based on {financialData.totalAppointments} completed appointments</p>
-                </div>
-                
-                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-blue-800 font-medium">Your Commission</span>
-                    <span className="text-xl font-bold text-blue-600">{financialData.monthlyCommission}</span>
-                  </div>
-                  <p className="text-sm text-blue-700">At {financialData.commissionRate} commission rate</p>
-                </div>
-                
-                <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-amber-800 font-medium">Pending Payments</span>
-                    <span className="text-xl font-bold text-amber-600">{financialData.pendingPayments}</span>
-                  </div>
-                  <p className="text-sm text-amber-700">From recent appointments</p>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="commission" className="space-y-4 mt-6">
-              <div className="space-y-4">
-                <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                  <h4 className="font-semibold text-purple-900 mb-2">Commission Structure</h4>
-                  <div className="space-y-2 text-sm text-purple-800">
-                    <div className="flex justify-between">
-                      <span>Standard Services:</span>
-                      <span className="font-medium">30%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Premium Services:</span>
-                      <span className="font-medium">35%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Online Booking Fee:</span>
-                      <span className="font-medium">2.5%</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <h4 className="font-semibold text-gray-900 mb-2">Payment Schedule</h4>
-                  <p className="text-sm text-gray-700">
-                    Payments are processed weekly on Fridays. Commission from online bookings 
-                    is calculated after the service is completed and customer payment is confirmed.
-                  </p>
-                </div>
-                
-                <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-                  <h4 className="font-semibold text-indigo-900 mb-2">Performance Bonuses</h4>
-                  <p className="text-sm text-indigo-700">
-                    Maintain a 4.8+ rating to qualify for monthly performance bonuses. 
-                    Top performers receive additional commission increases.
-                  </p>
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-          
-          <div className="flex justify-end pt-4 border-t">
-            <Button onClick={() => setShowFinanceModal(false)}>
-              Close
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Custom Alert */}
-      <CustomAlert
-        isOpen={alertInfo.show}
-        onClose={() => setAlertInfo(prev => ({ ...prev, show: false }))}
-        type={alertInfo.type}
-        title={alertInfo.title}
-        message={alertInfo.message}
-      />
     </div>
   );
 };

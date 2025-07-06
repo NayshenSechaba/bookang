@@ -1,12 +1,11 @@
-
 import { useState } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Calendar as CalendarIcon, Clock, User, DollarSign, Plus } from 'lucide-react';
-import { format, isSameDay } from 'date-fns';
+import { Calendar as CalendarIcon, Clock, User, DollarSign, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { format, isSameDay, addDays, subDays } from 'date-fns';
 
 interface Booking {
   id: number;
@@ -28,6 +27,8 @@ interface TimeSlot {
 const CalendarBooking = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showDayDetails, setShowDayDetails] = useState(false);
+  const [showHourlyView, setShowHourlyView] = useState(false);
+  const [hourlyViewDate, setHourlyViewDate] = useState<Date>(new Date());
 
   // Mock booking data
   const bookings: Booking[] = [
@@ -62,6 +63,37 @@ const CalendarBooking = () => {
       date: new Date(2024, 6, 16) // July 16, 2024
     }
   ];
+
+  // Generate hours for horizontal timeline (9 AM to 6 PM)
+  const generateHours = () => {
+    const hours = [];
+    for (let hour = 9; hour <= 18; hour++) {
+      hours.push({
+        hour,
+        display: format(new Date(2024, 0, 1, hour, 0), 'h a'),
+        timeSlot: `${hour.toString().padStart(2, '0')}:00`
+      });
+    }
+    return hours;
+  };
+
+  // Get booking for specific date and hour
+  const getBookingForHour = (date: Date, hour: number) => {
+    const dayBookings = bookings.filter(booking => isSameDay(booking.date, date));
+    return dayBookings.find(booking => {
+      const bookingHour = parseInt(booking.time.split(':')[0]);
+      const isPM = booking.time.includes('PM');
+      const adjustedHour = isPM && bookingHour !== 12 ? bookingHour + 12 : bookingHour;
+      return adjustedHour === hour;
+    });
+  };
+
+  // Navigate days in hourly view
+  const navigateDay = (direction: 'prev' | 'next') => {
+    setHourlyViewDate(prev => 
+      direction === 'prev' ? subDays(prev, 1) : addDays(prev, 1)
+    );
+  };
 
   // Generate time slots for a day (9 AM to 6 PM)
   const generateTimeSlots = (date: Date): TimeSlot[] => {
@@ -128,7 +160,13 @@ const CalendarBooking = () => {
               <Calendar
                 mode="single"
                 selected={selectedDate}
-                onSelect={(date) => date && setSelectedDate(date)}
+                onSelect={(date) => {
+                  if (date) {
+                    setSelectedDate(date);
+                    setHourlyViewDate(date);
+                    setShowHourlyView(true);
+                  }
+                }}
                 modifiers={modifiers}
                 modifiersStyles={modifiersStyles}
                 className="rounded-md border"
@@ -225,7 +263,118 @@ const CalendarBooking = () => {
         </CardContent>
       </Card>
 
-      {/* Day Details Modal */}
+      {/* Horizontal Hourly Timeline View */}
+      <Dialog open={showHourlyView} onOpenChange={setShowHourlyView}>
+        <DialogContent className="sm:max-w-6xl max-h-[80vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Daily Schedule - {format(hourlyViewDate, 'EEEE, MMMM d, yyyy')}</span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateDay('prev')}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigateDay('next')}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </DialogTitle>
+            <DialogDescription>
+              Horizontal timeline view showing your appointments throughout the day
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="overflow-x-auto overflow-y-hidden">
+            <div className="min-w-full">
+              {/* Hour Headers */}
+              <div className="flex border-b bg-gray-50">
+                <div className="w-20 p-2 text-sm font-medium text-gray-600 border-r">
+                  Time
+                </div>
+                {generateHours().map((hour) => (
+                  <div 
+                    key={hour.hour} 
+                    className="flex-1 min-w-24 p-2 text-center text-sm font-medium text-gray-600 border-r"
+                  >
+                    {hour.display}
+                  </div>
+                ))}
+              </div>
+
+              {/* Timeline Row */}
+              <div className="flex min-h-16">
+                <div className="w-20 p-2 text-sm text-gray-500 border-r bg-gray-50 flex items-center">
+                  Schedule
+                </div>
+                {generateHours().map((hour) => {
+                  const booking = getBookingForHour(hourlyViewDate, hour.hour);
+                  return (
+                    <div 
+                      key={hour.hour} 
+                      className={`flex-1 min-w-24 p-1 border-r min-h-16 ${
+                        booking 
+                          ? booking.status === 'confirmed' 
+                            ? 'bg-blue-100 border-blue-200' 
+                            : 'bg-yellow-100 border-yellow-200'
+                          : 'bg-green-50 hover:bg-green-100 cursor-pointer'
+                      }`}
+                    >
+                      {booking ? (
+                        <div className="h-full p-1">
+                          <div className={`p-2 rounded text-xs h-full ${
+                            booking.status === 'confirmed' 
+                              ? 'bg-blue-200 text-blue-800' 
+                              : 'bg-yellow-200 text-yellow-800'
+                          }`}>
+                            <div className="font-medium truncate">{booking.customerName}</div>
+                            <div className="text-xs truncate">{booking.service}</div>
+                            <div className="text-xs">{booking.cost}</div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="h-full flex items-center justify-center text-xs text-gray-400">
+                          Available
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Legend */}
+              <div className="flex items-center gap-4 p-4 bg-gray-50 text-xs">
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-blue-200 rounded"></div>
+                  <span>Confirmed</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-yellow-200 rounded"></div>
+                  <span>Pending</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-green-50 border border-green-200 rounded"></div>
+                  <span>Available</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex justify-end pt-4 border-t">
+            <Button onClick={() => setShowHourlyView(false)}>
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Original Day Details Modal */}
       <Dialog open={showDayDetails} onOpenChange={setShowDayDetails}>
         <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
