@@ -1,9 +1,10 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Users, Package, Scissors, DollarSign, Settings, Camera } from 'lucide-react';
+import { Calendar, Users, Package, Scissors, Settings, Camera } from 'lucide-react';
 import DashboardHeader from './DashboardHeader';
 import QuickStats from './QuickStats';
 import PortfolioSection from './PortfolioSection';
@@ -219,7 +220,6 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
               <span className="hidden sm:inline">Products</span>
             </TabsTrigger>
             <TabsTrigger value="finance" className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4" />
               <span className="hidden sm:inline">Finance</span>
             </TabsTrigger>
           </TabsList>
