@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Star, Scissors, Calendar, Users, MapPin, TrendingUp, Phone, Mail, HelpCircle } from 'lucide-react';
+import { Star, Scissors, Calendar, Users, MapPin, TrendingUp, Phone, Mail, HelpCircle, UserCheck } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
 import CustomerDashboard from '@/components/CustomerDashboard';
 import HairdresserDashboard from '@/components/HairdresserDashboard';
+import EmployeeDashboard from '@/components/EmployeeDashboard';
 import ExplorePage from '@/components/ExplorePage';
 import FAQSection from '@/components/FAQSection';
 import ContactSection from '@/components/ContactSection';
@@ -15,18 +16,18 @@ import TrendsSection from '@/components/TrendsSection';
 const Index = () => {
   // Authentication state management
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState<'customer' | 'hairdresser' | null>(null);
+  const [userRole, setUserRole] = useState<'customer' | 'hairdresser' | 'employee' | null>(null);
   const [userName, setUserName] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [loginType, setLoginType] = useState<'customer' | 'hairdresser'>('customer');
+  const [loginType, setLoginType] = useState<'customer' | 'hairdresser' | 'employee'>('customer');
   
   // Navigation state
   const [currentPage, setCurrentPage] = useState('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Handle successful authentication
-  const handleAuthSuccess = (role: 'customer' | 'hairdresser', name: string) => {
+  const handleAuthSuccess = (role: 'customer' | 'hairdresser' | 'employee', name: string) => {
     setIsAuthenticated(true);
     setUserRole(role);
     setUserName(name);
@@ -43,7 +44,7 @@ const Index = () => {
   };
 
   // Open authentication modal with specific mode
-  const openAuthModal = (mode: 'login' | 'register', type?: 'customer' | 'hairdresser') => {
+  const openAuthModal = (mode: 'login' | 'register', type?: 'customer' | 'hairdresser' | 'employee') => {
     setAuthMode(mode);
     if (type) setLoginType(type);
     setShowAuthModal(true);
@@ -71,9 +72,10 @@ const Index = () => {
     switch (currentPage) {
       case 'dashboard':
         if (!isAuthenticated) return renderHomePage();
-        return userRole === 'customer' ? 
-          <CustomerDashboard userName={userName} /> : 
-          <HairdresserDashboard userName={userName} />;
+        if (userRole === 'customer') return <CustomerDashboard userName={userName} />;
+        if (userRole === 'hairdresser') return <HairdresserDashboard userName={userName} />;
+        if (userRole === 'employee') return <EmployeeDashboard userName={userName} />;
+        return renderHomePage();
       case 'explore':
         return <ExplorePage />;
       case 'trends':
@@ -473,8 +475,19 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 SalonConnect. All rights reserved.</p>
+          <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center">
+            <p className="text-gray-400 mb-4 sm:mb-0">&copy; 2024 SalonConnect. All rights reserved.</p>
+            
+            {/* Employee Login Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white"
+              onClick={() => openAuthModal('login', 'employee')}
+            >
+              <UserCheck className="mr-2 h-4 w-4" />
+              Employee Login
+            </Button>
           </div>
         </div>
       </footer>
