@@ -16,14 +16,14 @@ interface ProductEditDialogProps {
 }
 
 const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false }: ProductEditDialogProps) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<Product, 'id'>>({
     name: '',
     description: '',
     price: 0,
     costPrice: 0,
     weight: 0,
     stock: 0,
-    category: 'shampoo' as const,
+    category: 'shampoo',
     isActive: true
   });
 
@@ -59,7 +59,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false 
     onClose();
   };
 
-  const handleInputChange = (field: string, value: string | number) => {
+  const handleInputChange = (field: keyof Omit<Product, 'id'>, value: string | number | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -155,7 +155,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false 
             <select
               id="category"
               value={formData.category}
-              onChange={(e) => handleInputChange('category', e.target.value)}
+              onChange={(e) => handleInputChange('category', e.target.value as Product['category'])}
               className="w-full p-2 border border-gray-300 rounded-md"
               required
             >

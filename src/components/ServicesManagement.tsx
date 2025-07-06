@@ -1,8 +1,10 @@
 
+import { useState } from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { Service } from '@/types/dashboard';
+import ServiceEditDialog from './ServiceEditDialog';
 
 interface ServicesManagementProps {
   services: Service[];
@@ -19,19 +21,49 @@ const ServicesManagement = ({
   onServiceDelete, 
   onServiceToggle 
 }: ServicesManagementProps) => {
+  const [editingService, setEditingService] = useState<Service | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddingService, setIsAddingService] = useState(false);
+
+  const handleAddServiceClick = () => {
+    setEditingService(null);
+    setIsAddingService(true);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditClick = (service: Service) => {
+    setEditingService(service);
+    setIsAddingService(false);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSave = (serviceData: Omit<Service, 'id'>) => {
+    if (isAddingService) {
+      const newService: Service = {
+        ...serviceData,
+        id: Date.now()
+      };
+      onServiceAdd(newService);
+    } else if (editingService) {
+      const updatedService: Service = {
+        ...editingService,
+        ...serviceData
+      };
+      onServiceEdit(updatedService);
+    }
+  };
+
+  const handleEditClose = () => {
+    setEditingService(null);
+    setIsAddingService(false);
+    setIsEditDialogOpen(false);
+  };
+
   return (
     <div className="space-y-4 mt-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Your Services</h3>
-        <Button onClick={() => onServiceAdd({
-          id: Date.now(),
-          name: 'New Service',
-          description: 'Service description',
-          duration: 60,
-          price: 50,
-          category: 'haircut',
-          isActive: true
-        })}>
+        <Button onClick={handleAddServiceClick}>
           <Plus className="mr-2 h-4 w-4" />
           Add Service
         </Button>
@@ -69,7 +101,7 @@ const ServicesManagement = ({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onServiceEdit(service)}
+                  onClick={() => handleEditClick(service)}
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
@@ -86,6 +118,14 @@ const ServicesManagement = ({
           </div>
         ))}
       </div>
+
+      <ServiceEditDialog
+        service={editingService}
+        isOpen={isEditDialogOpen}
+        onClose={handleEditClose}
+        onSave={handleSave}
+        isAdding={isAddingService}
+      />
     </div>
   );
 };
