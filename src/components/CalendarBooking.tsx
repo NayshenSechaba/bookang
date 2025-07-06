@@ -4,8 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Calendar as CalendarIcon, Clock, User, DollarSign, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, User, DollarSign, Plus, ChevronLeft, ChevronRight, Heart, ShoppingBag } from 'lucide-react';
 import { format, isSameDay, addDays, subDays } from 'date-fns';
+
+interface CustomerInfo {
+  preferences: string[];
+  lastService: string;
+  lastVisit: string;
+  totalVisits: number;
+  notes?: string;
+}
 
 interface Booking {
   id: number;
@@ -16,6 +24,7 @@ interface Booking {
   status: 'confirmed' | 'pending' | 'cancelled';
   cost: string;
   date: Date;
+  customerInfo: CustomerInfo;
 }
 
 interface TimeSlot {
@@ -32,7 +41,7 @@ const CalendarBooking = () => {
   const [showBookingsSummary, setShowBookingsSummary] = useState(false);
   const [hourlyViewDate, setHourlyViewDate] = useState<Date>(new Date());
 
-  // Mock booking data
+  // Mock booking data with customer information
   const bookings: Booking[] = [
     {
       id: 1,
@@ -42,7 +51,14 @@ const CalendarBooking = () => {
       duration: 90,
       status: 'confirmed',
       cost: 'R1,125',
-      date: new Date(2024, 6, 15) // July 15, 2024
+      date: new Date(2024, 6, 15), // July 15, 2024
+      customerInfo: {
+        preferences: ['Natural look', 'Medium layers', 'Heat protection'],
+        lastService: 'Hair Color & Highlights',
+        lastVisit: '2024-05-12',
+        totalVisits: 8,
+        notes: 'Sensitive scalp - use gentle products'
+      }
     },
     {
       id: 2,
@@ -52,7 +68,14 @@ const CalendarBooking = () => {
       duration: 120,
       status: 'pending',
       cost: 'R2,250',
-      date: new Date(2024, 6, 15) // July 15, 2024
+      date: new Date(2024, 6, 15), // July 15, 2024
+      customerInfo: {
+        preferences: ['Bold colors', 'Trendy styles', 'Professional look'],
+        lastService: 'Haircut & Blow-dry',
+        lastVisit: '2024-06-18',
+        totalVisits: 12,
+        notes: 'Works in corporate - prefers sophisticated styles'
+      }
     },
     {
       id: 3,
@@ -62,7 +85,14 @@ const CalendarBooking = () => {
       duration: 60,
       status: 'confirmed',
       cost: 'R1,800',
-      date: new Date(2024, 6, 16) // July 16, 2024
+      date: new Date(2024, 6, 16), // July 16, 2024
+      customerInfo: {
+        preferences: ['Organic products', 'Deep conditioning', 'Curl enhancement'],
+        lastService: 'Keratin Treatment',
+        lastVisit: '2024-04-22',
+        totalVisits: 5,
+        notes: 'Curly hair - loves natural texture treatments'
+      }
     }
   ];
 
@@ -401,7 +431,7 @@ const CalendarBooking = () => {
 
       {/* Bookings Summary Modal */}
       <Dialog open={showBookingsSummary} onOpenChange={setShowBookingsSummary}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle>
               Appointments Summary - {format(selectedDate, 'EEEE, MMMM d, yyyy')}
@@ -416,7 +446,7 @@ const CalendarBooking = () => {
               selectedDateBookings.map((booking) => (
                 <div key={booking.id} className="border rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors">
                   <div className="flex justify-between items-start mb-3">
-                    <div>
+                    <div className="flex-1">
                       <h4 className="font-semibold text-lg">{booking.customerName}</h4>
                       <p className="text-gray-600">{booking.service}</p>
                     </div>
@@ -434,7 +464,7 @@ const CalendarBooking = () => {
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center gap-6 text-sm text-gray-500">
+                  <div className="flex items-center gap-6 text-sm text-gray-500 mb-3">
                     <div className="flex items-center gap-1">
                       <Clock className="h-4 w-4" />
                       <span>{booking.time}</span>
@@ -446,6 +476,46 @@ const CalendarBooking = () => {
                     <div className="text-xs bg-gray-100 px-2 py-1 rounded">
                       {booking.duration} minutes
                     </div>
+                  </div>
+
+                  {/* Customer Information Section */}
+                  <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-1">
+                        <User className="h-4 w-4 text-blue-500" />
+                        <span className="font-medium">Visits:</span>
+                        <span>{booking.customerInfo.totalVisits}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <ShoppingBag className="h-4 w-4 text-green-500" />
+                        <span className="font-medium">Last:</span>
+                        <span>{booking.customerInfo.lastService}</span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="flex items-center gap-1 mb-1">
+                        <Heart className="h-4 w-4 text-pink-500" />
+                        <span className="font-medium text-sm">Preferences:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {booking.customerInfo.preferences.map((pref, index) => (
+                          <span
+                            key={index}
+                            className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full"
+                          >
+                            {pref}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {booking.customerInfo.notes && (
+                      <div className="text-sm">
+                        <span className="font-medium text-amber-600">Note:</span>
+                        <span className="ml-2 text-gray-600 italic">{booking.customerInfo.notes}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
