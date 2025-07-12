@@ -2,8 +2,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Image, Plus, Edit, Trash2 } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Image, Plus, Edit, Trash2, Upload } from 'lucide-react';
 import { PortfolioImage } from '@/types/dashboard';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 interface PortfolioSectionProps {
   images: PortfolioImage[];
@@ -13,103 +18,274 @@ interface PortfolioSectionProps {
 }
 
 const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }: PortfolioSectionProps) => {
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [editingImage, setEditingImage] = useState<PortfolioImage | null>(null);
+
+  const form = useForm({
+    defaultValues: {
+      title: '',
+      description: '',
+      category: 'haircut',
+      imageFile: null as File | null,
+      imageUrl: ''
+    }
+  });
+
+  const handleImageUpload = (data: any) => {
+    const newImage: PortfolioImage = {
+      id: Date.now(),
+      url: data.imageFile ? URL.createObjectURL(data.imageFile) : data.imageUrl,
+      title: data.title,
+      description: data.description,
+      category: data.category,
+      dateAdded: new Date().toISOString().split('T')[0]
+    };
+    
+    onImageUpload(newImage);
+    setShowUploadModal(false);
+    form.reset();
+  };
+
+  const handleEditImage = (image: PortfolioImage) => {
+    setEditingImage(image);
+    form.reset({
+      title: image.title,
+      description: image.description,
+      category: image.category,
+      imageFile: null,
+      imageUrl: image.url
+    });
+    setShowUploadModal(true);
+  };
+
+  const handleEditSubmit = (data: any) => {
+    if (editingImage) {
+      const updatedImage: PortfolioImage = {
+        ...editingImage,
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        url: data.imageFile ? URL.createObjectURL(data.imageFile) : data.imageUrl
+      };
+      
+      onImageEdit(updatedImage);
+      setShowUploadModal(false);
+      setEditingImage(null);
+      form.reset();
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowUploadModal(false);
+    setEditingImage(null);
+    form.reset();
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <Image className="mr-2 h-5 w-5 text-pink-500" />
-          Style Portfolio
-        </CardTitle>
-        <CardDescription>
-          Showcase your best work to attract new customers
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Your Work</h3>
-            <Button onClick={() => onImageUpload({
-              id: Date.now(),
-              url: '/api/placeholder/300/300',
-              title: 'New Style',
-              description: 'A beautiful new style',
-              category: 'haircut',
-              dateAdded: new Date().toISOString().split('T')[0]
-            })}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Style Photo
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {images.map((image) => (
-              <div key={image.id} className="relative group">
-                <div className="aspect-square overflow-hidden rounded-lg border">
-                  <img 
-                    src={image.url}
-                    alt={image.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=400&fit=crop';
-                    }}
-                  />
-                </div>
-                
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => onImageEdit(image)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => onImageDelete(image.id)}
-                      className="text-red-600 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="mt-2">
-                  <div className="flex items-center justify-between mb-1">
-                    <h4 className="font-medium text-sm">{image.title}</h4>
-                    <Badge variant="outline" className="text-xs">
-                      {image.category}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-gray-600 line-clamp-2">{image.description}</p>
-                  <p className="text-xs text-gray-400 mt-1">{image.dateAdded}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          {images.length === 0 && (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <Image className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No portfolio images yet</h3>
-              <p className="text-gray-600 mb-4">Add photos of your best work to attract customers</p>
-              <Button onClick={() => onImageUpload({
-                id: Date.now(),
-                url: '/api/placeholder/300/300',
-                title: 'First Style',
-                description: 'Your first portfolio image',
-                category: 'haircut',
-                dateAdded: new Date().toISOString().split('T')[0]
-              })}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Your First Photo
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Image className="mr-2 h-5 w-5 text-pink-500" />
+            Style Portfolio
+          </CardTitle>
+          <CardDescription>
+            Showcase your best work to attract new customers
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-semibold">Your Work</h3>
+              <Button onClick={() => setShowUploadModal(true)}>
+                <Upload className="mr-2 h-4 w-4" />
+                Upload Image
               </Button>
             </div>
-          )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {images.map((image) => (
+                <div key={image.id} className="relative group">
+                  <div className="aspect-square overflow-hidden rounded-lg border">
+                    <img 
+                      src={image.url}
+                      alt={image.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=400&fit=crop';
+                      }}
+                    />
+                  </div>
+                  
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-200 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => handleEditImage(image)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => onImageDelete(image.id)}
+                        className="text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-2">
+                    <div className="flex items-center justify-between mb-1">
+                      <h4 className="font-medium text-sm">{image.title}</h4>
+                      <Badge variant="outline" className="text-xs">
+                        {image.category}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-gray-600 line-clamp-2">{image.description}</p>
+                    <p className="text-xs text-gray-400 mt-1">{image.dateAdded}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {images.length === 0 && (
+              <div className="text-center py-12 bg-gray-50 rounded-lg">
+                <Image className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No portfolio images yet</h3>
+                <p className="text-gray-600 mb-4">Add photos of your best work to attract customers</p>
+                <Button onClick={() => setShowUploadModal(true)}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Your First Photo
+                </Button>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Upload/Edit Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold mb-4">
+              {editingImage ? 'Edit Portfolio Item' : 'Upload New Image'}
+            </h3>
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(editingImage ? handleEditSubmit : handleImageUpload)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Bridal Styling" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Brief description of this work"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <FormControl>
+                        <select 
+                          {...field}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="haircut">Haircut</option>
+                          <option value="color">Color</option>
+                          <option value="styling">Styling</option>
+                          <option value="treatment">Treatment</option>
+                          <option value="bridal">Bridal</option>
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="imageFile"
+                  render={({ field: { onChange, value, ...field } }) => (
+                    <FormItem>
+                      <FormLabel>Upload Image</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/*,video/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            onChange(file);
+                          }}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="text-center text-sm text-gray-500">or</div>
+
+                <FormField
+                  control={form.control}
+                  name="imageUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Image URL</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://example.com/image.jpg" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleCloseModal}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    {editingImage ? 'Update' : 'Upload'} Image
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </>
   );
 };
 
