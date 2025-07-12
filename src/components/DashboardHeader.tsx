@@ -22,7 +22,7 @@ const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture, onU
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
         
         {/* Profile Picture Overlay */}
-        <div className="absolute -bottom-16 left-6">
+        <div className="absolute -bottom-16 left-4">
           <div className="relative">
             <img 
               src={profilePicture}
