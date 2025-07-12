@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Star, Scissors, Calendar, Users, MapPin, TrendingUp, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle } from 'lucide-react';
+import { Star, Scissors, Calendar, Users, MapPin, TrendingUp, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
 import CustomerDashboard from '@/components/CustomerDashboard';
 import HairdresserDashboard from '@/components/HairdresserDashboard';
@@ -175,7 +175,8 @@ const Index = () => {
             onClick={() => setCurrentPage('explore')}
             className="mr-4"
           >
-            Book Another Appointment
+            <Store className="mr-2 h-4 w-4" />
+            Stores
           </Button>
           <Button onClick={() => setCurrentPage('home')}>
             Back to Home
