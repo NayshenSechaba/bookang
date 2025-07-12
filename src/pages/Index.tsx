@@ -251,7 +251,10 @@ const Index = () => {
                         alt="Happy customer getting hair styled"
                         className="w-full h-64 object-cover"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                      <div 
+                        className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"
+                        onClick={() => isAuthenticated ? setCurrentPage('recent-bookings') : openAuthModal('login', 'customer')}
+                      ></div>
                     </div>
                   </div>
                 </CarouselItem>
