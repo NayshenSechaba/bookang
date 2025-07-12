@@ -35,6 +35,26 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
   });
 
   const handleImageUpload = (data: any) => {
+    // Validate that either a file is uploaded or URL is provided
+    if (!data.imageFile && !data.imageUrl) {
+      toast({
+        title: "Error",
+        description: "Please select a file to upload or provide an image URL.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate that title is provided
+    if (!data.title.trim()) {
+      toast({
+        title: "Error", 
+        description: "Please provide a title for your upload.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const newImage: PortfolioImage = {
       id: Date.now(),
       url: data.imageFile ? URL.createObjectURL(data.imageFile) : data.imageUrl,
@@ -49,7 +69,7 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
     form.reset();
     toast({
       title: "Success",
-      description: "Image uploaded successfully!",
+      description: "Image/video uploaded successfully!",
     });
   };
 
@@ -67,12 +87,22 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
 
   const handleEditSubmit = (data: any) => {
     if (editingImage) {
+      // Validate that title is provided
+      if (!data.title.trim()) {
+        toast({
+          title: "Error",
+          description: "Please provide a title for your upload.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const updatedImage: PortfolioImage = {
         ...editingImage,
         title: data.title,
         description: data.description,
         category: data.category,
-        url: data.imageFile ? URL.createObjectURL(data.imageFile) : data.imageUrl
+        url: data.imageFile ? URL.createObjectURL(data.imageFile) : data.imageUrl || editingImage.url
       };
       
       onImageEdit(updatedImage);
@@ -81,7 +111,7 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
       form.reset();
       toast({
         title: "Success",
-        description: "Image updated successfully!",
+        description: "Image/video updated successfully!",
       });
     }
   };
@@ -129,7 +159,7 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
               <h3 className="text-lg font-semibold">Your Work</h3>
               <Button onClick={() => setShowUploadModal(true)}>
                 <Upload className="mr-2 h-4 w-4" />
-                Upload Image
+                Upload Image/Video
               </Button>
             </div>
             
@@ -185,10 +215,10 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
               <div className="text-center py-12 bg-gray-50 rounded-lg">
                 <Image className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No portfolio images yet</h3>
-                <p className="text-gray-600 mb-4">Add photos of your best work to attract customers</p>
+                <p className="text-gray-600 mb-4">Add photos or videos of your best work to attract customers</p>
                 <Button onClick={() => setShowUploadModal(true)}>
                   <Upload className="mr-2 h-4 w-4" />
-                  Upload Your First Photo
+                  Upload Your First Photo/Video
                 </Button>
               </div>
             )}
@@ -201,7 +231,7 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <h3 className="text-lg font-semibold mb-4">
-              {editingImage ? 'Edit Portfolio Item' : 'Upload New Image'}
+              {editingImage ? 'Edit Portfolio Item' : 'Upload New Image or Video'}
             </h3>
             
             <Form {...form}>
@@ -211,9 +241,9 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title</FormLabel>
+                      <FormLabel>Title *</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Bridal Styling" {...field} />
+                        <Input placeholder="e.g., Bridal Styling" {...field} required />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -265,7 +295,7 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
                   name="imageFile"
                   render={({ field: { onChange, value, ...field } }) => (
                     <FormItem>
-                      <FormLabel>Upload Image</FormLabel>
+                      <FormLabel>Upload Image or Video</FormLabel>
                       <FormControl>
                         <Input
                           type="file"
@@ -289,7 +319,7 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
                   name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Image URL</FormLabel>
+                      <FormLabel>Image/Video URL</FormLabel>
                       <FormControl>
                         <Input placeholder="https://example.com/image.jpg" {...field} />
                       </FormControl>
@@ -307,7 +337,7 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
                     Cancel
                   </Button>
                   <Button type="submit">
-                    {editingImage ? 'Update' : 'Upload'} Image
+                    {editingImage ? 'Update' : 'Upload'}
                   </Button>
                 </div>
               </form>
