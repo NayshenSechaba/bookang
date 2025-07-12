@@ -9,6 +9,7 @@ import { Image, Plus, Edit, Trash2, Upload } from 'lucide-react';
 import { PortfolioImage } from '@/types/dashboard';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useToast } from '@/hooks/use-toast';
 
 interface PortfolioSectionProps {
   images: PortfolioImage[];
@@ -20,6 +21,8 @@ interface PortfolioSectionProps {
 const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }: PortfolioSectionProps) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [editingImage, setEditingImage] = useState<PortfolioImage | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const { toast } = useToast();
 
   const form = useForm({
     defaultValues: {
@@ -44,6 +47,10 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
     onImageUpload(newImage);
     setShowUploadModal(false);
     form.reset();
+    toast({
+      title: "Success",
+      description: "Image uploaded successfully!",
+    });
   };
 
   const handleEditImage = (image: PortfolioImage) => {
@@ -72,7 +79,30 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
       setShowUploadModal(false);
       setEditingImage(null);
       form.reset();
+      toast({
+        title: "Success",
+        description: "Image updated successfully!",
+      });
     }
+  };
+
+  const handleDeleteClick = (id: number) => {
+    setDeleteConfirmId(id);
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirmId) {
+      onImageDelete(deleteConfirmId);
+      setDeleteConfirmId(null);
+      toast({
+        title: "Deleted",
+        description: "Image/video has been removed from your portfolio.",
+      });
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmId(null);
   };
 
   const handleCloseModal = () => {
@@ -129,8 +159,8 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
                       <Button
                         size="sm"
                         variant="secondary"
-                        onClick={() => onImageDelete(image.id)}
-                        className="text-red-600 hover:bg-red-50"
+                        onClick={() => handleDeleteClick(image.id)}
+                        className="text-red-600 hover:bg-red-50 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -282,6 +312,36 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
                 </div>
               </form>
             </Form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-sm w-full p-6">
+            <h3 className="text-lg font-semibold mb-4 text-center">Delete Image/Video</h3>
+            <p className="text-gray-600 text-center mb-6">
+              Are you sure you want to delete this item from your portfolio? This action cannot be undone.
+            </p>
+            
+            <div className="flex justify-end space-x-2">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={cancelDelete}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="button" 
+                variant="destructive"
+                onClick={confirmDelete}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </Button>
+            </div>
           </div>
         </div>
       )}
