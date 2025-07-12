@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Star, Scissors, Calendar, Users, MapPin, TrendingUp, Phone, Mail, HelpCircle, UserCheck } from 'lucide-react';
+import { Star, Scissors, Calendar, Users, MapPin, TrendingUp, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
 import CustomerDashboard from '@/components/CustomerDashboard';
 import HairdresserDashboard from '@/components/HairdresserDashboard';
@@ -62,10 +62,128 @@ const Index = () => {
 
     if (isAuthenticated) {
       baseItems.splice(1, 0, { id: 'dashboard', label: 'Dashboard', icon: Calendar });
+      baseItems.splice(2, 0, { id: 'recent-bookings', label: 'Recent Bookings', icon: Clock });
     }
 
     return baseItems;
   };
+
+  // Recent bookings page content
+  const renderRecentBookingsPage = () => (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Recent Bookings</h1>
+          <p className="text-gray-600">View your recent salon appointments and bookings</p>
+        </div>
+
+        <div className="grid gap-6">
+          {/* Sample recent bookings */}
+          <Card className="border-purple-100 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center space-y-0 pb-4">
+              <div className="flex-1">
+                <CardTitle className="text-lg">Hair Cut & Style</CardTitle>
+                <CardDescription>Glamour Salon - Sarah Johnson</CardDescription>
+              </div>
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Completed
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center text-sm text-gray-600 mb-2">
+                <Calendar className="h-4 w-4 mr-2" />
+                December 8, 2024 at 2:00 PM
+              </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <MapPin className="h-4 w-4 mr-2" />
+                123 Beauty Street, Downtown
+              </div>
+              <div className="mt-4 pt-4 border-t flex justify-between items-center">
+                <span className="font-semibold text-lg">$85.00</span>
+                <div className="flex items-center">
+                  <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                  <span className="text-sm text-gray-600 ml-1">5.0</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-pink-100 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center space-y-0 pb-4">
+              <div className="flex-1">
+                <CardTitle className="text-lg">Color Treatment</CardTitle>
+                <CardDescription>Luxe Hair Studio - Maria Garcia</CardDescription>
+              </div>
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                <Clock className="h-3 w-3 mr-1" />
+                Upcoming
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center text-sm text-gray-600 mb-2">
+                <Calendar className="h-4 w-4 mr-2" />
+                December 15, 2024 at 10:00 AM
+              </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <MapPin className="h-4 w-4 mr-2" />
+                456 Style Avenue, Uptown
+              </div>
+              <div className="mt-4 pt-4 border-t flex justify-between items-center">
+                <span className="font-semibold text-lg">$150.00</span>
+                <Button size="sm" variant="outline">
+                  Reschedule
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-indigo-100 hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center space-y-0 pb-4">
+              <div className="flex-1">
+                <CardTitle className="text-lg">Facial Treatment</CardTitle>
+                <CardDescription>Spa & Beauty - Jennifer Lee</CardDescription>
+              </div>
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                <CheckCircle className="h-3 w-3 mr-1" />
+                Completed
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center text-sm text-gray-600 mb-2">
+                <Calendar className="h-4 w-4 mr-2" />
+                November 28, 2024 at 3:30 PM
+              </div>
+              <div className="flex items-center text-sm text-gray-600">
+                <MapPin className="h-4 w-4 mr-2" />
+                789 Wellness Blvd, Midtown
+              </div>
+              <div className="mt-4 pt-4 border-t flex justify-between items-center">
+                <span className="font-semibold text-lg">$120.00</span>
+                <div className="flex items-center">
+                  <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                  <span className="text-sm text-gray-600 ml-1">4.8</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="text-center mt-8">
+          <Button 
+            variant="outline" 
+            onClick={() => setCurrentPage('explore')}
+            className="mr-4"
+          >
+            Book Another Appointment
+          </Button>
+          <Button onClick={() => setCurrentPage('home')}>
+            Back to Home
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 
   // Render current page content
   const renderCurrentPage = () => {
@@ -76,6 +194,8 @@ const Index = () => {
         if (userRole === 'hairdresser') return <HairdresserDashboard userName={userName} />;
         if (userRole === 'employee') return <EmployeeDashboard userName={userName} />;
         return renderHomePage();
+      case 'recent-bookings':
+        return renderRecentBookingsPage();
       case 'explore':
         return <ExplorePage />;
       case 'trends':
@@ -122,7 +242,10 @@ const Index = () => {
               <CarouselContent className="-ml-2 md:-ml-4">
                 <CarouselItem className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
                   <div className="p-1">
-                    <div className="relative overflow-hidden rounded-lg shadow-lg">
+                    <div 
+                      className="relative overflow-hidden rounded-lg shadow-lg cursor-pointer hover:scale-105 transition-transform"
+                      onClick={() => isAuthenticated ? setCurrentPage('recent-bookings') : openAuthModal('login', 'customer')}
+                    >
                       <img 
                         src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=300&fit=crop&crop=face"
                         alt="Happy customer getting hair styled"
