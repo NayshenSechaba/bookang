@@ -27,7 +27,7 @@ const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture, onU
             <img 
               src={profilePicture}
               alt="Profile"
-              className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg transition-transform duration-300 hover:scale-110 cursor-pointer"
+              className="w-64 h-64 rounded-full object-cover border-4 border-white shadow-lg transition-transform duration-300 hover:scale-110 cursor-pointer"
             />
             <button
               onClick={onUpdateProfilePicture}
