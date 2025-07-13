@@ -17,6 +17,29 @@ interface CustomerDashboardProps {
 }
 
 const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
+  // Currency formatting based on user's locale
+  const formatCurrency = (amount: number) => {
+    try {
+      // Try to detect user's currency based on their locale
+      const userLocale = navigator.language || 'en-US';
+      
+      // Get the currency for the user's locale (fallback to USD if unable to detect)
+      const currencyCode = new Intl.NumberFormat(userLocale)
+        .formatToParts(1000)
+        .find(part => part.type === 'currency')?.value || 'USD';
+      
+      return new Intl.NumberFormat(userLocale, {
+        style: 'currency',
+        currency: currencyCode || 'USD'
+      }).format(amount);
+    } catch (error) {
+      // Fallback to USD if there's any error
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(amount);
+    }
+  };
   // State management for booking flow
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -55,7 +78,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
       time: '2:00 PM',
       status: 'Confirmed',
       salon: 'Glamour Studio',
-      cost: '$75'
+      cost: formatCurrency(75)
     },
     {
       id: 2,
@@ -65,7 +88,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
       time: '10:00 AM',
       status: 'Pending',
       salon: 'Elite Hair Lounge',
-      cost: '$150'
+      cost: formatCurrency(150)
     }
   ];
 
@@ -78,7 +101,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
       time: '3:30 PM',
       status: 'Completed',
       salon: 'Trendy Cuts',
-      cost: '$60',
+      cost: formatCurrency(60),
       hasReview: false
     },
     {
@@ -89,7 +112,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
       time: '1:00 PM',
       status: 'Completed',
       salon: 'Luxury Hair Spa',
-      cost: '$120',
+      cost: formatCurrency(120),
       hasReview: true,
       rating: 5
     }
