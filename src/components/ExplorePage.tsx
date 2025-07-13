@@ -3,7 +3,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Star, MapPin, Search, Heart, Bookmark, MoreHorizontal, Navigation, X } from 'lucide-react';
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Star, MapPin, Search, Heart, Bookmark, MoreHorizontal, Navigation, X, Calendar, Clock } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 // Define types for better TypeScript support
@@ -39,6 +43,17 @@ const ExplorePage = () => {
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
   const [savedItems, setSavedItems] = useState<Set<number>>(new Set());
+  
+  // Booking modal state
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedSalon, setSelectedSalon] = useState<Salon | null>(null);
+  const [bookingData, setBookingData] = useState({
+    service: '',
+    date: '',
+    time: '',
+    notes: ''
+  });
+  
   const { toast } = useToast();
 
   // Mock data for salons with coordinates
@@ -200,7 +215,34 @@ const ExplorePage = () => {
     setLikedItems(newLikedItems);
   };
 
-  // Handle save/unsave
+  // Handle booking
+  const handleBooking = (salon: Salon) => {
+    setSelectedSalon(salon);
+    setShowBookingModal(true);
+  };
+
+  const handleBookingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!bookingData.service || !bookingData.date || !bookingData.time) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Booking request sent!",
+      description: `Your appointment at ${selectedSalon?.name} has been requested for ${bookingData.date} at ${bookingData.time}.`,
+    });
+
+    // Reset form and close modal
+    setBookingData({ service: '', date: '', time: '', notes: '' });
+    setShowBookingModal(false);
+    setSelectedSalon(null);
+  };
   const toggleSave = (salonId: number) => {
     const newSavedItems = new Set(savedItems);
     if (newSavedItems.has(salonId)) {
@@ -465,7 +507,11 @@ const ExplorePage = () => {
               <span className="text-sm text-gray-500">{salon.reviewCount} reviews</span>
             </div>
             
-            <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-full text-xs">
+            <Button 
+              size="sm" 
+              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-full text-xs"
+              onClick={() => handleBooking(salon)}
+            >
               Book
             </Button>
           </div>
@@ -568,6 +614,97 @@ const ExplorePage = () => {
           </div>
         )}
       </div>
+
+      {/* Booking Modal */}
+      <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Book Appointment</DialogTitle>
+            <DialogDescription>
+              Book your appointment at {selectedSalon?.name}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleBookingSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="service">Service *</Label>
+              <Select value={bookingData.service} onValueChange={(value) => setBookingData(prev => ({ ...prev, service: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a service" />
+                </SelectTrigger>
+                <SelectContent>
+                  {selectedSalon?.specialties.map((specialty) => (
+                    <SelectItem key={specialty} value={specialty}>{specialty}</SelectItem>
+                  ))}
+                  <SelectItem value="haircut">Haircut</SelectItem>
+                  <SelectItem value="color">Hair Color</SelectItem>
+                  <SelectItem value="styling">Styling</SelectItem>
+                  <SelectItem value="treatment">Hair Treatment</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="date">Date *</Label>
+              <Input
+                id="date"
+                type="date"
+                value={bookingData.date}
+                onChange={(e) => setBookingData(prev => ({ ...prev, date: e.target.value }))}
+                min={new Date().toISOString().split('T')[0]}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="time">Time *</Label>
+              <Select value={bookingData.time} onValueChange={(value) => setBookingData(prev => ({ ...prev, time: value }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select time" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="09:00">9:00 AM</SelectItem>
+                  <SelectItem value="10:00">10:00 AM</SelectItem>
+                  <SelectItem value="11:00">11:00 AM</SelectItem>
+                  <SelectItem value="12:00">12:00 PM</SelectItem>
+                  <SelectItem value="13:00">1:00 PM</SelectItem>
+                  <SelectItem value="14:00">2:00 PM</SelectItem>
+                  <SelectItem value="15:00">3:00 PM</SelectItem>
+                  <SelectItem value="16:00">4:00 PM</SelectItem>
+                  <SelectItem value="17:00">5:00 PM</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="notes">Additional Notes (Optional)</Label>
+              <Textarea
+                id="notes"
+                placeholder="Any special requests or notes..."
+                value={bookingData.notes}
+                onChange={(e) => setBookingData(prev => ({ ...prev, notes: e.target.value }))}
+                className="mt-1"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex space-x-2 pt-4">
+              <Button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700">
+                <Calendar className="mr-2 h-4 w-4" />
+                Book Appointment
+              </Button>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setShowBookingModal(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
