@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, Star, Heart, User, Scissors, MapPin, Phone } from 'lucide-react';
+import { Calendar, Clock, Star, Heart, User, Scissors, MapPin, Phone, Camera, Upload } from 'lucide-react';
 import CustomAlert from '@/components/CustomAlert';
 
 interface CustomerDashboardProps {
@@ -17,6 +17,12 @@ interface CustomerDashboardProps {
 }
 
 const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
+  // Profile state
+  const [profilePicture, setProfilePicture] = useState('https://images.unsplash.com/photo-1649972904349-6e44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80');
+  const [coverImage, setCoverImage] = useState('https://images.unsplash.com/photo-1518005020951-eccb494ad742?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
+  const [showProfileUpload, setShowProfileUpload] = useState(false);
+  const [showCoverUpload, setShowCoverUpload] = useState(false);
+  
   // Currency formatting based on user's locale
   const formatCurrency = (amount: number) => {
     try {
@@ -224,17 +230,87 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
     );
   };
 
+  // Handle image uploads
+  const handleImageUpload = (type: 'profile' | 'cover') => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      if (type === 'profile') {
+        setProfilePicture(imageUrl);
+        setShowProfileUpload(false);
+      } else {
+        setCoverImage(imageUrl);
+        setShowCoverUpload(false);
+      }
+    }
+  };
+
+  const handleImageUrlSubmit = (type: 'profile' | 'cover') => (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const imageUrl = formData.get('imageUrl') as string;
+    
+    if (imageUrl.trim()) {
+      if (type === 'profile') {
+        setProfilePicture(imageUrl.trim());
+        setShowProfileUpload(false);
+      } else {
+        setCoverImage(imageUrl.trim());
+        setShowCoverUpload(false);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        {/* Welcome Header */}
+        {/* Profile Header with Cover Image */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {userName}!
-          </h1>
-          <p className="text-gray-600">
-            Manage your appointments and discover new styling opportunities.
-          </p>
+          <div className="relative mb-16 h-48 w-full rounded-lg overflow-hidden">
+            <img 
+              src={coverImage}
+              alt="Cover"
+              className="w-full h-full object-cover cursor-pointer"
+              onClick={() => setShowCoverUpload(true)}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            
+            {/* Cover Image Upload Button */}
+            <button
+              onClick={() => setShowCoverUpload(true)}
+              className="absolute top-4 right-4 bg-white/20 backdrop-blur text-white p-2 rounded-full shadow-lg hover:bg-white/30 transition-colors"
+            >
+              <Camera className="h-4 w-4" />
+            </button>
+            
+            {/* Profile Picture Overlay */}
+            <div className="absolute -bottom-16 left-4">
+              <div className="relative">
+                <img 
+                  src={profilePicture}
+                  alt="Profile"
+                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg cursor-pointer"
+                  onClick={() => setShowProfileUpload(true)}
+                />
+                <button
+                  onClick={() => setShowProfileUpload(true)}
+                  className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Camera className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Welcome Header */}
+          <div className="ml-6">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Welcome back, {userName}!
+            </h1>
+            <p className="text-gray-600">
+              Manage your appointments and discover new styling opportunities.
+            </p>
+          </div>
         </div>
 
         {/* Quick Stats */}
@@ -670,6 +746,104 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Profile Picture Upload Modal */}
+      {showProfileUpload && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold mb-4">Update Profile Picture</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Upload Image File</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload('profile')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div className="text-center text-sm text-gray-500">or</div>
+              
+              <form onSubmit={handleImageUrlSubmit('profile')}>
+                <label className="block text-sm font-medium mb-2">Image URL</label>
+                <input
+                  type="url"
+                  name="imageUrl"
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                />
+                <div className="flex justify-end space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowProfileUpload(false)}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    <Upload className="mr-2 h-4 w-4 inline" />
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cover Image Upload Modal */}
+      {showCoverUpload && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold mb-4">Update Cover Image</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Upload Image File</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload('cover')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              
+              <div className="text-center text-sm text-gray-500">or</div>
+              
+              <form onSubmit={handleImageUrlSubmit('cover')}>
+                <label className="block text-sm font-medium mb-2">Image URL</label>
+                <input
+                  type="url"
+                  name="imageUrl"
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                />
+                <div className="flex justify-end space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowCoverUpload(false)}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    <Upload className="mr-2 h-4 w-4 inline" />
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Custom Alert */}
       <CustomAlert
