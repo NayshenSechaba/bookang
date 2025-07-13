@@ -1,4 +1,4 @@
-import { Camera, Upload, Instagram, Facebook, Twitter } from 'lucide-react';
+import { Camera, Upload, Instagram, Facebook, Twitter, Plus } from 'lucide-react';
 import { useState } from 'react';
 import EditableHeader from './EditableHeader';
 import { useToast } from '@/hooks/use-toast';
@@ -18,6 +18,8 @@ interface DashboardHeaderProps {
 
 const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture, onUserNameChange, socialMedia }: DashboardHeaderProps) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [showStoryModal, setShowStoryModal] = useState(false);
+  const [hasStory, setHasStory] = useState(true); // Simulate having a story
   const { toast } = useToast();
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,6 +47,49 @@ const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture, onU
     }
   };
 
+  const handleStoryUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type (images and videos for stories)
+      if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
+        toast({
+          title: "Error",
+          description: "Please select an image or video file for your story.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setHasStory(true);
+      setShowStoryModal(false);
+      
+      toast({
+        title: "Success",
+        description: "Story uploaded successfully!",
+      });
+    }
+  };
+
+  const handleStoryUrlSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const mediaUrl = formData.get('mediaUrl') as string;
+    
+    if (mediaUrl.trim()) {
+      setHasStory(true);
+      setShowStoryModal(false);
+      toast({
+        title: "Success",
+        description: "Story added successfully!",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Please provide a valid media URL.",
+        variant: "destructive"
+      });
+    }
+  };
   const handleImageUrlSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
@@ -116,17 +161,33 @@ const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture, onU
           {/* Profile Picture Overlay */}
           <div className="absolute -bottom-16 left-4">
             <div className="relative">
-              <img 
-                src={profilePicture}
-                alt="Profile"
-                className="w-64 h-64 rounded-full object-cover border-4 border-white shadow-lg transition-transform duration-300 hover:scale-110 cursor-pointer"
-                onClick={() => setShowUploadModal(true)}
-              />
+              {/* Story Ring */}
+              <div className={`absolute -inset-2 rounded-full ${hasStory ? 'bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-500' : 'bg-gray-300'} p-1 transition-all duration-300`}>
+                <div className="bg-white rounded-full p-1">
+                  <img 
+                    src={profilePicture}
+                    alt="Profile"
+                    className="w-64 h-64 rounded-full object-cover shadow-lg transition-transform duration-300 hover:scale-105 cursor-pointer"
+                    onClick={() => setShowUploadModal(true)}
+                  />
+                </div>
+              </div>
+              
+              {/* Profile Picture Edit Button */}
               <button
                 onClick={() => setShowUploadModal(true)}
-                className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+                className="absolute top-2 right-2 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10"
               >
                 <Camera className="h-4 w-4" />
+              </button>
+
+              {/* Story Upload Button */}
+              <button
+                onClick={() => setShowStoryModal(true)}
+                className="absolute -bottom-2 right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-full shadow-lg hover:scale-110 transition-all duration-200 animate-pulse"
+                title="Add to your story"
+              >
+                <Plus className="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -195,6 +256,54 @@ const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture, onU
                   >
                     <Upload className="mr-2 h-4 w-4 inline" />
                     Update
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Story Upload Modal */}
+      {showStoryModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-lg font-semibold mb-4">Add to Your Story</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Upload Image or Video</label>
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  onChange={handleStoryUpload}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              
+              <div className="text-center text-sm text-gray-500">or</div>
+              
+              <form onSubmit={handleStoryUrlSubmit}>
+                <label className="block text-sm font-medium mb-2">Media URL</label>
+                <input
+                  type="url"
+                  name="mediaUrl"
+                  placeholder="https://example.com/media.jpg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4"
+                />
+                <div className="flex justify-end space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowStoryModal(false)}
+                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-md hover:opacity-90"
+                  >
+                    <Upload className="mr-2 h-4 w-4 inline" />
+                    Add Story
                   </button>
                 </div>
               </form>
