@@ -22,6 +22,8 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [editingImage, setEditingImage] = useState<PortfolioImage | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [showCustomCategory, setShowCustomCategory] = useState(false);
+  const [customCategory, setCustomCategory] = useState('');
   const { toast } = useToast();
 
   const form = useForm({
@@ -35,6 +37,18 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
   });
 
   const handleImageUpload = (data: any) => {
+    // Handle custom category
+    let finalCategory = data.category;
+    if (data.category === 'other' && customCategory.trim()) {
+      finalCategory = customCategory.trim();
+    } else if (data.category === 'other' && !customCategory.trim()) {
+      toast({
+        title: "Error",
+        description: "Please specify a custom category.",
+        variant: "destructive"
+      });
+      return;
+    }
     // Validate that either a file is uploaded or URL is provided
     if (!data.imageFile && !data.imageUrl) {
       toast({
@@ -60,13 +74,16 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
       url: data.imageFile ? URL.createObjectURL(data.imageFile) : data.imageUrl,
       title: data.title,
       description: data.description,
-      category: data.category,
+      category: finalCategory,
       dateAdded: new Date().toISOString().split('T')[0]
     };
     
     onImageUpload(newImage);
-    setShowUploadModal(false);
+    // Reset form and custom category
     form.reset();
+    setCustomCategory('');
+    setShowCustomCategory(false);
+    setShowUploadModal(false);
     toast({
       title: "Success",
       description: "Image/video uploaded successfully!",
@@ -75,18 +92,56 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
 
   const handleEditImage = (image: PortfolioImage) => {
     setEditingImage(image);
-    form.reset({
-      title: image.title,
-      description: image.description,
-      category: image.category,
-      imageFile: null,
-      imageUrl: image.url
-    });
+    
+    // Check if the category is a custom one (not in our predefined list)
+    const predefinedCategories = [
+      'haircut', 'color', 'styling', 'treatment', 'bridal-hair', 'extensions',
+      'mens-haircut', 'beard-trim', 'shave', 'mustache', 'fade',
+      'manicure', 'pedicure', 'nail-art', 'gel-nails', 'acrylic-nails', 'nail-extensions',
+      'facial', 'massage', 'body-treatment', 'skincare', 'waxing', 'eyebrow-services'
+    ];
+    
+    if (predefinedCategories.includes(image.category)) {
+      form.reset({
+        title: image.title,
+        description: image.description,
+        category: image.category,
+        imageFile: null,
+        imageUrl: image.url
+      });
+      setShowCustomCategory(false);
+      setCustomCategory('');
+    } else {
+      // It's a custom category
+      form.reset({
+        title: image.title,
+        description: image.description,
+        category: 'other',
+        imageFile: null,
+        imageUrl: image.url
+      });
+      setShowCustomCategory(true);
+      setCustomCategory(image.category);
+    }
+    
     setShowUploadModal(true);
   };
 
   const handleEditSubmit = (data: any) => {
     if (editingImage) {
+      // Handle custom category for edit
+      let finalCategory = data.category;
+      if (data.category === 'other' && customCategory.trim()) {
+        finalCategory = customCategory.trim();
+      } else if (data.category === 'other' && !customCategory.trim()) {
+        toast({
+          title: "Error",
+          description: "Please specify a custom category.",
+          variant: "destructive"
+        });
+        return;
+      }
+
       // Validate that title is provided
       if (!data.title.trim()) {
         toast({
@@ -101,14 +156,17 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
         ...editingImage,
         title: data.title,
         description: data.description,
-        category: data.category,
+        category: finalCategory,
         url: data.imageFile ? URL.createObjectURL(data.imageFile) : data.imageUrl || editingImage.url
       };
       
       onImageEdit(updatedImage);
+      // Reset form and custom category
+      form.reset();
+      setCustomCategory('');
+      setShowCustomCategory(false);
       setShowUploadModal(false);
       setEditingImage(null);
-      form.reset();
       toast({
         title: "Success",
         description: "Image/video updated successfully!",
@@ -276,19 +334,80 @@ const PortfolioSection = ({ images, onImageUpload, onImageEdit, onImageDelete }:
                       <FormControl>
                         <select 
                           {...field}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                          onChange={(e) => {
+                            field.onChange(e);
+                            setShowCustomCategory(e.target.value === 'other');
+                            if (e.target.value !== 'other') {
+                              setCustomCategory('');
+                            }
+                          }}
                         >
-                          <option value="haircut">Haircut</option>
-                          <option value="color">Color</option>
-                          <option value="styling">Styling</option>
-                          <option value="treatment">Treatment</option>
-                          <option value="bridal">Bridal</option>
+                          <option value="">Select a category</option>
+                          
+                          {/* Hair Services */}
+                          <optgroup label="Hair Services">
+                            <option value="haircut">Haircut</option>
+                            <option value="color">Hair Color</option>
+                            <option value="styling">Hair Styling</option>
+                            <option value="treatment">Hair Treatment</option>
+                            <option value="bridal-hair">Bridal Hair</option>
+                            <option value="extensions">Hair Extensions</option>
+                          </optgroup>
+                          
+                          {/* Barber Services */}
+                          <optgroup label="Barber Services">
+                            <option value="mens-haircut">Men's Haircut</option>
+                            <option value="beard-trim">Beard Trim</option>
+                            <option value="shave">Shave</option>
+                            <option value="mustache">Mustache Styling</option>
+                            <option value="fade">Fade Cuts</option>
+                          </optgroup>
+                          
+                          {/* Nail Services */}
+                          <optgroup label="Nail Services">
+                            <option value="manicure">Manicure</option>
+                            <option value="pedicure">Pedicure</option>
+                            <option value="nail-art">Nail Art</option>
+                            <option value="gel-nails">Gel Nails</option>
+                            <option value="acrylic-nails">Acrylic Nails</option>
+                            <option value="nail-extensions">Nail Extensions</option>
+                          </optgroup>
+                          
+                          {/* Spa Services */}
+                          <optgroup label="Spa Services">
+                            <option value="facial">Facial</option>
+                            <option value="massage">Massage</option>
+                            <option value="body-treatment">Body Treatment</option>
+                            <option value="skincare">Skincare</option>
+                            <option value="waxing">Waxing</option>
+                            <option value="eyebrow-services">Eyebrow Services</option>
+                          </optgroup>
+                          
+                          <option value="other">Other</option>
                         </select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
+                {/* Custom Category Input */}
+                {showCustomCategory && (
+                  <div className="space-y-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Custom Category *
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="Type your custom category..."
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                      className="w-full"
+                      required={showCustomCategory}
+                    />
+                  </div>
+                )}
 
                 <FormField
                   control={form.control}
