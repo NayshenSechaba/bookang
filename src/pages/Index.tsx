@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Star, Scissors, Calendar, Users, MapPin, TrendingUp, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store } from 'lucide-react';
+import { Star, Scissors, Calendar, Users, MapPin, TrendingUp, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
 import CustomerDashboard from '@/components/CustomerDashboard';
 import HairdresserDashboard from '@/components/HairdresserDashboard';
@@ -474,6 +474,7 @@ const Index = () => {
                     Welcome, <span className="font-medium text-purple-600">{userName}</span>
                   </span>
                   <Button variant="outline" size="sm" onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
                     Logout
                   </Button>
                 </div>
