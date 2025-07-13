@@ -39,7 +39,11 @@ const AuthModal = ({
     telephoneNumber: '',
     idNumber: '',
     idDocument: null as File | null,
-    companyRegistration: null as File | null
+    companyRegistration: null as File | null,
+    // Social media URLs
+    tiktokUrl: '',
+    facebookUrl: '',
+    instagramUrl: ''
   });
   
   // UI state
@@ -189,7 +193,10 @@ const AuthModal = ({
       telephoneNumber: '',
       idNumber: '',
       idDocument: null,
-      companyRegistration: null
+      companyRegistration: null,
+      tiktokUrl: '',
+      facebookUrl: '',
+      instagramUrl: ''
     });
     setShowPassword(false);
     setShowConfirmPassword(false);
@@ -478,6 +485,46 @@ const AuthModal = ({
                         <p className="text-xs text-gray-500 mt-1">
                           Upload company registration document if applicable (PDF, JPG, PNG)
                         </p>
+                      </div>
+
+                      <div className="space-y-4 pt-4 border-t border-purple-200">
+                        <h4 className="font-medium text-purple-900">Social Media (Optional)</h4>
+                        
+                        <div>
+                          <Label htmlFor="instagram-url">Instagram URL</Label>
+                          <Input
+                            id="instagram-url"
+                            type="url"
+                            placeholder="https://instagram.com/yourprofile"
+                            value={formData.instagramUrl}
+                            onChange={(e) => handleInputChange('instagramUrl', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="tiktok-url">TikTok URL</Label>
+                          <Input
+                            id="tiktok-url"
+                            type="url"
+                            placeholder="https://tiktok.com/@yourprofile"
+                            value={formData.tiktokUrl}
+                            onChange={(e) => handleInputChange('tiktokUrl', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="facebook-url">Facebook URL</Label>
+                          <Input
+                            id="facebook-url"
+                            type="url"
+                            placeholder="https://facebook.com/yourpage"
+                            value={formData.facebookUrl}
+                            onChange={(e) => handleInputChange('facebookUrl', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
