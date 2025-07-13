@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Star, Scissors, Calendar, Users, MapPin, TrendingUp, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut } from 'lucide-react';
+import { Star, Scissors, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
 import CustomerDashboard from '@/components/CustomerDashboard';
 import HairdresserDashboard from '@/components/HairdresserDashboard';
@@ -11,7 +11,7 @@ import EmployeeDashboard from '@/components/EmployeeDashboard';
 import ExplorePage from '@/components/ExplorePage';
 import FAQSection from '@/components/FAQSection';
 import ContactSection from '@/components/ContactSection';
-import TrendsSection from '@/components/TrendsSection';
+
 
 const Index = () => {
   // Authentication state management
@@ -55,7 +55,6 @@ const Index = () => {
     const baseItems = [
       { id: 'home', label: 'Home', icon: Users },
       { id: 'explore', label: 'Explore', icon: MapPin },
-      { id: 'trends', label: 'Latest Trends', icon: TrendingUp },
       { id: 'faq', label: 'FAQ', icon: HelpCircle },
       { id: 'contact', label: 'Contact', icon: Phone },
     ];
@@ -199,8 +198,6 @@ const Index = () => {
         return renderRecentBookingsPage();
       case 'explore':
         return <ExplorePage />;
-      case 'trends':
-        return <TrendsSection />;
       case 'faq':
         return <FAQSection />;
       case 'contact':
@@ -355,7 +352,7 @@ const Index = () => {
             Why Choose SalonConnect?
           </h2>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 gap-8">
             <Card className="text-center border-purple-100 hover:shadow-lg transition-shadow">
               <CardHeader>
                 <Calendar className="h-12 w-12 text-purple-600 mx-auto mb-4" />
@@ -380,17 +377,6 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="text-center border-indigo-100 hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <TrendingUp className="h-12 w-12 text-indigo-600 mx-auto mb-4" />
-                <CardTitle className="text-indigo-900">Latest Trends</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="text-gray-600">
-                  Stay updated with the latest hair trends and styles from top professionals in the industry.
-                </CardDescription>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </section>
@@ -400,7 +386,7 @@ const Index = () => {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Quick Access</h2>
           
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Button
               variant="outline"
               className="h-20 flex-col gap-2 bg-white hover:bg-purple-50 border-purple-200"
@@ -410,14 +396,6 @@ const Index = () => {
               Explore Salons
             </Button>
             
-            <Button
-              variant="outline"
-              className="h-20 flex-col gap-2 bg-white hover:bg-pink-50 border-pink-200"
-              onClick={() => setCurrentPage('trends')}
-            >
-              <TrendingUp className="h-6 w-6 text-pink-600" />
-              Latest Trends
-            </Button>
             
             <Button
               variant="outline"
@@ -565,9 +543,6 @@ const Index = () => {
               <div className="space-y-2">
                 <p className="text-gray-400 hover:text-white cursor-pointer" onClick={() => setCurrentPage('explore')}>
                   Explore Salons
-                </p>
-                <p className="text-gray-400 hover:text-white cursor-pointer" onClick={() => setCurrentPage('trends')}>
-                  Latest Trends
                 </p>
                 <p className="text-gray-400 hover:text-white cursor-pointer" onClick={() => openAuthModal('register')}>
                   Register
