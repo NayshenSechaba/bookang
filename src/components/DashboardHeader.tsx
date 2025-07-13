@@ -1,4 +1,4 @@
-import { Camera, Upload } from 'lucide-react';
+import { Camera, Upload, Instagram, Facebook, Twitter } from 'lucide-react';
 import { useState } from 'react';
 import EditableHeader from './EditableHeader';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +12,7 @@ interface DashboardHeaderProps {
     instagram?: string;
     facebook?: string;
     twitter?: string;
+    tiktok?: string;
   };
 }
 
@@ -66,13 +67,36 @@ const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture, onU
   };
 
   const renderSocialIcon = (platform: string, url: string) => {
+    const iconProps = "w-6 h-6 text-gray-600 hover:text-primary transition-colors";
+    
+    const getIcon = () => {
+      switch (platform) {
+        case 'instagram':
+          return <Instagram className={iconProps} />;
+        case 'facebook':
+          return <Facebook className={iconProps} />;
+        case 'twitter':
+          return <Twitter className={iconProps} />;
+        case 'tiktok':
+          return (
+            <svg className={iconProps} viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12.525 2.016c-.374-.065-1.18-.056-1.18-.056s-.054-.79-.423-1.296C10.65.384 10.306.096 9.68.024 9.374-.016 8.89.024 8.89.024s.02.79.374 1.296c.294.424.619.712 1.245.784zm3.624 1.2c-.334-.065-1.064-.056-1.064-.056s-.048-.71-.382-1.17C14.493 1.67 14.2 1.43 13.688 1.37c-.276-.04-.689.01-.689.01s.018.71.338 1.17c.266.383.559.623 1.048.683zm-6.225.72c-.306-.06-.975-.052-.975-.052s-.044-.653-.351-1.076c-.246-.34-.491-.583-.903-.64-.222-.036-.633.009-.633.009s.017.653.31 1.076c.244.353.514.572.938.628z"/>
+            </svg>
+          );
+        default:
+          return null;
+      }
+    };
+
     return (
-      <a href={url} target="_blank" rel="noopener noreferrer">
-        <img 
-          src={`https://www.iconfinder.com/icons/1000000/${platform}.png`}
-          alt={platform}
-          className="w-6 h-6"
-        />
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="p-2 rounded-full bg-white border border-gray-200 hover:border-primary transition-colors shadow-sm"
+        aria-label={`Visit ${platform} profile`}
+      >
+        {getIcon()}
       </a>
     );
   };
@@ -124,6 +148,7 @@ const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture, onU
               {socialMedia.instagram && renderSocialIcon('instagram', socialMedia.instagram)}
               {socialMedia.facebook && renderSocialIcon('facebook', socialMedia.facebook)}
               {socialMedia.twitter && renderSocialIcon('twitter', socialMedia.twitter)}
+              {socialMedia.tiktok && renderSocialIcon('tiktok', socialMedia.tiktok)}
             </div>
           )}
         </div>
