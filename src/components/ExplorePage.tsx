@@ -52,7 +52,7 @@ const ExplorePage = () => {
       specialties: ['Color', 'Styling'],
       priceRange: 'Premium',
       image: '/placeholder.svg',
-      distance: '0.5 mi',
+      distance: '0.8 km',
       isLiked: false,
       isSaved: false,
       category: 'popular',
@@ -67,7 +67,7 @@ const ExplorePage = () => {
       specialties: ['Cuts', 'Extensions'],
       priceRange: 'Mid-Range',
       image: '/placeholder.svg',
-      distance: '1.2 mi',
+      distance: '1.9 km',
       isLiked: true,
       isSaved: false,
       category: 'popular',
@@ -82,7 +82,7 @@ const ExplorePage = () => {
       specialties: ['Spa', 'Treatment'],
       priceRange: 'Luxury',
       image: '/placeholder.svg',
-      distance: '2.1 mi',
+      distance: '3.4 km',
       isLiked: false,
       isSaved: true,
       category: 'popular',
@@ -97,7 +97,7 @@ const ExplorePage = () => {
       specialties: ['Modern Cuts'],
       priceRange: 'Mid-Range',
       image: '/placeholder.svg',
-      distance: '1.8 mi',
+      distance: '2.9 km',
       isLiked: false,
       isSaved: false,
       category: 'new',
@@ -113,7 +113,7 @@ const ExplorePage = () => {
       specialties: ['Color', 'Beard'],
       priceRange: 'Budget',
       image: '/placeholder.svg',
-      distance: '2.3 mi',
+      distance: '3.7 km',
       isLiked: true,
       isSaved: false,
       category: 'new',
@@ -129,7 +129,7 @@ const ExplorePage = () => {
       specialties: ['Quick Cuts'],
       priceRange: 'Budget',
       image: '/placeholder.svg',
-      distance: '0.2 mi',
+      distance: '0.3 km',
       isLiked: false,
       isSaved: false,
       category: 'nearby',
@@ -144,7 +144,7 @@ const ExplorePage = () => {
       specialties: ['Family Cuts'],
       priceRange: 'Mid-Range',
       image: '/placeholder.svg',
-      distance: '0.3 mi',
+      distance: '0.5 km',
       isLiked: false,
       isSaved: true,
       category: 'nearby',
@@ -159,7 +159,7 @@ const ExplorePage = () => {
       specialties: ['Express'],
       priceRange: 'Budget',
       image: '/placeholder.svg',
-      distance: '0.4 mi',
+      distance: '0.6 km',
       isLiked: true,
       isSaved: false,
       category: 'nearby',
@@ -312,7 +312,7 @@ const ExplorePage = () => {
       // Update distance display
       filtered = filtered.map(salon => ({
         ...salon,
-        distance: `${salon.calculatedDistance?.toFixed(1)} mi`
+        distance: `${(salon.calculatedDistance! * 1.60934).toFixed(1)} km`
       }));
     }
     
