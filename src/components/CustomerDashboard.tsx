@@ -158,6 +158,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
   };
 
   const availableServices = [
+    // Hair Services
     'Haircut',
     'Hair Styling',
     'Hair Color',
@@ -165,7 +166,58 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
     'Hair Treatment',
     'Blowout',
     'Perm',
-    'Hair Extensions'
+    'Hair Extensions',
+    'Keratin Treatment',
+    'Hair Wash & Blow Dry',
+    
+    // Spa & Wellness Services
+    'Swedish Massage',
+    'Deep Tissue Massage',
+    'Hot Stone Massage',
+    'Aromatherapy Massage',
+    'Couples Massage',
+    'Reflexology',
+    'Body Scrub',
+    'Body Wrap',
+    'Facial Treatment',
+    'Anti-Aging Facial',
+    'Hydrating Facial',
+    'Acne Treatment Facial',
+    
+    // Nail Services
+    'Classic Manicure',
+    'Gel Manicure',
+    'French Manicure',
+    'Nail Art Design',
+    'Classic Pedicure',
+    'Spa Pedicure',
+    'Gel Pedicure',
+    'Nail Extensions',
+    'Nail Repair',
+    
+    // Beauty & Grooming Services
+    'Eyebrow Threading',
+    'Eyebrow Tinting',
+    'Eyelash Extensions',
+    'Eyelash Tinting',
+    'Waxing - Full Leg',
+    'Waxing - Half Leg',
+    'Waxing - Bikini',
+    'Waxing - Brazilian',
+    'Waxing - Underarm',
+    'Waxing - Facial',
+    'Makeup Application',
+    'Bridal Makeup',
+    'Special Event Makeup',
+    
+    // Men's Grooming
+    'Men\'s Haircut',
+    'Beard Trim',
+    'Mustache Trim',
+    'Hot Towel Shave',
+    'Beard Styling',
+    'Men\'s Facial',
+    'Scalp Treatment'
   ];
 
   const availableHairdressers = [
