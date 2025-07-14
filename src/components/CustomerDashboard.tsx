@@ -324,7 +324,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
             </button>
             
             {/* Profile Picture Overlay */}
-            <div className="absolute -bottom-24 left-4">
+            <div className="absolute -top-24 left-4">
               <div className="relative">
                 <img 
                   src={profilePicture}
