@@ -7,6 +7,8 @@ export interface Service {
   price: number;
   category: 'haircut' | 'color' | 'styling' | 'treatment';
   isActive: boolean;
+  cancellationFee?: number; // Optional cancellation fee
+  cancellationPolicy?: string; // Cancellation policy text
 }
 
 export interface Product {
@@ -36,9 +38,26 @@ export interface Appointment {
   service: string;
   date: string;
   time: string;
-  status: string;
+  status: 'confirmed' | 'pending' | 'cancelled' | 'no-show' | 'completed';
   cost: string;
   commission: string;
+  cancellationFeeCharged?: number;
+  customerRating?: number; // 1-5 stars
+  customerNotes?: string;
+  noShowCount?: number;
+}
+
+export interface Customer {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  totalVisits: number;
+  noShowCount: number;
+  rating: number; // Average rating from hairdresser
+  notes: string;
+  flagged: boolean; // For problem customers
+  lastVisit: string;
 }
 
 export interface CustomerReview {
