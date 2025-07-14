@@ -9,8 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, Star, Heart, User, Scissors, MapPin, Phone, Camera, Upload } from 'lucide-react';
+import { Calendar, Clock, Star, Heart, User, Scissors, MapPin, Phone, Camera, Upload, Wallet } from 'lucide-react';
 import CustomAlert from '@/components/CustomAlert';
+import PaymentProcessing from './PaymentProcessing';
+import ClientWallet from './ClientWallet';
 
 interface CustomerDashboardProps {
   userName: string;
@@ -30,7 +32,9 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
   // State management for booking flow
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [pendingBooking, setPendingBooking] = useState<any>(null);
   
   // Booking form state
   const [bookingData, setBookingData] = useState({
@@ -196,12 +200,33 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
       return;
     }
     
-    showAlert('success', 'Booking Confirmed!', 
-      `Your appointment for ${bookingData.service} with ${bookingData.hairdresser} has been booked for ${bookingData.date} at ${bookingData.time}. You will receive a confirmation email shortly.`
-    );
+    // Create pending booking for payment
+    const selectedHairdresser = availableHairdressers.find(h => h.name === bookingData.hairdresser);
+    const serviceCost = bookingData.service === 'Hair Color' ? 150 : 
+                       bookingData.service === 'Hair Treatment' ? 120 : 75;
+    
+    setPendingBooking({
+      service: bookingData.service,
+      stylist: bookingData.hairdresser,
+      date: bookingData.date,
+      time: bookingData.time,
+      cost: serviceCost,
+      salon: selectedHairdresser?.salon || 'Beauty Salon',
+      notes: bookingData.notes
+    });
     
     setShowBookingModal(false);
+    setShowPaymentModal(true);
+  };
+
+  // Handle payment completion
+  const handlePaymentComplete = (paymentData: any) => {
+    showAlert('success', 'Booking Confirmed!', 
+      `Your appointment for ${pendingBooking.service} with ${pendingBooking.stylist} has been booked for ${pendingBooking.date} at ${pendingBooking.time}. Payment of R${paymentData.amount.toFixed(2)} processed successfully.`
+    );
+    
     setBookingData({ service: '', hairdresser: '', date: '', time: '', notes: '' });
+    setPendingBooking(null);
   };
 
   // Handle review submission
@@ -335,7 +360,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
           <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -368,6 +393,18 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
                   <p className="text-2xl font-bold">{customerProfile.overallRating}</p>
                 </div>
                 <Star className="h-8 w-8 text-yellow-200" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-green-100">Wallet Balance</p>
+                  <p className="text-2xl font-bold">R250</p>
+                </div>
+                <Wallet className="h-8 w-8 text-green-200" />
               </div>
             </CardContent>
           </Card>
@@ -405,23 +442,36 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
                 <CardDescription>
-                  Book a new appointment or manage your existing ones
+                  Book appointments and manage your wallet
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button 
-                    onClick={() => setShowBookingModal(true)}
-                    className="bg-purple-600 hover:bg-purple-700 flex-1"
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Book New Appointment
-                  </Button>
-                  <Button variant="outline" className="flex-1">
-                    <Clock className="mr-2 h-4 w-4" />
-                    View All Appointments
-                  </Button>
-                </div>
+                <Tabs defaultValue="booking" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="booking">Book Appointment</TabsTrigger>
+                    <TabsTrigger value="wallet">Wallet & Payments</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="booking" className="mt-6">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <Button 
+                        onClick={() => setShowBookingModal(true)}
+                        className="bg-purple-600 hover:bg-purple-700 flex-1"
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        Book New Appointment
+                      </Button>
+                      <Button variant="outline" className="flex-1">
+                        <Clock className="mr-2 h-4 w-4" />
+                        View All Appointments
+                      </Button>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="wallet" className="mt-6">
+                    <ClientWallet userName={userName} />
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
 
@@ -959,6 +1009,16 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Payment Processing Modal */}
+      {pendingBooking && (
+        <PaymentProcessing
+          appointmentDetails={pendingBooking}
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          onPaymentComplete={handlePaymentComplete}
+        />
       )}
 
       {/* Custom Alert */}

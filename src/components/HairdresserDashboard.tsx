@@ -14,6 +14,7 @@ import CalendarBooking from './CalendarBooking';
 import { FinancialData, Service, Product, PortfolioImage, Appointment, Customer } from '@/types/dashboard';
 import AppointmentManagement from './AppointmentManagement';
 import CustomerManagement from './CustomerManagement';
+import StylistEarnings from './StylistEarnings';
 
 interface HairdresserDashboardProps {
   userName: string;
@@ -436,14 +437,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
           </TabsContent>
 
           <TabsContent value="performance">
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance Overview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">Performance metrics and analytics will be displayed here.</p>
-              </CardContent>
-            </Card>
+            <StylistEarnings stylistName={userName} />
           </TabsContent>
 
           <TabsContent value="appointments">
