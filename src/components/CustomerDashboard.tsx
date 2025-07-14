@@ -345,7 +345,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
           {/* Welcome Header */}
           <div className="ml-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome back, {userName}!
+              {userName}
             </h1>
             <p className="text-gray-600">
               Manage your appointments and discover new styling opportunities.
