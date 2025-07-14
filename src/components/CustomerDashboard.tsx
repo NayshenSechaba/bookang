@@ -124,6 +124,46 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
     }
   ];
 
+  // Customer profile data including ratings from hairdressers
+  const customerProfile = {
+    overallRating: 4.6,
+    totalRatings: 15,
+    ratingBreakdown: {
+      5: 8,
+      4: 5,
+      3: 2,
+      2: 0,
+      1: 0
+    },
+    recentFeedback: [
+      {
+        id: 1,
+        hairdresser: 'Sarah Johnson',
+        salon: 'Glamour Studio',
+        rating: 5,
+        comment: 'Always punctual and professional. Great communication about styling preferences.',
+        date: '2024-01-15'
+      },
+      {
+        id: 2,
+        hairdresser: 'Maria Garcia',
+        salon: 'Elite Hair Lounge',
+        rating: 4,
+        comment: 'Pleasant customer, follows instructions well. Easy to work with.',
+        date: '2024-01-10'
+      },
+      {
+        id: 3,
+        hairdresser: 'Emma Wilson',
+        salon: 'Trendy Cuts',
+        rating: 5,
+        comment: 'Excellent client! Very clear about what she wants and appreciates the work.',
+        date: '2024-01-05'
+      }
+    ],
+    badges: ['Punctual', 'Professional', 'Easy Going', 'Good Tipper']
+  };
+
   const favoriteHairdresser = {
     name: 'Sarah Johnson',
     salon: 'Glamour Studio',
@@ -314,7 +354,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -335,6 +375,18 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
                   <p className="text-2xl font-bold">{pastAppointments.length}</p>
                 </div>
                 <Scissors className="h-8 w-8 text-pink-200" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-yellow-100">Your Rating</p>
+                  <p className="text-2xl font-bold">{customerProfile.overallRating}</p>
+                </div>
+                <Star className="h-8 w-8 text-yellow-200" />
               </div>
             </CardContent>
           </Card>
@@ -547,6 +599,89 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
                   >
                     Book with {favoriteHairdresser.name.split(' ')[0]}
                   </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Customer Rating Profile */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Star className="mr-2 h-5 w-5 text-yellow-500" />
+                  Your Rating Profile
+                </CardTitle>
+                <CardDescription>
+                  How hairdressers rate you as a client
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Overall Rating */}
+                  <div className="text-center">
+                    <div className="text-3xl font-bold text-yellow-600 mb-1">
+                      {customerProfile.overallRating}
+                    </div>
+                    <div className="flex items-center justify-center mb-2">
+                      <StarRating rating={Math.round(customerProfile.overallRating)} readonly />
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Based on {customerProfile.totalRatings} reviews
+                    </p>
+                  </div>
+
+                  {/* Rating Breakdown */}
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Rating Breakdown</h4>
+                    {[5, 4, 3, 2, 1].map((rating) => (
+                      <div key={rating} className="flex items-center text-xs">
+                        <span className="w-6">{rating}</span>
+                        <Star className="h-3 w-3 text-yellow-400 mr-2" />
+                        <div className="flex-1 bg-gray-200 rounded-full h-2 mr-2">
+                          <div 
+                            className="bg-yellow-400 h-2 rounded-full" 
+                            style={{ 
+                              width: `${(customerProfile.ratingBreakdown[rating as keyof typeof customerProfile.ratingBreakdown] / customerProfile.totalRatings) * 100}%` 
+                            }}
+                          />
+                        </div>
+                        <span className="w-6 text-right">
+                          {customerProfile.ratingBreakdown[rating as keyof typeof customerProfile.ratingBreakdown]}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Customer Badges */}
+                  <div>
+                    <h4 className="font-medium text-sm mb-2">Your Badges</h4>
+                    <div className="flex flex-wrap gap-1">
+                      {customerProfile.badges.map((badge) => (
+                        <Badge key={badge} variant="secondary" className="text-xs bg-green-100 text-green-800">
+                          {badge}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Recent Feedback */}
+                  <div>
+                    <h4 className="font-medium text-sm mb-2">Recent Feedback</h4>
+                    <div className="space-y-3 max-h-48 overflow-y-auto">
+                      {customerProfile.recentFeedback.map((feedback) => (
+                        <div key={feedback.id} className="bg-gray-50 rounded-lg p-3 text-xs">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-medium">{feedback.hairdresser}</span>
+                            <div className="flex items-center">
+                              <StarRating rating={feedback.rating} readonly />
+                            </div>
+                          </div>
+                          <p className="text-gray-600 mb-1">{feedback.salon}</p>
+                          <p className="text-gray-700 italic">"{feedback.comment}"</p>
+                          <p className="text-gray-500 mt-1 text-right">{feedback.date}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
