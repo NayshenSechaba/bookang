@@ -486,7 +486,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
                             {appointment.salon}
                           </div>
                           <div className="flex items-center">
-                            <span className="font-medium text-purple-600">{appointment.cost}</span>
+                            <span className="font-medium text-purple-600">{formatCurrency(parseFloat(appointment.cost.replace(/[^\d.-]/g, '')))}</span>
                           </div>
                         </div>
                       </div>
