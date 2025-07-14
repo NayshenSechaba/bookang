@@ -156,7 +156,16 @@ const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture, onU
             alt="Dashboard header"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent">
+            {/* Profile Picture in Header */}
+            <div className="absolute bottom-4 right-4">
+              <img 
+                src={profilePicture}
+                alt="Profile"
+                className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-lg"
+              />
+            </div>
+          </div>
           
           {/* Profile Picture Overlay */}
           <div className="absolute -bottom-16 left-4">
