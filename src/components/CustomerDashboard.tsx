@@ -23,28 +23,9 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
   const [showProfileUpload, setShowProfileUpload] = useState(false);
   const [showCoverUpload, setShowCoverUpload] = useState(false);
   
-  // Currency formatting based on user's locale
+  // Currency formatting for South African Rands
   const formatCurrency = (amount: number) => {
-    try {
-      // Try to detect user's currency based on their locale
-      const userLocale = navigator.language || 'en-US';
-      
-      // Get the currency for the user's locale (fallback to USD if unable to detect)
-      const currencyCode = new Intl.NumberFormat(userLocale)
-        .formatToParts(1000)
-        .find(part => part.type === 'currency')?.value || 'USD';
-      
-      return new Intl.NumberFormat(userLocale, {
-        style: 'currency',
-        currency: currencyCode || 'USD'
-      }).format(amount);
-    } catch (error) {
-      // Fallback to USD if there's any error
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      }).format(amount);
-    }
+    return `R${amount.toFixed(2)}`;
   };
   // State management for booking flow
   const [showBookingModal, setShowBookingModal] = useState(false);

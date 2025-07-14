@@ -99,7 +99,7 @@ const Index = () => {
                 123 Beauty Street, Downtown
               </div>
               <div className="mt-4 pt-4 border-t flex justify-between items-center">
-                <span className="font-semibold text-lg">$85.00</span>
+                <span className="font-semibold text-lg">R85.00</span>
                 <div className="flex items-center">
                   <Star className="h-4 w-4 text-yellow-400 fill-current" />
                   <span className="text-sm text-gray-600 ml-1">5.0</span>
@@ -129,7 +129,7 @@ const Index = () => {
                 456 Style Avenue, Uptown
               </div>
               <div className="mt-4 pt-4 border-t flex justify-between items-center">
-                <span className="font-semibold text-lg">$150.00</span>
+                <span className="font-semibold text-lg">R150.00</span>
                 <Button size="sm" variant="outline">
                   Reschedule
                 </Button>
@@ -158,7 +158,7 @@ const Index = () => {
                 789 Wellness Blvd, Midtown
               </div>
               <div className="mt-4 pt-4 border-t flex justify-between items-center">
-                <span className="font-semibold text-lg">$120.00</span>
+                <span className="font-semibold text-lg">R120.00</span>
                 <div className="flex items-center">
                   <Star className="h-4 w-4 text-yellow-400 fill-current" />
                   <span className="text-sm text-gray-600 ml-1">4.8</span>
