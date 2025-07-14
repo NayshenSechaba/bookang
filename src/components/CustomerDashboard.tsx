@@ -306,7 +306,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
       <div className="max-w-7xl mx-auto">
         {/* Profile Header with Cover Image */}
         <div className="mb-8">
-          <div className="relative mb-16 h-48 w-full rounded-lg overflow-hidden">
+          <div className="relative mb-24 h-48 w-full rounded-lg overflow-hidden">
             <img 
               src={coverImage}
               alt="Cover"
@@ -324,12 +324,12 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
             </button>
             
             {/* Profile Picture Overlay */}
-            <div className="absolute -bottom-16 left-4">
+            <div className="absolute -bottom-24 left-4">
               <div className="relative">
                 <img 
                   src={profilePicture}
                   alt="Profile"
-                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg cursor-pointer"
+                  className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-lg cursor-pointer hover-scale transition-all duration-300"
                   onClick={() => setShowProfileUpload(true)}
                 />
                 <button
@@ -343,7 +343,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
           </div>
           
           {/* Welcome Header */}
-          <div className="ml-6">
+          <div className="ml-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Welcome back, {userName}!
             </h1>
