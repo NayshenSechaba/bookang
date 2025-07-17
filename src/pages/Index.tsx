@@ -8,39 +8,64 @@ import AuthModal from '@/components/AuthModal';
 import CustomerDashboard from '@/components/CustomerDashboard';
 import HairdresserDashboard from '@/components/HairdresserDashboard';
 import EmployeeDashboard from '@/components/EmployeeDashboard';
+import AppointmentsPage from '@/components/AppointmentsPage';
 import ExplorePage from '@/components/ExplorePage';
 import FAQSection from '@/components/FAQSection';
 import ContactSection from '@/components/ContactSection';
 
 
 const Index = () => {
-  // Authentication state management
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState<'customer' | 'hairdresser' | 'employee' | null>(null);
-  const [userName, setUserName] = useState('');
+  // Authentication state management with persistence
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('salonconnect_authenticated') === 'true';
+  });
+  const [userRole, setUserRole] = useState<'customer' | 'hairdresser' | 'employee' | null>(() => {
+    const savedRole = localStorage.getItem('salonconnect_user_role');
+    return savedRole as 'customer' | 'hairdresser' | 'employee' | null;
+  });
+  const [userName, setUserName] = useState(() => {
+    return localStorage.getItem('salonconnect_user_name') || '';
+  });
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [loginType, setLoginType] = useState<'customer' | 'hairdresser' | 'employee'>('customer');
   
-  // Navigation state
-  const [currentPage, setCurrentPage] = useState('home');
+  // Navigation state with session persistence
+  const [currentPage, setCurrentPage] = useState(() => {
+    // Check if user was on dashboard or other authenticated page
+    const savedPage = localStorage.getItem('salonconnect_current_page');
+    const savedAuth = localStorage.getItem('salonconnect_authenticated');
+    return savedAuth === 'true' && savedPage ? savedPage : 'home';
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Handle successful authentication
+  // Handle successful authentication with persistence
   const handleAuthSuccess = (role: 'customer' | 'hairdresser' | 'employee', name: string) => {
     setIsAuthenticated(true);
     setUserRole(role);
     setUserName(name);
     setShowAuthModal(false);
     setCurrentPage('dashboard');
+    
+    // Persist authentication state
+    localStorage.setItem('salonconnect_authenticated', 'true');
+    localStorage.setItem('salonconnect_user_role', role);
+    localStorage.setItem('salonconnect_user_name', name);
+    localStorage.setItem('salonconnect_current_page', 'dashboard');
   };
 
-  // Handle logout
+  // Handle logout with cleanup
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUserRole(null);
     setUserName('');
     setCurrentPage('home');
+    
+    // Clear persistent authentication state
+    localStorage.removeItem('salonconnect_authenticated');
+    localStorage.removeItem('salonconnect_user_role');
+    localStorage.removeItem('salonconnect_user_name');
+    localStorage.removeItem('salonconnect_current_page');
   };
 
   // Open authentication modal with specific mode
@@ -61,7 +86,7 @@ const Index = () => {
 
     if (isAuthenticated) {
       baseItems.splice(1, 0, { id: 'dashboard', label: 'Dashboard', icon: Calendar });
-      baseItems.splice(2, 0, { id: 'recent-bookings', label: 'Recent Bookings', icon: Clock });
+      baseItems.splice(2, 0, { id: 'appointments', label: 'My Appointments', icon: Clock });
     }
 
     return baseItems;
@@ -190,12 +215,12 @@ const Index = () => {
     switch (currentPage) {
       case 'dashboard':
         if (!isAuthenticated) return renderHomePage();
-        if (userRole === 'customer') return <CustomerDashboard userName={userName} />;
+        if (userRole === 'customer') return <CustomerDashboard userName={userName} onNavigate={setCurrentPage} />;
         if (userRole === 'hairdresser') return <HairdresserDashboard userName={userName} />;
         if (userRole === 'employee') return <EmployeeDashboard userName={userName} />;
         return renderHomePage();
-      case 'recent-bookings':
-        return renderRecentBookingsPage();
+      case 'appointments':
+        return <AppointmentsPage userName={userName} />;
       case 'explore':
         return <ExplorePage />;
       case 'faq':
@@ -242,7 +267,7 @@ const Index = () => {
                   <div className="p-1">
                     <div 
                       className="relative overflow-hidden rounded-lg shadow-lg cursor-pointer hover:scale-105 transition-transform"
-                      onClick={() => isAuthenticated ? setCurrentPage('recent-bookings') : openAuthModal('login', 'customer')}
+                       onClick={() => isAuthenticated ? setCurrentPage('appointments') : openAuthModal('login', 'customer')}
                     >
                       <img 
                         src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=300&fit=crop&crop=face"
@@ -251,7 +276,7 @@ const Index = () => {
                       />
                       <div 
                         className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"
-                        onClick={() => isAuthenticated ? setCurrentPage('recent-bookings') : openAuthModal('login', 'customer')}
+                        onClick={() => isAuthenticated ? setCurrentPage('appointments') : openAuthModal('login', 'customer')}
                       ></div>
                     </div>
                   </div>
@@ -345,35 +370,88 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section with CTA Buttons */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
             Why Choose SalonConnect?
           </h2>
           
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card className="text-center border-purple-100 hover:shadow-lg transition-shadow">
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="text-center border-purple-100 hover:shadow-lg transition-shadow cursor-pointer" 
+                  onClick={() => isAuthenticated ? setCurrentPage('dashboard') : openAuthModal('login', 'customer')}>
               <CardHeader>
                 <Calendar className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-                <CardTitle className="text-purple-900">Easy Booking</CardTitle>
+                <CardTitle className="text-purple-900">Easy Book</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-gray-600">
+                <CardDescription className="text-gray-600 mb-4">
                   Book appointments with your favorite hairdressers in just a few clicks. Simple, fast, and convenient.
                 </CardDescription>
+                <Button 
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isAuthenticated) {
+                      setCurrentPage('dashboard');
+                      localStorage.setItem('salonconnect_current_page', 'dashboard');
+                    } else {
+                      openAuthModal('login', 'customer');
+                    }
+                  }}
+                >
+                  Start Booking
+                </Button>
               </CardContent>
             </Card>
 
-            <Card className="text-center border-pink-100 hover:shadow-lg transition-shadow">
+            <Card className="text-center border-pink-100 hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => {
+                    setCurrentPage('explore');
+                    localStorage.setItem('salonconnect_current_page', 'explore');
+                  }}>
               <CardHeader>
                 <Star className="h-12 w-12 text-pink-600 mx-auto mb-4" />
-                <CardTitle className="text-pink-900">Quality Service</CardTitle>
+                <CardTitle className="text-pink-900">Quality Services</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-gray-600">
+                <CardDescription className="text-gray-600 mb-4">
                   Connect with verified, professional hairdressers with excellent reviews and ratings.
                 </CardDescription>
+                <Button 
+                  variant="outline"
+                  className="w-full border-pink-600 text-pink-600 hover:bg-pink-50"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentPage('explore');
+                    localStorage.setItem('salonconnect_current_page', 'explore');
+                  }}
+                >
+                  Browse Services
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center border-green-100 hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => openAuthModal('register', 'hairdresser')}>
+              <CardHeader>
+                <Store className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                <CardTitle className="text-green-900">List Your Business</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-gray-600 mb-4">
+                  Join our platform as a professional hairdresser and grow your business.
+                </CardDescription>
+                <Button 
+                  variant="outline"
+                  className="w-full border-green-600 text-green-600 hover:bg-green-50"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openAuthModal('register', 'hairdresser');
+                  }}
+                >
+                  Join as Business
+                </Button>
               </CardContent>
             </Card>
 
@@ -435,12 +513,15 @@ const Index = () => {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
               {getNavItems().map((item) => (
-                <Button
-                  key={item.id}
-                  variant={currentPage === item.id ? "default" : "ghost"}
-                  className={currentPage === item.id ? "bg-purple-600 text-white" : "text-gray-600 hover:text-purple-600"}
-                  onClick={() => setCurrentPage(item.id)}
-                >
+                 <Button
+                   key={item.id}
+                   variant={currentPage === item.id ? "default" : "ghost"}
+                   className={currentPage === item.id ? "bg-purple-600 text-white" : "text-gray-600 hover:text-purple-600"}
+                   onClick={() => {
+                     setCurrentPage(item.id);
+                     localStorage.setItem('salonconnect_current_page', item.id);
+                   }}
+                 >
                   <item.icon className="mr-2 h-4 w-4" />
                   {item.label}
                 </Button>
@@ -483,10 +564,11 @@ const Index = () => {
                     key={item.id}
                     variant={currentPage === item.id ? "default" : "ghost"}
                     className={`justify-start ${currentPage === item.id ? "bg-purple-600 text-white" : "text-gray-600"}`}
-                    onClick={() => {
-                      setCurrentPage(item.id);
-                      setIsMobileMenuOpen(false);
-                    }}
+                     onClick={() => {
+                       setCurrentPage(item.id);
+                       localStorage.setItem('salonconnect_current_page', item.id);
+                       setIsMobileMenuOpen(false);
+                     }}
                   >
                     <item.icon className="mr-2 h-4 w-4" />
                     {item.label}

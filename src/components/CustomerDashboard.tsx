@@ -16,9 +16,10 @@ import ClientWallet from './ClientWallet';
 
 interface CustomerDashboardProps {
   userName: string;
+  onNavigate?: (page: string) => void;
 }
 
-const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
+const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => {
   // Profile state
   const [profilePicture, setProfilePicture] = useState('https://images.unsplash.com/photo-1649972904349-6e44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80');
   const [coverImage, setCoverImage] = useState('https://images.unsplash.com/photo-1518005020951-eccb494ad742?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
@@ -279,6 +280,13 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
     
     setBookingData({ service: '', hairdresser: '', date: '', time: '', notes: '' });
     setPendingBooking(null);
+    
+    // Show additional success message with View Appointments option
+    setTimeout(() => {
+      showAlert('info', 'Appointment Created!', 
+        'Your appointment has been added to your schedule. You can view and manage all your appointments in the "My Appointments" section.'
+      );
+    }, 3000);
   };
 
   // Handle review submission
@@ -513,7 +521,16 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
                         <Calendar className="mr-2 h-4 w-4" />
                         Book New Appointment
                       </Button>
-                      <Button variant="outline" className="flex-1">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => {
+                          if (onNavigate) {
+                            onNavigate('appointments');
+                            localStorage.setItem('salonconnect_current_page', 'appointments');
+                          }
+                        }}
+                      >
                         <Clock className="mr-2 h-4 w-4" />
                         View All Appointments
                       </Button>
@@ -799,9 +816,9 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
         </div>
       </div>
 
-      {/* Booking Modal */}
+      {/* Booking Modal - Mobile Responsive with Scrolling */}
       <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Book New Appointment</DialogTitle>
             <DialogDescription>
@@ -809,7 +826,7 @@ const CustomerDashboard = ({ userName }: CustomerDashboardProps) => {
             </DialogDescription>
           </DialogHeader>
           
-          <form onSubmit={handleBooking} className="space-y-4">
+          <form onSubmit={handleBooking} className="space-y-4 max-h-[60vh] overflow-y-auto px-1">
             <div>
               <Label htmlFor="service">Service</Label>
               <Select 
