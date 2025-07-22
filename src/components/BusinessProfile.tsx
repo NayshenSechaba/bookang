@@ -193,6 +193,57 @@ const BusinessProfile = () => {
           </Button>
         </div>
 
+        {/* Service Categories */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Our Platform Serves</CardTitle>
+            <CardDescription>We provide comprehensive management tools for various wellness and beauty businesses</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg text-gray-900">Hair Salons</h3>
+                <p className="text-gray-600 text-sm">Online booking, appointment management, and marketing tools.</p>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg text-gray-900">Barbershops</h3>
+                <p className="text-gray-600 text-sm">Streamlined scheduling, client management, and payment processing.</p>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg text-gray-900">Nail Salons</h3>
+                <p className="text-gray-600 text-sm">Tools for managing appointments, inventory, and client information.</p>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg text-gray-900">Spas</h3>
+                <p className="text-gray-600 text-sm">Online booking, treatment management, and customer communication.</p>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg text-gray-900">Massage Therapists</h3>
+                <p className="text-gray-600 text-sm">Appointments, scheduling, client history management.</p>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg text-gray-900">Fitness Studios</h3>
+                <p className="text-gray-600 text-sm">Online booking, class management, and membership tracking.</p>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg text-gray-900">Physical Therapy Clinics</h3>
+                <p className="text-gray-600 text-sm">Streamlined appointment scheduling and patient management.</p>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg text-gray-900">Health Practices</h3>
+                <p className="text-gray-600 text-sm">Appointment scheduling, client records, and reporting features.</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Business Profile Card */}
         <Card className="mb-8">
           <CardHeader>
