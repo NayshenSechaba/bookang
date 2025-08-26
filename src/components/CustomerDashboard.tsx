@@ -273,10 +273,48 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   };
 
   // Handle payment completion
-  const handlePaymentComplete = (paymentData: any) => {
+  const handlePaymentComplete = async (paymentData: any) => {
     showAlert('success', 'Booking Confirmed!', 
       `Your appointment for ${pendingBooking.service} with ${pendingBooking.stylist} has been booked for ${pendingBooking.date} at ${pendingBooking.time}. Payment of R${paymentData.amount.toFixed(2)} processed successfully.`
     );
+    
+    // Send booking data to webhook
+    try {
+      const webhookData = {
+        booking_id: `BK_${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        customer_name: userName,
+        service: pendingBooking.service,
+        stylist: pendingBooking.stylist,
+        appointment_date: pendingBooking.date,
+        appointment_time: pendingBooking.time,
+        cost: pendingBooking.cost,
+        salon: pendingBooking.salon,
+        notes: pendingBooking.notes,
+        payment_details: {
+          payment_id: paymentData.id,
+          method: paymentData.method,
+          amount: paymentData.amount,
+          currency: paymentData.currency,
+          status: paymentData.status,
+          transaction_fee: paymentData.transactionFee,
+          net_amount: paymentData.netAmount
+        },
+        booking_source: 'website'
+      };
+
+      await fetch('https://n8n.srv962284.hstgr.cloud/webhook/3f69f86e-0768-4251-b329-31961067d2bb', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify(webhookData),
+      });
+    } catch (error) {
+      console.error('Failed to send booking data to webhook:', error);
+      // Don't show error to user as booking is still successful
+    }
     
     setBookingData({ service: '', hairdresser: '', date: '', time: '', notes: '' });
     setPendingBooking(null);
