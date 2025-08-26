@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Scissors, User, Eye, EyeOff, Upload, FileText, IdCard, UserCheck } from 'lucide-react';
 import CustomAlert from '@/components/CustomAlert';
+import { supabase } from "@/integrations/supabase/client";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -90,7 +91,7 @@ const AuthModal = ({
   };
 
   // Handle login form submission
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation checks
@@ -103,19 +104,45 @@ const AuthModal = ({
       showAlert('error', 'Invalid Email', 'Please enter a valid email address.');
       return;
     }
-    
-    // Simulate successful login
-    const userName = formData.email.split('@')[0]; // Use email prefix as name
-    showAlert('success', 'Login Successful', `Welcome back! Redirecting to your ${loginType} dashboard...`);
-    
-    setTimeout(() => {
-      onAuthSuccess(loginType, userName);
-      resetForm();
-    }, 1500);
+
+    try {
+      // Sign in with Supabase
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) {
+        showAlert('error', 'Login Failed', error.message);
+        return;
+      }
+
+      if (data.user) {
+        // Get user profile to determine actual role
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, role')
+          .eq('user_id', data.user.id)
+          .single();
+
+        const userName = profile?.full_name || data.user.email?.split('@')[0] || 'User';
+        const userRole = profile?.role || loginType;
+        
+        showAlert('success', 'Login Successful', `Welcome back! Redirecting to your ${userRole} dashboard...`);
+        
+        setTimeout(() => {
+          onAuthSuccess(userRole as 'customer' | 'hairdresser' | 'employee', userName);
+          resetForm();
+        }, 1500);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      showAlert('error', 'Login Failed', 'An unexpected error occurred. Please try again.');
+    }
   };
 
   // Handle registration form submission
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Basic validation checks
@@ -171,14 +198,38 @@ const AuthModal = ({
         return;
       }
     }
-    
-    // Simulate successful registration
-    showAlert('success', 'Registration Successful', 'Your account has been created successfully! Please log in to continue.');
-    
-    setTimeout(() => {
-      onSwitchMode('login');
-      resetForm();
-    }, 2000);
+
+    try {
+      // Sign up with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: formData.role === 'hairdresser' ? formData.hairdresserName : formData.email.split('@')[0],
+            role: formData.role,
+          }
+        }
+      });
+
+      if (error) {
+        showAlert('error', 'Registration Failed', error.message);
+        return;
+      }
+
+      if (data.user) {
+        showAlert('success', 'Registration Successful', 'Your account has been created successfully! Please check your email to verify your account, then log in to continue.');
+        
+        setTimeout(() => {
+          onSwitchMode('login');
+          resetForm();
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      showAlert('error', 'Registration Failed', 'An unexpected error occurred. Please try again.');
+    }
   };
 
   // Reset form data
