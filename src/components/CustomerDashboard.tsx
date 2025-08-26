@@ -13,6 +13,7 @@ import { Calendar, Clock, Star, Heart, User, Scissors, MapPin, Phone, Camera, Up
 import CustomAlert from '@/components/CustomAlert';
 import PaymentProcessing from './PaymentProcessing';
 import ClientWallet from './ClientWallet';
+import { supabase } from "@/integrations/supabase/client";
 
 interface CustomerDashboardProps {
   userName: string;
@@ -277,6 +278,65 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
     showAlert('success', 'Booking Confirmed!', 
       `Your appointment for ${pendingBooking.service} with ${pendingBooking.stylist} has been booked for ${pendingBooking.date} at ${pendingBooking.time}. Payment of R${paymentData.amount.toFixed(2)} processed successfully.`
     );
+    
+    // Save booking to Supabase database
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Get customer profile ID
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.user.id)
+        .single();
+
+      if (!profile) {
+        throw new Error('Customer profile not found');
+      }
+
+      // Find hairdresser by name (for demo purposes, we'll use a mock lookup)
+      // In a real app, you'd have hairdresser IDs from the booking form
+      const { data: hairdresser } = await supabase
+        .from('hairdressers')
+        .select('id')
+        .limit(1)
+        .single();
+
+      // Find service by name (for demo purposes, we'll use a mock lookup)
+      // In a real app, you'd have service IDs from the booking form
+      const { data: service } = await supabase
+        .from('services')
+        .select('id, duration_minutes')
+        .limit(1)
+        .single();
+
+      // Insert booking into database
+      const { error: bookingError } = await supabase
+        .from('bookings')
+        .insert({
+          customer_id: profile.id,
+          hairdresser_id: hairdresser?.id || null,
+          service_id: service?.id || null,
+          appointment_date: pendingBooking.date,
+          appointment_time: pendingBooking.time,
+          duration_minutes: service?.duration_minutes || 60,
+          total_price: pendingBooking.cost,
+          status: 'confirmed',
+          special_requests: pendingBooking.notes || null
+        });
+
+      if (bookingError) {
+        throw bookingError;
+      }
+
+      console.log('Booking saved to Supabase successfully');
+    } catch (error) {
+      console.error('Failed to save booking to Supabase:', error);
+      // Don't show error to user as booking is still successful
+    }
     
     // Send booking data to webhook
     try {
