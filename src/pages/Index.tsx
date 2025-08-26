@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,60 +12,100 @@ import AppointmentsPage from '@/components/AppointmentsPage';
 import ExplorePage from '@/components/ExplorePage';
 import FAQSection from '@/components/FAQSection';
 import ContactSection from '@/components/ContactSection';
+import { supabase } from "@/integrations/supabase/client";
+import type { User, Session } from '@supabase/supabase-js';
 
 
 const Index = () => {
-  // Authentication state management with persistence
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('salonconnect_authenticated') === 'true';
-  });
-  const [userRole, setUserRole] = useState<'customer' | 'hairdresser' | 'employee' | null>(() => {
-    const savedRole = localStorage.getItem('salonconnect_user_role');
-    return savedRole as 'customer' | 'hairdresser' | 'employee' | null;
-  });
-  const [userName, setUserName] = useState(() => {
-    return localStorage.getItem('salonconnect_user_name') || '';
-  });
+  // Supabase authentication state
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [userRole, setUserRole] = useState<'customer' | 'hairdresser' | 'employee' | null>(null);
+  const [userName, setUserName] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [loginType, setLoginType] = useState<'customer' | 'hairdresser' | 'employee'>('customer');
   
-  // Navigation state with session persistence
-  const [currentPage, setCurrentPage] = useState(() => {
-    // Check if user was on dashboard or other authenticated page
-    const savedPage = localStorage.getItem('salonconnect_current_page');
-    const savedAuth = localStorage.getItem('salonconnect_authenticated');
-    return savedAuth === 'true' && savedPage ? savedPage : 'home';
-  });
+  // Navigation state 
+  const [currentPage, setCurrentPage] = useState('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Handle successful authentication with persistence
+  // Set up Supabase auth listener
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          // Fetch user profile to get role and name
+          setTimeout(async () => {
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('full_name, role')
+                .eq('user_id', session.user.id)
+                .single();
+              
+              if (profile) {
+                setUserRole(profile.role === 'salon_owner' ? 'employee' : profile.role);
+                setUserName(profile.full_name || session.user.email?.split('@')[0] || 'User');
+                setCurrentPage('dashboard');
+              }
+            } catch (error) {
+              console.error('Error fetching profile:', error);
+            }
+          }, 0);
+        } else {
+          setUserRole(null);
+          setUserName('');
+          setCurrentPage('home');
+        }
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        // Fetch user profile
+        supabase
+          .from('profiles')
+          .select('full_name, role')
+          .eq('user_id', session.user.id)
+          .single()
+          .then(({ data: profile }) => {
+            if (profile) {
+              setUserRole(profile.role === 'salon_owner' ? 'employee' : profile.role);
+              setUserName(profile.full_name || session.user.email?.split('@')[0] || 'User');
+              setCurrentPage('dashboard');
+            }
+          });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Handle successful authentication
   const handleAuthSuccess = (role: 'customer' | 'hairdresser' | 'employee', name: string) => {
-    setIsAuthenticated(true);
     setUserRole(role);
     setUserName(name);
     setShowAuthModal(false);
     setCurrentPage('dashboard');
-    
-    // Persist authentication state
-    localStorage.setItem('salonconnect_authenticated', 'true');
-    localStorage.setItem('salonconnect_user_role', role);
-    localStorage.setItem('salonconnect_user_name', name);
-    localStorage.setItem('salonconnect_current_page', 'dashboard');
   };
 
-  // Handle logout with cleanup
-  const handleLogout = () => {
-    setIsAuthenticated(false);
+  // Handle logout
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
     setUserRole(null);
     setUserName('');
     setCurrentPage('home');
-    
-    // Clear persistent authentication state
-    localStorage.removeItem('salonconnect_authenticated');
-    localStorage.removeItem('salonconnect_user_role');
-    localStorage.removeItem('salonconnect_user_name');
-    localStorage.removeItem('salonconnect_current_page');
   };
 
   // Open authentication modal with specific mode
@@ -84,7 +124,7 @@ const Index = () => {
       { id: 'contact', label: 'Contact', icon: Phone },
     ];
 
-    if (isAuthenticated) {
+    if (user) {
       baseItems.splice(1, 0, { id: 'dashboard', label: 'Dashboard', icon: Calendar });
       baseItems.splice(2, 0, { id: 'appointments', label: 'My Appointments', icon: Clock });
     }
@@ -214,7 +254,7 @@ const Index = () => {
   const renderCurrentPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        if (!isAuthenticated) return renderHomePage();
+        if (!user) return renderHomePage();
         if (userRole === 'customer') return <CustomerDashboard userName={userName} onNavigate={setCurrentPage} />;
         if (userRole === 'hairdresser') return <HairdresserDashboard userName={userName} />;
         if (userRole === 'employee') return <EmployeeDashboard userName={userName} />;
@@ -267,7 +307,7 @@ const Index = () => {
                   <div className="p-1">
                     <div 
                       className="relative overflow-hidden rounded-lg shadow-lg cursor-pointer hover:scale-105 transition-transform"
-                       onClick={() => isAuthenticated ? setCurrentPage('appointments') : openAuthModal('login', 'customer')}
+                       onClick={() => user ? setCurrentPage('appointments') : openAuthModal('login', 'customer')}
                     >
                       <img 
                         src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=300&fit=crop&crop=face"
@@ -276,7 +316,7 @@ const Index = () => {
                       />
                       <div 
                         className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"
-                        onClick={() => isAuthenticated ? setCurrentPage('appointments') : openAuthModal('login', 'customer')}
+                        onClick={() => user ? setCurrentPage('appointments') : openAuthModal('login', 'customer')}
                       ></div>
                     </div>
                   </div>
@@ -379,7 +419,7 @@ const Index = () => {
           
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="text-center border-purple-100 hover:shadow-lg transition-shadow cursor-pointer" 
-                  onClick={() => isAuthenticated ? setCurrentPage('dashboard') : openAuthModal('login', 'customer')}>
+                  onClick={() => user ? setCurrentPage('dashboard') : openAuthModal('login', 'customer')}>
               <CardHeader>
                 <Calendar className="h-12 w-12 text-purple-600 mx-auto mb-4" />
                 <CardTitle className="text-purple-900">Easy Book</CardTitle>
@@ -392,7 +432,7 @@ const Index = () => {
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white"
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (isAuthenticated) {
+                    if (user) {
                       setCurrentPage('dashboard');
                       localStorage.setItem('salonconnect_current_page', 'dashboard');
                     } else {
@@ -527,7 +567,7 @@ const Index = () => {
                 </Button>
               ))}
               
-              {isAuthenticated && (
+              {user && (
                 <div className="flex items-center space-x-3 pl-4 border-l">
                   <span className="text-sm text-gray-600">
                     Welcome, <span className="font-medium text-purple-600">{userName}</span>
@@ -575,7 +615,7 @@ const Index = () => {
                   </Button>
                 ))}
                 
-                {isAuthenticated && (
+                {user && (
                   <div className="pt-4 border-t">
                     <p className="text-sm text-gray-600 px-3 mb-2">
                       Welcome, <span className="font-medium text-purple-600">{userName}</span>
