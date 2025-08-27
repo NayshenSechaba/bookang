@@ -363,7 +363,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
         booking_source: 'website'
       };
 
-      await fetch('https://n8n.srv962284.hstgr.cloud/webhook/3f69f86e-0768-4251-b329-31961067d2bb', {
+      await fetch('https://n8n.srv962284.hstgr.cloud/webhook-test/3f69f86e-0768-4251-b329-31961067d2bb', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
