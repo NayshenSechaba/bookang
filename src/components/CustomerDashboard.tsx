@@ -324,7 +324,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
           appointment_time: pendingBooking.time,
           duration_minutes: service?.duration_minutes || 60,
           total_price: pendingBooking.cost,
-          status: 'confirmed',
+          status: 'pending',
           special_requests: pendingBooking.notes || null
         });
 
