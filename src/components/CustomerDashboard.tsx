@@ -372,7 +372,36 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
         body: JSON.stringify(webhookData),
       });
     } catch (error) {
-      console.error('Failed to send booking data to webhook:', error);
+      console.error('Failed to send booking data to n8n webhook:', error);
+      // Don't show error to user as booking is still successful
+    }
+
+    // Send notification to Zapier webhook
+    try {
+      const notificationData = {
+        booking_id: `BK_${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        customer_name: userName,
+        service: pendingBooking.service,
+        stylist: pendingBooking.stylist,
+        appointment_date: pendingBooking.date,
+        appointment_time: pendingBooking.time,
+        cost: pendingBooking.cost,
+        salon: pendingBooking.salon,
+        status: 'pending',
+        notification_type: 'new_booking'
+      };
+
+      await fetch('https://hooks.zapier.com/hooks/catch/23327911/uhiph2z/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify(notificationData),
+      });
+    } catch (error) {
+      console.error('Failed to send notification to Zapier webhook:', error);
       // Don't show error to user as booking is still successful
     }
     
