@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,11 +27,36 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   const [coverImage, setCoverImage] = useState('https://images.unsplash.com/photo-1518005020951-eccb494ad742?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
   const [showProfileUpload, setShowProfileUpload] = useState(false);
   const [showCoverUpload, setShowCoverUpload] = useState(false);
+  const [username, setUsername] = useState('');
   
   // Currency formatting for South African Rands
   const formatCurrency = (amount: number) => {
     return `R${amount.toFixed(2)}`;
   };
+
+  // Fetch username from database
+  useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const { data: user } = await supabase.auth.getUser();
+        if (user.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('user_id', user.user.id)
+            .single();
+          
+          if (profile?.username) {
+            setUsername(profile.username);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch username:', error);
+      }
+    };
+
+    fetchUsername();
+  }, []);
 
   // Name formatting function
   const formatName = (name: string) => {
@@ -556,7 +581,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
           {/* Welcome Header */}
           <div className="ml-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {formatName(userName)}
+              {username || formatName(userName)}
             </h1>
             <p className="text-gray-600">
               Manage your appointments and discover new styling opportunities.
