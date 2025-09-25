@@ -140,7 +140,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Email Support</h4>
-                    <p className="text-gray-600">support@salonconnect.com</p>
+                    <p className="text-gray-600">support@bookang.com</p>
                     <p className="text-sm text-gray-500">Response within 24 hours</p>
                   </div>
                 </div>

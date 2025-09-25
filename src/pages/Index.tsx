@@ -565,7 +565,7 @@ const Index = () => {
             {/* Logo */}
             <div className="flex items-center space-x-2">
               <Scissors className="h-8 w-8 text-purple-600" />
-              <span className="text-2xl font-bold text-gray-900">SalonConnect</span>
+              <span className="text-2xl font-bold text-gray-900">Bookang</span>
             </div>
 
             {/* Desktop Navigation */}
@@ -671,7 +671,7 @@ const Index = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Scissors className="h-6 w-6 text-purple-400" />
-                <span className="text-xl font-bold">SalonConnect</span>
+                <span className="text-xl font-bold">Bookang</span>
               </div>
               <p className="text-gray-400">
                 Connecting customers with professional hairdressers for the perfect salon experience.
@@ -708,7 +708,7 @@ const Index = () => {
               <div className="space-y-2">
                 <div className="flex items-center space-x-2 text-gray-400">
                   <Mail className="h-4 w-4" />
-                  <span>support@salonconnect.com</span>
+                  <span>support@bookang.com</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-400">
                   <Phone className="h-4 w-4" />
@@ -719,7 +719,7 @@ const Index = () => {
           </div>
           
           <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center">
-            <p className="text-gray-400 mb-4 sm:mb-0">&copy; 2024 SalonConnect. All rights reserved.</p>
+            <p className="text-gray-400 mb-4 sm:mb-0">&copy; 2024 Bookang. All rights reserved.</p>
             
             {/* Employee Login Button */}
             <Button

@@ -274,7 +274,7 @@ const AuthModal = ({
               </div>
             </div>
             <DialogTitle className="text-center text-2xl font-bold">
-              {mode === 'login' ? 'Welcome Back' : 'Join SalonConnect'}
+              {mode === 'login' ? 'Welcome Back' : 'Join Bookang'}
             </DialogTitle>
             <DialogDescription className="text-center">
               {mode === 'login' 

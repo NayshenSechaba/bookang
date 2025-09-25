@@ -56,22 +56,22 @@ const FAQSection = () => {
     {
       id: 1,
       category: 'general',
-      question: 'What is SalonConnect and how does it work?',
-      answer: 'SalonConnect is a platform that connects customers with professional hairdressers and salons. You can browse salons, view services, read reviews, and book appointments all in one place. Simply create an account, search for salons in your area, and book your preferred time slot.',
+      question: 'What is Bookang and how does it work?',
+      answer: 'Bookang is a platform that connects customers with professional hairdressers and salons. You can browse salons, view services, read reviews, and book appointments all in one place. Simply create an account, search for salons in your area, and book your preferred time slot.',
       popular: true
     },
     {
       id: 2,
       category: 'general',
-      question: 'Is SalonConnect available in my area?',
-      answer: 'SalonConnect is currently available in major cities across the country and we\'re expanding rapidly. Use our salon search feature to see available options in your location. If we\'re not in your area yet, join our waitlist to be notified when we launch there.',
+      question: 'Is Bookang available in my area?',
+      answer: 'Bookang is currently available in major cities across the country and we\'re expanding rapidly. Use our salon search feature to see available options in your location. If we\'re not in your area yet, join our waitlist to be notified when we launch there.',
       popular: false
     },
     {
       id: 3,
       category: 'general',
       question: 'How do I contact customer support?',
-      answer: 'You can reach our customer support team through multiple channels: email us at support@salonconnect.com, use the live chat feature on our website, or call us at (555) 123-4567. Our support hours are Monday-Friday 9AM-7PM and Saturday 10AM-4PM.',
+      answer: 'You can reach our customer support team through multiple channels: email us at support@bookang.com, use the live chat feature on our website, or call us at (555) 123-4567. Our support hours are Monday-Friday 9AM-7PM and Saturday 10AM-4PM.',
       popular: false
     },
 
@@ -147,7 +147,7 @@ const FAQSection = () => {
       id: 13,
       category: 'services',
       question: 'Can I bring reference photos for my appointment?',
-      answer: 'Absolutely! Bringing reference photos is encouraged and helps ensure you and your stylist are on the same page. You can also save inspiration photos in your SalonConnect profile to show your stylist during the consultation.',
+      answer: 'Absolutely! Bringing reference photos is encouraged and helps ensure you and your stylist are on the same page. You can also save inspiration photos in your Bookang profile to show your stylist during the consultation.',
       popular: false
     },
 
@@ -193,7 +193,7 @@ const FAQSection = () => {
       id: 19,
       category: 'reviews',
       question: 'Are reviews verified?',
-      answer: 'Yes, all reviews on SalonConnect are from verified customers who have actually booked and completed appointments through our platform. This ensures authentic feedback and helps maintain the integrity of our review system.',
+      answer: 'Yes, all reviews on Bookang are from verified customers who have actually booked and completed appointments through our platform. This ensures authentic feedback and helps maintain the integrity of our review system.',
       popular: false
     }
   ];
@@ -221,7 +221,7 @@ const FAQSection = () => {
             Frequently Asked <span className="text-purple-600">Questions</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Find answers to common questions about SalonConnect, booking appointments, and using our platform
+            Find answers to common questions about Bookang, booking appointments, and using our platform
           </p>
         </div>
 
@@ -403,7 +403,7 @@ const FAQSection = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold">Email Support</h4>
-                    <p className="text-sm text-blue-100">support@salonconnect.com</p>
+                    <p className="text-sm text-blue-100">support@bookang.com</p>
                   </div>
                 </div>
                 
