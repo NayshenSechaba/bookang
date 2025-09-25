@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -16,15 +16,23 @@ export type Database = {
     Tables: {
       bookings: {
         Row: {
+          airtable_created_time: string | null
           appointment_date: string
           appointment_time: string
+          assignee: string | null
           cancellation_reason: string | null
           created_at: string | null
           customer_id: string
           duration_minutes: number
+          hairdresser_contact_number: string | null
+          hairdresser_email: string | null
           hairdresser_id: string
           id: string
+          phone: string | null
           reference_number: string
+          saloon: string | null
+          saloon_email: string | null
+          saloon_phone_number: string | null
           service_id: string
           special_requests: string | null
           status: string | null
@@ -32,15 +40,23 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          airtable_created_time?: string | null
           appointment_date: string
           appointment_time: string
+          assignee?: string | null
           cancellation_reason?: string | null
           created_at?: string | null
           customer_id: string
           duration_minutes: number
+          hairdresser_contact_number?: string | null
+          hairdresser_email?: string | null
           hairdresser_id: string
           id?: string
+          phone?: string | null
           reference_number?: string
+          saloon?: string | null
+          saloon_email?: string | null
+          saloon_phone_number?: string | null
           service_id: string
           special_requests?: string | null
           status?: string | null
@@ -48,15 +64,23 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          airtable_created_time?: string | null
           appointment_date?: string
           appointment_time?: string
+          assignee?: string | null
           cancellation_reason?: string | null
           created_at?: string | null
           customer_id?: string
           duration_minutes?: number
+          hairdresser_contact_number?: string | null
+          hairdresser_email?: string | null
           hairdresser_id?: string
           id?: string
+          phone?: string | null
           reference_number?: string
+          saloon?: string | null
+          saloon_email?: string | null
+          saloon_phone_number?: string | null
           service_id?: string
           special_requests?: string | null
           status?: string | null
@@ -79,10 +103,58 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bookings_saloon_foreign"
+            columns: ["saloon"]
+            isOneToOne: false
+            referencedRelation: "salons"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "bookings_service_id_fkey"
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consent_records: {
+        Row: {
+          consent_type: string
+          created_at: string | null
+          granted_at: string | null
+          id: string
+          ip_address: unknown | null
+          profile_id: string
+          user_agent: string | null
+          withdrawn_at: string | null
+        }
+        Insert: {
+          consent_type: string
+          created_at?: string | null
+          granted_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          profile_id: string
+          user_agent?: string | null
+          withdrawn_at?: string | null
+        }
+        Update: {
+          consent_type?: string
+          created_at?: string | null
+          granted_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          profile_id?: string
+          user_agent?: string | null
+          withdrawn_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consent_records_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -235,83 +307,221 @@ export type Database = {
           },
         ]
       }
-      profiles: {
+      otp_verifications: {
         Row: {
-          avatar_url: string | null
+          attempts: number | null
           created_at: string | null
-          email: string
-          full_name: string | null
+          expires_at: string
           id: string
-          phone: string | null
-          role: Database["public"]["Enums"]["user_role"]
-          updated_at: string | null
-          user_id: string
+          otp_code: string
+          phone_number: string
+          profile_id: string
+          verified: boolean | null
         }
         Insert: {
-          avatar_url?: string | null
+          attempts?: number | null
           created_at?: string | null
-          email: string
-          full_name?: string | null
+          expires_at?: string
           id?: string
-          phone?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
-          updated_at?: string | null
-          user_id: string
+          otp_code: string
+          phone_number: string
+          profile_id: string
+          verified?: boolean | null
         }
         Update: {
-          avatar_url?: string | null
+          attempts?: number | null
           created_at?: string | null
-          email?: string
+          expires_at?: string
+          id?: string
+          otp_code?: string
+          phone_number?: string
+          profile_id?: string
+          verified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "otp_verifications_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          airtable_created_time: string | null
+          airtable_record_id: string | null
+          avatar_url: string | null
+          bookings: string | null
+          business_name: string | null
+          city: string | null
+          contact_number: string | null
+          country: string | null
+          created_at: string | null
+          email: string
+          email_verified: boolean | null
+          full_name: string | null
+          id: string
+          id_number: string | null
+          marketing_consent: boolean | null
+          name: string | null
+          phone: string | null
+          phone_verified: boolean | null
+          preferred_language: string | null
+          profile_information: string | null
+          province: string | null
+          ratings: number | null
+          role: Database["public"]["Enums"]["user_role"]
+          sms_marketing_consent: boolean | null
+          surname: string | null
+          updated_at: string | null
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          airtable_created_time?: string | null
+          airtable_record_id?: string | null
+          avatar_url?: string | null
+          bookings?: string | null
+          business_name?: string | null
+          city?: string | null
+          contact_number?: string | null
+          country?: string | null
+          created_at?: string | null
+          email: string
+          email_verified?: boolean | null
           full_name?: string | null
           id?: string
+          id_number?: string | null
+          marketing_consent?: boolean | null
+          name?: string | null
           phone?: string | null
+          phone_verified?: boolean | null
+          preferred_language?: string | null
+          profile_information?: string | null
+          province?: string | null
+          ratings?: number | null
           role?: Database["public"]["Enums"]["user_role"]
+          sms_marketing_consent?: boolean | null
+          surname?: string | null
+          updated_at?: string | null
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          airtable_created_time?: string | null
+          airtable_record_id?: string | null
+          avatar_url?: string | null
+          bookings?: string | null
+          business_name?: string | null
+          city?: string | null
+          contact_number?: string | null
+          country?: string | null
+          created_at?: string | null
+          email?: string
+          email_verified?: boolean | null
+          full_name?: string | null
+          id?: string
+          id_number?: string | null
+          marketing_consent?: boolean | null
+          name?: string | null
+          phone?: string | null
+          phone_verified?: boolean | null
+          preferred_language?: string | null
+          profile_information?: string | null
+          province?: string | null
+          ratings?: number | null
+          role?: Database["public"]["Enums"]["user_role"]
+          sms_marketing_consent?: boolean | null
+          surname?: string | null
           updated_at?: string | null
           user_id?: string
+          username?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_bookings_foreign"
+            columns: ["bookings"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       salons: {
         Row: {
           address: string | null
+          airtable_created_time: string | null
+          airtable_record_id: string | null
           avatar_url: string | null
+          bookings: string | null
           business_hours: Json | null
           created_at: string | null
           description: string | null
           email: string | null
+          hairdressers: string | null
           id: string
+          location: string | null
           name: string
           owner_id: string
           phone: string | null
+          phone_number: string | null
           updated_at: string | null
         }
         Insert: {
           address?: string | null
+          airtable_created_time?: string | null
+          airtable_record_id?: string | null
           avatar_url?: string | null
+          bookings?: string | null
           business_hours?: Json | null
           created_at?: string | null
           description?: string | null
           email?: string | null
+          hairdressers?: string | null
           id?: string
+          location?: string | null
           name: string
           owner_id: string
           phone?: string | null
+          phone_number?: string | null
           updated_at?: string | null
         }
         Update: {
           address?: string | null
+          airtable_created_time?: string | null
+          airtable_record_id?: string | null
           avatar_url?: string | null
+          bookings?: string | null
           business_hours?: Json | null
           created_at?: string | null
           description?: string | null
           email?: string | null
+          hairdressers?: string | null
           id?: string
+          location?: string | null
           name?: string
           owner_id?: string
           phone?: string | null
+          phone_number?: string | null
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "salons_bookings_foreign"
+            columns: ["bookings"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salons_hairdressers_foreign"
+            columns: ["hairdressers"]
+            isOneToOne: false
+            referencedRelation: "hairdressers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "salons_owner_id_fkey"
             columns: ["owner_id"]

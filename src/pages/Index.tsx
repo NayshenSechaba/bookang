@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Star, Scissors, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
+import EnhancedRegistrationModal from '@/components/EnhancedRegistrationModal';
 import CustomerDashboard from '@/components/CustomerDashboard';
 import HairdresserDashboard from '@/components/HairdresserDashboard';
 import EmployeeDashboard from '@/components/EmployeeDashboard';
@@ -24,6 +25,7 @@ const Index = () => {
   const [userRole, setUserRole] = useState<'customer' | 'hairdresser' | 'employee' | null>(null);
   const [userName, setUserName] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [loginType, setLoginType] = useState<'customer' | 'hairdresser' | 'employee'>('customer');
   
@@ -97,6 +99,7 @@ const Index = () => {
     setUserRole(role);
     setUserName(name);
     setShowAuthModal(false);
+    setShowRegistrationModal(false);
     setCurrentPage('dashboard');
   };
 
@@ -112,9 +115,14 @@ const Index = () => {
 
   // Open authentication modal with specific mode
   const openAuthModal = (mode: 'login' | 'register', type?: 'customer' | 'hairdresser' | 'employee') => {
-    setAuthMode(mode);
-    if (type) setLoginType(type);
-    setShowAuthModal(true);
+    if (mode === 'register') {
+      setLoginType(type || 'customer');
+      setShowRegistrationModal(true);
+    } else {
+      setAuthMode(mode);
+      if (type) setLoginType(type);
+      setShowAuthModal(true);
+    }
   };
 
   // Navigation items for authenticated users
@@ -654,14 +662,33 @@ const Index = () => {
         {renderCurrentPage()}
       </main>
 
-      {/* Authentication Modal */}
+      {/* Authentication Modals */}
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         mode={authMode}
         loginType={loginType}
         onAuthSuccess={handleAuthSuccess}
-        onSwitchMode={(newMode) => setAuthMode(newMode)}
+        onSwitchMode={(newMode) => {
+          if (newMode === 'register') {
+            setShowAuthModal(false);
+            setShowRegistrationModal(true);
+          } else {
+            setAuthMode(newMode);
+          }
+        }}
+      />
+
+      <EnhancedRegistrationModal
+        isOpen={showRegistrationModal}
+        onClose={() => setShowRegistrationModal(false)}
+        onAuthSuccess={handleAuthSuccess}
+        onSwitchToLogin={() => {
+          setShowRegistrationModal(false);
+          setAuthMode('login');
+          setShowAuthModal(true);
+        }}
+        defaultRole={loginType}
       />
 
       {/* Footer */}
