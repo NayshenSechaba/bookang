@@ -32,6 +32,22 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   const formatCurrency = (amount: number) => {
     return `R${amount.toFixed(2)}`;
   };
+
+  // Name formatting function
+  const formatName = (name: string) => {
+    if (!name) return '';
+    
+    // Split by space and filter out empty strings
+    const parts = name.trim().split(/\s+/).filter(part => part.length > 0);
+    
+    // Capitalize first letter of each part and make rest lowercase
+    const formattedParts = parts.map(part => 
+      part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+    );
+    
+    // Join with spaces
+    return formattedParts.join(' ');
+  };
   // State management for booking flow
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -540,7 +556,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
           {/* Welcome Header */}
           <div className="ml-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {userName}
+              {formatName(userName)}
             </h1>
             <p className="text-gray-600">
               Manage your appointments and discover new styling opportunities.
