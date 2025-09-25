@@ -366,6 +366,7 @@ export type Database = {
           id_number: string | null
           marketing_consent: boolean | null
           name: string | null
+          onboarding_completed: boolean
           phone: string | null
           phone_verified: boolean | null
           preferred_language: string | null
@@ -396,6 +397,7 @@ export type Database = {
           id_number?: string | null
           marketing_consent?: boolean | null
           name?: string | null
+          onboarding_completed?: boolean
           phone?: string | null
           phone_verified?: boolean | null
           preferred_language?: string | null
@@ -426,6 +428,7 @@ export type Database = {
           id_number?: string | null
           marketing_consent?: boolean | null
           name?: string | null
+          onboarding_completed?: boolean
           phone?: string | null
           phone_verified?: boolean | null
           preferred_language?: string | null

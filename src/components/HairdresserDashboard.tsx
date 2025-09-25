@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,8 @@ import { FinancialData, Service, Product, PortfolioImage, Appointment, Customer 
 import AppointmentManagement from './AppointmentManagement';
 import CustomerManagement from './CustomerManagement';
 import StylistEarnings from './StylistEarnings';
+import OnboardingTour from './OnboardingTour';
+import { supabase } from '@/integrations/supabase/client';
 
 interface HairdresserDashboardProps {
   userName: string;
@@ -24,6 +26,31 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
   // All state variables and handlers
   const [profilePicture, setProfilePicture] = useState('/placeholder.svg');
   const [userName, setUserName] = useState(initialUserName);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Check if user needs onboarding tour
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      try {
+        const { data: user } = await supabase.auth.getUser();
+        if (user.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('onboarding_completed')
+            .eq('user_id', user.user.id)
+            .single();
+          
+          if (profile && !profile.onboarding_completed) {
+            setShowOnboarding(true);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to check onboarding status:', error);
+      }
+    };
+
+    checkOnboardingStatus();
+  }, []);
 
   // Mock data - Fixed types to match interfaces
   const financialData: FinancialData = {
@@ -371,11 +398,11 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
             </TabsTrigger>
-            <TabsTrigger value="portfolio" className="flex items-center gap-2">
+            <TabsTrigger value="portfolio" className="flex items-center gap-2" data-tour="portfolio">
               <Camera className="h-4 w-4" />
               <span className="hidden sm:inline">Portfolio</span>
             </TabsTrigger>
-            <TabsTrigger value="services" className="flex items-center gap-2">
+            <TabsTrigger value="services" className="flex items-center gap-2" data-tour="services">
               <Scissors className="h-4 w-4" />
               <span className="hidden sm:inline">Services</span>
             </TabsTrigger>
@@ -389,7 +416,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
             <TabsTrigger value="performance" className="flex items-center gap-2">
               <span className="hidden sm:inline">Performance</span>
             </TabsTrigger>
-            <TabsTrigger value="appointments" className="flex items-center gap-2">
+            <TabsTrigger value="appointments" className="flex items-center gap-2" data-tour="bookings">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Bookings</span>
             </TabsTrigger>
@@ -454,6 +481,13 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
             />
           </TabsContent>
         </Tabs>
+
+        {/* Onboarding Tour */}
+        <OnboardingTour
+          isVisible={showOnboarding}
+          onComplete={() => setShowOnboarding(false)}
+          onSkip={() => setShowOnboarding(false)}
+        />
       </div>
     </div>
   );
