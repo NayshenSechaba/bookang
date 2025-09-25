@@ -13,6 +13,7 @@ import { Calendar, Clock, Star, Heart, User, Scissors, MapPin, Phone, Camera, Up
 import CustomAlert from '@/components/CustomAlert';
 import PaymentProcessing from './PaymentProcessing';
 import ClientWallet from './ClientWallet';
+import BookingConfirmation from './BookingConfirmation';
 import { supabase } from "@/integrations/supabase/client";
 
 interface CustomerDashboardProps {
@@ -35,6 +36,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
   const [pendingBooking, setPendingBooking] = useState<any>(null);
   
@@ -1214,6 +1216,22 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
           isOpen={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
           onPaymentComplete={handlePaymentComplete}
+        />
+      )}
+
+      {/* Booking Confirmation */}
+      {showConfirmation && pendingBooking && (
+        <BookingConfirmation
+          bookingDetails={pendingBooking}
+          onGoHome={() => {
+            setShowConfirmation(false);
+            setPendingBooking(null);
+          }}
+          onViewBookings={() => {
+            setShowConfirmation(false);
+            setPendingBooking(null);
+            onNavigate?.('appointments');
+          }}
         />
       )}
 

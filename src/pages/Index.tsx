@@ -12,6 +12,7 @@ import AppointmentsPage from '@/components/AppointmentsPage';
 import ExplorePage from '@/components/ExplorePage';
 import FAQSection from '@/components/FAQSection';
 import ContactSection from '@/components/ContactSection';
+import SMEOnboarding from '@/components/SMEOnboarding';
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from '@supabase/supabase-js';
 
@@ -29,6 +30,7 @@ const Index = () => {
   // Navigation state 
   const [currentPage, setCurrentPage] = useState('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showSMEOnboarding, setShowSMEOnboarding] = useState(false);
 
   // Set up Supabase auth listener
   useEffect(() => {
@@ -250,8 +252,23 @@ const Index = () => {
     </div>
   );
 
+  // Handle SME onboarding
+  const handleSMEOnboardingComplete = () => {
+    setShowSMEOnboarding(false);
+    setCurrentPage('dashboard');
+  };
+
   // Render current page content
   const renderCurrentPage = () => {
+    if (showSMEOnboarding) {
+      return (
+        <SMEOnboarding 
+          onComplete={handleSMEOnboardingComplete}
+          onBack={() => setShowSMEOnboarding(false)}
+        />
+      );
+    }
+
     switch (currentPage) {
       case 'dashboard':
         if (!user) return renderHomePage();
@@ -286,11 +303,11 @@ const Index = () => {
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Welcome to <span className="text-purple-600">SalonConnect</span>
+            Welcome to <span className="text-purple-600">Bookang</span>
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Connect with professional hairdressers, book appointments seamlessly, and discover the latest trends in hair styling. Your perfect salon experience awaits.
+            Connect with professional service providers, book appointments seamlessly, and discover quality services in your area. Your perfect booking experience awaits.
           </p>
 
           {/* Image Carousel */}
@@ -386,16 +403,17 @@ const Index = () => {
               className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-8 py-3"
               onClick={() => openAuthModal('login', 'customer')}
             >
-              Login as Customer
+              Book Services
             </Button>
             
             <Button 
               size="lg" 
               variant="outline" 
               className="w-full sm:w-auto border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-3"
-              onClick={() => openAuthModal('login', 'hairdresser')}
+              onClick={() => setShowSMEOnboarding(true)}
             >
-              Business Login
+              <Store className="mr-2 h-4 w-4" />
+              List Your Business
             </Button>
             
             <Button 
@@ -414,7 +432,7 @@ const Index = () => {
       <section className="py-16 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Why Choose SalonConnect?
+            Why Choose Bookang?
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
