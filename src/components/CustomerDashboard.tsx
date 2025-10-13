@@ -87,7 +87,8 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
     hairdresser: '',
     date: '',
     time: '',
-    notes: ''
+    notes: '',
+    phone: ''
   });
   
   // Review form state
@@ -309,7 +310,8 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
       time: bookingData.time,
       cost: serviceCost,
       salon: selectedHairdresser?.salon || 'Beauty Salon',
-      notes: bookingData.notes
+      notes: bookingData.notes,
+      phone: bookingData.phone
     });
     
     setShowBookingModal(false);
@@ -369,7 +371,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
           total_price: pendingBooking.cost,
           status: 'pending',
           special_requests: pendingBooking.notes || null,
-          phone: user.user.phone || null
+          phone: pendingBooking.phone || null
         })
         .select()
         .single();
@@ -468,7 +470,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
       // Don't show error to user as booking is still successful
     }
     
-    setBookingData({ service: '', hairdresser: '', date: '', time: '', notes: '' });
+    setBookingData({ service: '', hairdresser: '', date: '', time: '', notes: '', phone: '' });
     setPendingBooking(null);
     
     // Show additional success message with View Appointments option
@@ -1102,6 +1104,17 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                 onChange={(e) => setBookingData(prev => ({ ...prev, notes: e.target.value }))}
                 className="resize-none"
                 rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="phone">Phone Number (for SMS confirmation)</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="+27123456789"
+                value={bookingData.phone}
+                onChange={(e) => setBookingData(prev => ({ ...prev, phone: e.target.value }))}
               />
             </div>
             
