@@ -16,6 +16,10 @@ import ContactSection from '@/components/ContactSection';
 import SMEOnboarding from '@/components/SMEOnboarding';
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from '@supabase/supabase-js';
+import { sendTestSMS } from '@/utils/sendTestSMS';
+
+// Make sendTestSMS available globally for console testing
+(window as any).sendTestSMS = sendTestSMS;
 
 
 const Index = () => {
@@ -92,6 +96,26 @@ const Index = () => {
     });
 
     return () => subscription.unsubscribe();
+  }, []);
+
+  // Send test SMS on mount
+  useEffect(() => {
+    const sendSMS = async () => {
+      try {
+        console.log('Sending test SMS to Sechaba...');
+        await sendTestSMS('0712284870', 'Sechaba');
+        console.log('Test SMS sent successfully!');
+      } catch (error) {
+        console.error('Failed to send test SMS:', error);
+      }
+    };
+    
+    // Only send once
+    const hasSent = sessionStorage.getItem('test_sms_sent');
+    if (!hasSent) {
+      sendSMS();
+      sessionStorage.setItem('test_sms_sent', 'true');
+    }
   }, []);
 
   // Handle successful authentication
