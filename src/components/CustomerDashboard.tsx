@@ -357,7 +357,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
         .single();
 
       // Insert booking into database
-      const { error: bookingError } = await supabase
+      const { data: newBooking, error: bookingError } = await supabase
         .from('bookings')
         .insert({
           customer_id: profile.id,
@@ -368,14 +368,34 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
           duration_minutes: service?.duration_minutes || 60,
           total_price: pendingBooking.cost,
           status: 'pending',
-          special_requests: pendingBooking.notes || null
-        });
+          special_requests: pendingBooking.notes || null,
+          phone: user.user.phone || null
+        })
+        .select()
+        .single();
 
       if (bookingError) {
         throw bookingError;
       }
 
       console.log('Booking saved to Supabase successfully');
+
+      // Send booking confirmation SMS
+      if (newBooking) {
+        try {
+          const { error: smsError } = await supabase.functions.invoke('send-booking-confirmation', {
+            body: { booking_id: newBooking.id }
+          });
+
+          if (smsError) {
+            console.error('Failed to send confirmation SMS:', smsError);
+          } else {
+            console.log('Confirmation SMS sent successfully');
+          }
+        } catch (smsError) {
+          console.error('Error sending confirmation SMS:', smsError);
+        }
+      }
     } catch (error) {
       console.error('Failed to save booking to Supabase:', error);
       // Don't show error to user as booking is still successful
