@@ -98,24 +98,20 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Send test SMS on mount
+  // Send test SMS on mount - run every time for testing
   useEffect(() => {
     const sendSMS = async () => {
       try {
-        console.log('Sending test SMS to Sechaba...');
-        await sendTestSMS('0712284870', 'Sechaba');
-        console.log('Test SMS sent successfully!');
+        console.log('Attempting to send test SMS to Sechaba at 0712284870...');
+        const result = await sendTestSMS('0712284870', 'Sechaba');
+        console.log('Test SMS sent successfully!', result);
       } catch (error) {
         console.error('Failed to send test SMS:', error);
       }
     };
     
-    // Only send once
-    const hasSent = sessionStorage.getItem('test_sms_sent');
-    if (!hasSent) {
-      sendSMS();
-      sessionStorage.setItem('test_sms_sent', 'true');
-    }
+    // Send SMS - will run on every page load for testing
+    sendSMS();
   }, []);
 
   // Handle successful authentication
