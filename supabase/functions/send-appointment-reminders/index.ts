@@ -27,21 +27,22 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const twilioAccountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
     const twilioAuthToken = Deno.env.get('TWILIO_AUTH_TOKEN')
+    const twilioPhoneNumber = Deno.env.get('TWILIO_PHONE_NUMBER')
 
-    if (!twilioAccountSid || !twilioAuthToken) {
+    if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber) {
       throw new Error('Twilio credentials not configured')
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Calculate the date 7 days from now
+    // Calculate the date 24 hours (1 day) from now
     const targetDate = new Date()
-    targetDate.setDate(targetDate.getDate() + 7)
+    targetDate.setDate(targetDate.getDate() + 1)
     const targetDateStr = targetDate.toISOString().split('T')[0]
 
     console.log('Checking for appointments on:', targetDateStr)
 
-    // Query bookings that are 7 days away and confirmed/pending
+    // Query bookings that are 24 hours (1 day) away and confirmed/pending
     const { data: bookings, error: queryError } = await supabase
       .from('bookings')
       .select(`
@@ -84,8 +85,16 @@ Deno.serve(async (req) => {
 
         console.log(`Sending reminder for booking ${reminderData.reference_number} to ${reminderData.phone}`)
 
+        // Format phone number to international format if needed
+        let formattedPhone = reminderData.phone
+        if (reminderData.phone.startsWith('0')) {
+          formattedPhone = '+27' + reminderData.phone.substring(1)
+        } else if (!reminderData.phone.startsWith('+')) {
+          formattedPhone = '+27' + reminderData.phone
+        }
+
         // Call Twilio Studio Flow
-        const flowSid = 'FW16e0a59f9204256f682a5f53f51206d4'
+        const flowSid = 'FWf98744dc4da8d2ea44432bfd2839a36c'
         const twilioUrl = `https://studio.twilio.com/v2/Flows/${flowSid}/Executions`
 
         const twilioResponse = await fetch(twilioUrl, {
@@ -95,8 +104,8 @@ Deno.serve(async (req) => {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
           body: new URLSearchParams({
-            To: reminderData.phone,
-            From: '+1234567890', // Replace with your Twilio phone number
+            To: formattedPhone,
+            From: twilioPhoneNumber,
             Parameters: JSON.stringify({
               customer_name: reminderData.customer_name,
               service_name: reminderData.service_name,
