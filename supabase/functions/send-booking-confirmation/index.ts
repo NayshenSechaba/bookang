@@ -27,8 +27,9 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const twilioAccountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
     const twilioAuthToken = Deno.env.get('TWILIO_AUTH_TOKEN')
+    const twilioPhoneNumber = Deno.env.get('TWILIO_PHONE_NUMBER')
 
-    if (!twilioAccountSid || !twilioAuthToken) {
+    if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber) {
       throw new Error('Twilio credentials not configured')
     }
 
@@ -86,9 +87,19 @@ Deno.serve(async (req) => {
 
     console.log('Sending confirmation SMS to:', confirmationData.customer_phone)
 
-    // Call Twilio Studio Flow
-    const flowSid = 'FW7d4a265771920235d73fc1728b03294a'
-    const twilioUrl = `https://studio.twilio.com/v2/Flows/${flowSid}/Executions`
+    // Format phone number to international format if needed
+    let formattedPhone = confirmationData.customer_phone
+    if (confirmationData.customer_phone.startsWith('0')) {
+      formattedPhone = '+27' + confirmationData.customer_phone.substring(1)
+    } else if (!confirmationData.customer_phone.startsWith('+')) {
+      formattedPhone = '+27' + confirmationData.customer_phone
+    }
+
+    // Create SMS message
+    const message = `Hi! Your appointment at ${confirmationData.salon_name} with ${confirmationData.hairdresser_name} has been CONFIRMED! 🎉\n\nDate: ${confirmationData.appointment_date}\nTime: ${confirmationData.appointment_time}\nLocation: ${confirmationData.salon_location}\n\nSee you soon!`
+
+    // Send SMS via Twilio REST API
+    const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`
 
     const twilioResponse = await fetch(twilioUrl, {
       method: 'POST',
@@ -97,15 +108,9 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        To: confirmationData.customer_phone,
-        From: '+1234567890', // Replace with your Twilio phone number
-        Parameters: JSON.stringify({
-          hairdresser: confirmationData.hairdresser_name,
-          salon: confirmationData.salon_name,
-          location: confirmationData.salon_location,
-          date: confirmationData.appointment_date,
-          time: confirmationData.appointment_time,
-        }),
+        To: formattedPhone,
+        From: twilioPhoneNumber,
+        Body: message,
       }),
     })
 

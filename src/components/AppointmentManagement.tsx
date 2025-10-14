@@ -11,6 +11,7 @@ import { AlertTriangle, DollarSign, Flag, Star, User, Clock, Calendar } from 'lu
 import { Appointment } from '@/types/dashboard';
 import StarRating from './StarRating';
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AppointmentManagementProps {
   appointments: Appointment[];
@@ -24,6 +25,41 @@ const AppointmentManagement = ({ appointments, onUpdateAppointment }: Appointmen
   const [cancellationFee, setCancellationFee] = useState('');
   const [customerRating, setCustomerRating] = useState(5);
   const [customerNotes, setCustomerNotes] = useState('');
+
+  const handleAcceptAppointment = async (appointment: Appointment) => {
+    const updatedAppointment: Appointment = {
+      ...appointment,
+      status: 'confirmed'
+    };
+    onUpdateAppointment(updatedAppointment);
+    
+    // Send SMS confirmation
+    try {
+      const { error } = await supabase.functions.invoke('send-booking-confirmation', {
+        body: { booking_id: appointment.id }
+      });
+      
+      if (error) {
+        console.error('Failed to send SMS:', error);
+        toast({
+          title: "Appointment Accepted",
+          description: `Appointment confirmed for ${appointment.customerName}, but SMS failed to send.`,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Appointment Accepted",
+          description: `${appointment.customerName}'s appointment confirmed and SMS sent! 🎉`,
+        });
+      }
+    } catch (error) {
+      console.error('Error sending SMS:', error);
+      toast({
+        title: "Appointment Accepted",
+        description: `Appointment confirmed for ${appointment.customerName}.`,
+      });
+    }
+  };
 
   const handleMarkNoShow = (appointment: Appointment) => {
     const updatedAppointment: Appointment = {
@@ -161,6 +197,17 @@ const AppointmentManagement = ({ appointments, onUpdateAppointment }: Appointmen
 
                 {/* Action buttons */}
                 <div className="flex gap-2 pt-2 border-t">
+                  {appointment.status === 'pending' && (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => handleAcceptAppointment(appointment)}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      Accept Appointment
+                    </Button>
+                  )}
+                  
                   {appointment.status === 'confirmed' && (
                     <>
                       <Button
