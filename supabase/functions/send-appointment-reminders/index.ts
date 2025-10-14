@@ -50,16 +50,14 @@ Deno.serve(async (req) => {
         reference_number,
         appointment_date,
         appointment_time,
-        phone,
         status,
         customer_id,
         service_id,
-        profiles!bookings_customer_id_fkey(full_name),
+        profiles!bookings_customer_id_fkey(full_name, phone),
         services(name)
       `)
       .eq('appointment_date', targetDateStr)
       .in('status', ['confirmed', 'pending'])
-      .not('phone', 'is', null)
 
     if (queryError) {
       console.error('Error querying bookings:', queryError)
@@ -73,12 +71,26 @@ Deno.serve(async (req) => {
     // Send reminder for each booking
     for (const booking of bookings || []) {
       try {
+        const customerPhone = booking.profiles?.phone
+        
+        // Skip if no phone number
+        if (!customerPhone) {
+          console.log(`Skipping booking ${booking.reference_number} - no phone number`)
+          results.push({
+            booking_id: booking.id,
+            reference_number: booking.reference_number,
+            success: false,
+            error: 'No phone number found',
+          })
+          continue
+        }
+
         const reminderData: BookingReminder = {
           id: booking.id,
           reference_number: booking.reference_number,
           appointment_date: booking.appointment_date,
           appointment_time: booking.appointment_time,
-          phone: booking.phone,
+          phone: customerPhone,
           customer_name: booking.profiles?.full_name || 'Customer',
           service_name: booking.services?.name || 'Service',
         }

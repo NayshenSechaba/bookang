@@ -43,14 +43,16 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Fetch booking with related data
+    // Fetch booking with related data including customer phone
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
       .select(`
         id,
-        phone,
         appointment_date,
         appointment_time,
+        profiles!bookings_customer_id_fkey(
+          phone
+        ),
         hairdressers!bookings_hairdresser_id_fkey(
           profiles!hairdressers_profile_id_fkey(full_name)
         ),
@@ -67,17 +69,19 @@ Deno.serve(async (req) => {
       throw new Error('Booking not found')
     }
 
-    if (!booking.phone) {
-      console.log('No phone number provided for booking:', booking_id)
+    const customerPhone = booking.profiles?.phone
+    
+    if (!customerPhone) {
+      console.log('No phone number found for customer in booking:', booking_id)
       return new Response(
-        JSON.stringify({ success: false, message: 'No phone number provided' }),
+        JSON.stringify({ success: false, message: 'Customer phone number not found' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       )
     }
 
     const confirmationData: BookingConfirmationData = {
       booking_id: booking.id,
-      customer_phone: booking.phone,
+      customer_phone: customerPhone,
       hairdresser_name: booking.hairdressers?.profiles?.full_name || 'Your stylist',
       salon_name: booking.salons?.name || 'The salon',
       salon_location: booking.salons?.address || 'Location TBA',
