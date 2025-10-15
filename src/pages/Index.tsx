@@ -17,6 +17,7 @@ import SMEOnboarding from '@/components/SMEOnboarding';
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from '@supabase/supabase-js';
 import { sendTestSMS } from '@/utils/sendTestSMS';
+import { TestEmailButton } from '@/components/TestEmailButton';
 
 // Make sendTestSMS available globally for console testing
 (window as any).sendTestSMS = sendTestSMS;
@@ -452,6 +453,8 @@ const Index = () => {
             >
               Register Now
             </Button>
+            
+            <TestEmailButton />
           </div>
         </div>
       </section>
