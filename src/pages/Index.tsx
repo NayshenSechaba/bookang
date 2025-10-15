@@ -447,6 +447,15 @@ const Index = () => {
             
             <Button 
               size="lg" 
+              variant="outline" 
+              className="w-full sm:w-auto border-gray-600 text-gray-700 hover:bg-gray-50 px-8 py-3"
+              onClick={() => openAuthModal('login')}
+            >
+              Login
+            </Button>
+            
+            <Button 
+              size="lg" 
               variant="secondary" 
               className="w-full sm:w-auto bg-pink-100 text-pink-700 hover:bg-pink-200 px-8 py-3"
               onClick={() => openAuthModal('register')}
