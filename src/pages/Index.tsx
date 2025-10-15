@@ -635,6 +635,17 @@ const Index = () => {
                 </Button>
               ))}
               
+              {!user && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-gray-600 text-gray-700 hover:bg-gray-50"
+                  onClick={() => openAuthModal('login')}
+                >
+                  Login
+                </Button>
+              )}
+              
               {user && (
                 <div className="flex items-center space-x-3 pl-4 border-l">
                   <span className="text-sm text-gray-600">
@@ -682,6 +693,22 @@ const Index = () => {
                     {item.label}
                   </Button>
                 ))}
+                
+                {!user && (
+                  <div className="pt-4 border-t">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="w-full border-gray-600 text-gray-700 hover:bg-gray-50"
+                      onClick={() => {
+                        openAuthModal('login');
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
+                      Login
+                    </Button>
+                  </div>
+                )}
                 
                 {user && (
                   <div className="pt-4 border-t">
