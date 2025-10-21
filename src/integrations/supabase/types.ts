@@ -24,15 +24,10 @@ export type Database = {
           created_at: string | null
           customer_id: string
           duration_minutes: number
-          hairdresser_contact_number: string | null
-          hairdresser_email: string | null
           hairdresser_id: string
           id: string
-          phone: string | null
           reference_number: string
           saloon: string | null
-          saloon_email: string | null
-          saloon_phone_number: string | null
           service_id: string
           special_requests: string | null
           status: string | null
@@ -48,15 +43,10 @@ export type Database = {
           created_at?: string | null
           customer_id: string
           duration_minutes: number
-          hairdresser_contact_number?: string | null
-          hairdresser_email?: string | null
           hairdresser_id: string
           id?: string
-          phone?: string | null
           reference_number?: string
           saloon?: string | null
-          saloon_email?: string | null
-          saloon_phone_number?: string | null
           service_id: string
           special_requests?: string | null
           status?: string | null
@@ -72,15 +62,10 @@ export type Database = {
           created_at?: string | null
           customer_id?: string
           duration_minutes?: number
-          hairdresser_contact_number?: string | null
-          hairdresser_email?: string | null
           hairdresser_id?: string
           id?: string
-          phone?: string | null
           reference_number?: string
           saloon?: string | null
-          saloon_email?: string | null
-          saloon_phone_number?: string | null
           service_id?: string
           special_requests?: string | null
           status?: string | null
