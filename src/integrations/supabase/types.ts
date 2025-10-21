@@ -335,10 +335,12 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           airtable_created_time: string | null
           airtable_record_id: string | null
           avatar_url: string | null
           bookings: string | null
+          business_description: string | null
           business_name: string | null
           city: string | null
           contact_number: string | null
@@ -352,6 +354,7 @@ export type Database = {
           marketing_consent: boolean | null
           name: string | null
           onboarding_completed: boolean
+          payment_verified: boolean | null
           phone: string | null
           phone_verified: boolean | null
           preferred_language: string | null
@@ -366,10 +369,12 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          address?: string | null
           airtable_created_time?: string | null
           airtable_record_id?: string | null
           avatar_url?: string | null
           bookings?: string | null
+          business_description?: string | null
           business_name?: string | null
           city?: string | null
           contact_number?: string | null
@@ -383,6 +388,7 @@ export type Database = {
           marketing_consent?: boolean | null
           name?: string | null
           onboarding_completed?: boolean
+          payment_verified?: boolean | null
           phone?: string | null
           phone_verified?: boolean | null
           preferred_language?: string | null
@@ -397,10 +403,12 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          address?: string | null
           airtable_created_time?: string | null
           airtable_record_id?: string | null
           avatar_url?: string | null
           bookings?: string | null
+          business_description?: string | null
           business_name?: string | null
           city?: string | null
           contact_number?: string | null
@@ -414,6 +422,7 @@ export type Database = {
           marketing_consent?: boolean | null
           name?: string | null
           onboarding_completed?: boolean
+          payment_verified?: boolean | null
           phone?: string | null
           phone_verified?: boolean | null
           preferred_language?: string | null

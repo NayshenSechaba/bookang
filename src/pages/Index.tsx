@@ -14,6 +14,7 @@ import ExplorePage from '@/components/ExplorePage';
 import FAQSection from '@/components/FAQSection';
 import ContactSection from '@/components/ContactSection';
 import SMEOnboarding from '@/components/SMEOnboarding';
+import ProfileCompletionModal from '@/components/ProfileCompletionModal';
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from '@supabase/supabase-js';
 import { sendTestSMS } from '@/utils/sendTestSMS';
@@ -39,6 +40,7 @@ const Index = () => {
   const [currentPage, setCurrentPage] = useState('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showSMEOnboarding, setShowSMEOnboarding] = useState(false);
+  const [showProfileCompletionModal, setShowProfileCompletionModal] = useState(false);
 
   // Set up Supabase auth listener
   useEffect(() => {
@@ -84,7 +86,7 @@ const Index = () => {
         // Fetch user profile
         supabase
           .from('profiles')
-          .select('full_name, role')
+          .select('full_name, role, business_name, business_description, contact_number, phone, address, email, payment_verified')
           .eq('user_id', session.user.id)
           .single()
           .then(({ data: profile }) => {
@@ -92,6 +94,21 @@ const Index = () => {
               setUserRole(profile.role === 'salon_owner' ? 'employee' : profile.role);
               setUserName(profile.full_name || session.user.email?.split('@')[0] || 'User');
               setCurrentPage('dashboard');
+              
+              // Check if profile is incomplete for business users
+              if (profile.role === 'hairdresser' || profile.role === 'salon_owner') {
+                const isProfileIncomplete = 
+                  !profile.business_name || 
+                  !profile.business_description || 
+                  (!profile.contact_number && !profile.phone) ||
+                  !profile.address ||
+                  !profile.email ||
+                  !profile.payment_verified;
+                
+                if (isProfileIncomplete) {
+                  setShowProfileCompletionModal(true);
+                }
+              }
             }
           });
       }
@@ -568,6 +585,11 @@ const Index = () => {
           setShowAuthModal(true);
         }}
         defaultRole={loginType}
+      />
+
+      <ProfileCompletionModal
+        isOpen={showProfileCompletionModal}
+        onClose={() => setShowProfileCompletionModal(false)}
       />
 
       {/* Footer */}
