@@ -204,19 +204,19 @@ const Index = () => {
 
   // Home page content
   const renderHomePage = () => (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50">
       {/* Hero Section */}
       <section className="relative py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <div className="mb-8">
-            <Badge variant="secondary" className="mb-4 text-purple-700 bg-purple-100">
+            <Badge variant="secondary" className="mb-4 text-blue-700 bg-blue-100">
               <Scissors className="mr-2 h-4 w-4" />
               Professional Salon Services
             </Badge>
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Welcome to <span className="text-purple-600">Bookang</span>
+            Welcome to <span className="text-blue-600">Bookang</span>
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
@@ -227,7 +227,7 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
             <Button 
               size="lg" 
-              className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white px-8 py-3"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
               onClick={() => openAuthModal('login', 'customer')}
             >
               Book Services
@@ -236,7 +236,7 @@ const Index = () => {
             <Button 
               size="lg" 
               variant="outline" 
-              className="w-full sm:w-auto border-purple-600 text-purple-600 hover:bg-purple-50 px-8 py-3"
+              className="w-full sm:w-auto border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3"
               onClick={() => setShowSMEOnboarding(true)}
             >
               <Store className="mr-2 h-4 w-4" />
@@ -284,18 +284,18 @@ const Index = () => {
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="text-center border-purple-100 hover:shadow-lg transition-shadow cursor-pointer" 
+            <Card className="text-center border-blue-100 hover:shadow-lg transition-shadow cursor-pointer" 
                   onClick={() => user ? setCurrentPage('dashboard') : openAuthModal('login', 'customer')}>
               <CardHeader>
-                <Calendar className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-                <CardTitle className="text-purple-900">Easy Book</CardTitle>
+                <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <CardTitle className="text-blue-900">Easy Book</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-gray-600 mb-4">
                   Book appointments with your favorite hairdressers in just a few clicks. Simple, fast, and convenient.
                 </CardDescription>
                 <Button 
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (user) {
@@ -366,17 +366,17 @@ const Index = () => {
       </section>
 
       {/* Quick Access Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-purple-100 to-pink-100">
+      <section className="py-16 px-4 bg-gradient-to-r from-blue-100 to-pink-100">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Quick Access</h2>
           
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Button
               variant="outline"
-              className="h-20 flex-col gap-2 bg-white hover:bg-purple-50 border-purple-200"
+              className="h-20 flex-col gap-2 bg-white hover:bg-blue-50 border-blue-200"
               onClick={() => setCurrentPage('explore')}
             >
-              <MapPin className="h-6 w-6 text-purple-600" />
+              <MapPin className="h-6 w-6 text-blue-600" />
               Explore Salons
             </Button>
             

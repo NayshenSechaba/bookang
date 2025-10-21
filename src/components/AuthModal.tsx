@@ -265,11 +265,11 @@ const AuthModal = ({
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-center justify-center mb-4">
-              <div className="bg-purple-100 p-3 rounded-full">
+              <div className="bg-blue-100 p-3 rounded-full">
                 {loginType === 'employee' ? (
-                  <UserCheck className="h-6 w-6 text-purple-600" />
+                  <UserCheck className="h-6 w-6 text-blue-600" />
                 ) : (
-                  <Scissors className="h-6 w-6 text-purple-600" />
+                  <Scissors className="h-6 w-6 text-blue-600" />
                 )}
               </div>
             </div>
@@ -290,11 +290,11 @@ const AuthModal = ({
               <CardHeader className="text-center pb-4">
                 <div className="flex items-center justify-center space-x-2 mb-2">
                   {loginType === 'customer' ? (
-                    <User className="h-5 w-5 text-purple-600" />
+                    <User className="h-5 w-5 text-blue-600" />
                   ) : loginType === 'employee' ? (
-                    <UserCheck className="h-5 w-5 text-purple-600" />
+                    <UserCheck className="h-5 w-5 text-blue-600" />
                   ) : (
-                    <Scissors className="h-5 w-5 text-purple-600" />
+                    <Scissors className="h-5 w-5 text-blue-600" />
                   )}
                   <CardTitle className="text-lg">
                     {loginType === 'customer' ? 'Customer Login' : 
@@ -343,7 +343,7 @@ const AuthModal = ({
                     </div>
                   </div>
                   
-                  <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
+                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
                     Sign In
                   </Button>
                 </form>
@@ -352,7 +352,7 @@ const AuthModal = ({
                   <Button
                     variant="link"
                     onClick={() => onSwitchMode('register')}
-                    className="text-purple-600 hover:text-purple-700"
+                    className="text-blue-600 hover:text-blue-700"
                   >
                     Don't have an account? Register here
                   </Button>
@@ -450,8 +450,8 @@ const AuthModal = ({
                   </div>
                   
                   {formData.role === 'hairdresser' && (
-                    <div className="space-y-4 p-4 bg-purple-50 rounded-lg border">
-                      <h3 className="font-semibold text-purple-900 flex items-center">
+                    <div className="space-y-4 p-4 bg-blue-50 rounded-lg border">
+                      <h3 className="font-semibold text-blue-900 flex items-center">
                         <Scissors className="mr-2 h-4 w-4" />
                         Professional Information
                       </h3>
@@ -538,8 +538,8 @@ const AuthModal = ({
                         </p>
                       </div>
 
-                      <div className="space-y-4 pt-4 border-t border-purple-200">
-                        <h4 className="font-medium text-purple-900">Social Media (Optional)</h4>
+                      <div className="space-y-4 pt-4 border-t border-blue-200">
+                        <h4 className="font-medium text-blue-900">Social Media (Optional)</h4>
                         
                         <div>
                           <Label htmlFor="instagram-url">Instagram URL</Label>
@@ -580,7 +580,7 @@ const AuthModal = ({
                     </div>
                   )}
                   
-                  <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
+                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
                     Create Account
                   </Button>
                 </form>
@@ -589,7 +589,7 @@ const AuthModal = ({
                   <Button
                     variant="link"
                     onClick={() => onSwitchMode('login')}
-                    className="text-purple-600 hover:text-purple-700"
+                    className="text-blue-600 hover:text-blue-700"
                   >
                     Already have an account? Sign in here
                   </Button>

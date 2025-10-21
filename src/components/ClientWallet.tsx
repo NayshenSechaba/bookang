@@ -135,7 +135,7 @@ const ClientWallet = ({ userName }: ClientWalletProps) => {
     switch (type) {
       case 'payment': return 'bg-red-100 text-red-800';
       case 'topup': return 'bg-green-100 text-green-800';
-      case 'cashback': return 'bg-purple-100 text-purple-800';
+      case 'cashback': return 'bg-blue-100 text-blue-800';
       case 'refund': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -144,13 +144,13 @@ const ClientWallet = ({ userName }: ClientWalletProps) => {
   return (
     <div className="space-y-6">
       {/* Wallet Balance Card */}
-      <Card className="bg-gradient-to-r from-purple-600 to-purple-700 text-white">
+      <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <Wallet className="h-8 w-8" />
               <div>
-                <p className="text-purple-100 text-sm">Digital Wallet</p>
+                <p className="text-blue-100 text-sm">Digital Wallet</p>
                 <p className="text-2xl font-bold">R{walletBalance.toFixed(2)}</p>
               </div>
             </div>
@@ -187,7 +187,7 @@ const ClientWallet = ({ userName }: ClientWalletProps) => {
                           key={method.id}
                           className={`border rounded-lg p-3 cursor-pointer transition-colors ${
                             selectedPaymentMethod === method.id
-                              ? 'border-purple-500 bg-purple-50'
+                              ? 'border-blue-500 bg-blue-50'
                               : 'border-gray-200 hover:border-gray-300'
                           }`}
                           onClick={() => setSelectedPaymentMethod(method.id)}
@@ -210,7 +210,7 @@ const ClientWallet = ({ userName }: ClientWalletProps) => {
                     <Button variant="outline" onClick={() => setShowAddFunds(false)} className="flex-1">
                       Cancel
                     </Button>
-                    <Button onClick={handleAddFunds} className="flex-1 bg-purple-600 hover:bg-purple-700">
+                    <Button onClick={handleAddFunds} className="flex-1 bg-blue-600 hover:bg-blue-700">
                       Add R{addAmount || '0.00'}
                     </Button>
                   </div>
@@ -221,11 +221,11 @@ const ClientWallet = ({ userName }: ClientWalletProps) => {
           
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-purple-200">Available Balance</p>
+              <p className="text-blue-200">Available Balance</p>
               <p className="font-semibold">R{walletBalance.toFixed(2)}</p>
             </div>
             <div>
-              <p className="text-purple-200">Pending Transactions</p>
+              <p className="text-blue-200">Pending Transactions</p>
               <p className="font-semibold">R0.00</p>
             </div>
           </div>
@@ -246,9 +246,9 @@ const ClientWallet = ({ userName }: ClientWalletProps) => {
               <div className="text-2xl font-bold text-yellow-600">{loyaltyData.points}</div>
               <div className="text-sm text-yellow-700">Loyalty Points</div>
             </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600">{loyaltyData.tier}</div>
-              <div className="text-sm text-purple-700">Current Tier</div>
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">{loyaltyData.tier}</div>
+              <div className="text-sm text-blue-700">Current Tier</div>
             </div>
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <div className="text-2xl font-bold text-green-600">{(loyaltyData.cashbackRate * 100).toFixed(1)}%</div>
@@ -262,7 +262,7 @@ const ClientWallet = ({ userName }: ClientWalletProps) => {
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-purple-600 h-2 rounded-full" 
+                className="bg-blue-600 h-2 rounded-full" 
                 style={{ width: `${((loyaltyData.points % 2000) / 2000) * 100}%` }}
               ></div>
             </div>

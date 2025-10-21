@@ -218,7 +218,7 @@ const FAQSection = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Frequently Asked <span className="text-purple-600">Questions</span>
+            Frequently Asked <span className="text-blue-600">Questions</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Find answers to common questions about Bookang, booking appointments, and using our platform
@@ -234,7 +234,7 @@ const FAQSection = () => {
               placeholder="Search for answers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-3 text-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+              className="pl-10 pr-4 py-3 text-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -246,7 +246,7 @@ const FAQSection = () => {
               variant={selectedCategory === 'all' ? 'default' : 'outline'}
               onClick={() => setSelectedCategory('all')}
               size="sm"
-              className={selectedCategory === 'all' ? 'bg-purple-600' : ''}
+              className={selectedCategory === 'all' ? 'bg-blue-600' : ''}
             >
               All Questions
             </Button>
@@ -258,7 +258,7 @@ const FAQSection = () => {
                   variant={selectedCategory === category.id ? 'default' : 'outline'}
                   onClick={() => setSelectedCategory(category.id)}
                   size="sm"
-                  className={selectedCategory === category.id ? 'bg-purple-600' : ''}
+                  className={selectedCategory === category.id ? 'bg-blue-600' : ''}
                 >
                   <IconComponent className="mr-2 h-4 w-4" />
                   {category.name}
@@ -271,13 +271,13 @@ const FAQSection = () => {
         {/* Popular Questions (shown when no search/filter) */}
         {!searchQuery && selectedCategory === 'all' && (
           <section className="mb-12">
-            <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
+            <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-pink-50">
               <CardHeader>
-                <CardTitle className="flex items-center text-purple-900">
+                <CardTitle className="flex items-center text-blue-900">
                   <Star className="mr-2 h-5 w-5" />
                   Most Popular Questions
                 </CardTitle>
-                <CardDescription className="text-purple-700">
+                <CardDescription className="text-blue-700">
                   The questions our users ask most frequently
                 </CardDescription>
               </CardHeader>
@@ -285,9 +285,9 @@ const FAQSection = () => {
                 <Accordion type="single" collapsible className="w-full">
                   {popularQuestions.map((faq) => (
                     <AccordionItem key={faq.id} value={`popular-${faq.id}`}>
-                      <AccordionTrigger className="text-left hover:text-purple-600">
+                      <AccordionTrigger className="text-left hover:text-blue-600">
                         <div className="flex items-center">
-                          <Badge className="mr-3 bg-purple-100 text-purple-800 text-xs">
+                          <Badge className="mr-3 bg-blue-100 text-blue-800 text-xs">
                             POPULAR
                           </Badge>
                           {faq.question}
@@ -327,7 +327,7 @@ const FAQSection = () => {
                     
                     return (
                       <AccordionItem key={faq.id} value={`faq-${faq.id}`} className="px-6">
-                        <AccordionTrigger className="text-left hover:text-purple-600">
+                        <AccordionTrigger className="text-left hover:text-blue-600">
                           <div className="flex items-center">
                             <div className="flex items-center mr-3">
                               <IconComponent className="h-4 w-4 mr-2 text-gray-500" />
@@ -376,7 +376,7 @@ const FAQSection = () => {
 
         {/* Contact Support */}
         <section className="mt-12">
-          <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
+          <Card className="bg-gradient-to-r from-blue-600 to-blue-600 text-white border-0">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl mb-2">
                 Still Need Help?

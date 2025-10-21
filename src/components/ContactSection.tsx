@@ -101,7 +101,7 @@ const ContactSection = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Contact <span className="text-purple-600">Us</span>
+            Contact <span className="text-blue-600">Us</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Get in touch with our team. We're here to help with any questions, concerns, or feedback you may have.
@@ -115,7 +115,7 @@ const ContactSection = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <MessageCircle className="mr-2 h-5 w-5 text-purple-600" />
+                  <MessageCircle className="mr-2 h-5 w-5 text-blue-600" />
                   Get in Touch
                 </CardTitle>
                 <CardDescription>
@@ -124,8 +124,8 @@ const ContactSection = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Phone className="h-5 w-5 text-purple-600" />
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Phone className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Phone Support</h4>
@@ -173,28 +173,28 @@ const ContactSection = () => {
             </Card>
 
             {/* Quick Help */}
-            <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+            <Card className="bg-gradient-to-r from-blue-50 to-pink-50 border-blue-200">
               <CardHeader>
-                <CardTitle className="text-purple-900">Quick Help</CardTitle>
-                <CardDescription className="text-purple-700">
+                <CardTitle className="text-blue-900">Quick Help</CardTitle>
+                <CardDescription className="text-blue-700">
                   Common issues and quick solutions
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="p-3 bg-white rounded-lg border border-purple-100">
-                    <h5 className="font-medium text-purple-900 mb-1">Booking Issues?</h5>
-                    <p className="text-sm text-purple-700">Check our FAQ section for step-by-step booking guides</p>
+                  <div className="p-3 bg-white rounded-lg border border-blue-100">
+                    <h5 className="font-medium text-blue-900 mb-1">Booking Issues?</h5>
+                    <p className="text-sm text-blue-700">Check our FAQ section for step-by-step booking guides</p>
                   </div>
                   
-                  <div className="p-3 bg-white rounded-lg border border-purple-100">
-                    <h5 className="font-medium text-purple-900 mb-1">Account Problems?</h5>
-                    <p className="text-sm text-purple-700">Try clearing your browser cache or resetting your password</p>
+                  <div className="p-3 bg-white rounded-lg border border-blue-100">
+                    <h5 className="font-medium text-blue-900 mb-1">Account Problems?</h5>
+                    <p className="text-sm text-blue-700">Try clearing your browser cache or resetting your password</p>
                   </div>
                   
-                  <div className="p-3 bg-white rounded-lg border border-purple-100">
-                    <h5 className="font-medium text-purple-900 mb-1">Payment Concerns?</h5>
-                    <p className="text-sm text-purple-700">Contact us immediately for payment-related issues</p>
+                  <div className="p-3 bg-white rounded-lg border border-blue-100">
+                    <h5 className="font-medium text-blue-900 mb-1">Payment Concerns?</h5>
+                    <p className="text-sm text-blue-700">Contact us immediately for payment-related issues</p>
                   </div>
                 </div>
               </CardContent>
@@ -206,7 +206,7 @@ const ContactSection = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Send className="mr-2 h-5 w-5 text-purple-600" />
+                  <Send className="mr-2 h-5 w-5 text-blue-600" />
                   Send Us a Message
                 </CardTitle>
                 <CardDescription>
@@ -306,7 +306,7 @@ const ContactSection = () => {
                   <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t">
                     <Button 
                       type="submit" 
-                      className="flex-1 bg-purple-600 hover:bg-purple-700"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700"
                     >
                       <Send className="mr-2 h-4 w-4" />
                       Send Message
@@ -344,7 +344,7 @@ const ContactSection = () => {
 
         {/* Additional Help Resources */}
         <section className="mt-12">
-          <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
+          <Card className="bg-gradient-to-r from-blue-600 to-blue-600 text-white border-0">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl mb-2">
                 Looking for More Help?
@@ -363,7 +363,7 @@ const ContactSection = () => {
                   <p className="text-blue-100 text-sm mb-4">
                     Find answers to the most commonly asked questions
                   </p>
-                  <Button variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600">
+                  <Button variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
                     View FAQ
                   </Button>
                 </div>
@@ -376,7 +376,7 @@ const ContactSection = () => {
                   <p className="text-blue-100 text-sm mb-4">
                     Step-by-step guides and tutorials
                   </p>
-                  <Button variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600">
+                  <Button variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
                     Get Help
                   </Button>
                 </div>
@@ -389,7 +389,7 @@ const ContactSection = () => {
                   <p className="text-blue-100 text-sm mb-4">
                     Chat with our support team in real-time
                   </p>
-                  <Button variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600">
+                  <Button variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
                     Start Chat
                   </Button>
                 </div>

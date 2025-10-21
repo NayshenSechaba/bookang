@@ -201,7 +201,7 @@ const AppointmentsPage = ({ userName }: AppointmentsPageProps) => {
   const renderAppointmentCard = (appointment: any) => (
     <Card 
       key={appointment.id} 
-      className="border-purple-100 hover:shadow-lg transition-shadow cursor-pointer"
+      className="border-blue-100 hover:shadow-lg transition-shadow cursor-pointer"
       onClick={() => openAppointmentDetails(appointment)}
     >
       <CardHeader className="flex flex-row items-center space-y-0 pb-4">
@@ -239,7 +239,7 @@ const AppointmentsPage = ({ userName }: AppointmentsPageProps) => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">My Appointments</h1>
@@ -264,7 +264,7 @@ const AppointmentsPage = ({ userName }: AppointmentsPageProps) => {
                   <Calendar className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No Upcoming Appointments</h3>
                   <p className="text-gray-600 mb-4">You don't have any upcoming appointments scheduled.</p>
-                  <Button className="bg-purple-600 hover:bg-purple-700">
+                  <Button className="bg-blue-600 hover:bg-blue-700">
                     Book New Appointment
                   </Button>
                 </CardContent>
@@ -332,7 +332,7 @@ const AppointmentsPage = ({ userName }: AppointmentsPageProps) => {
                         <p className="text-sm text-gray-600">{selectedAppointment.salon}</p>
                       </div>
                       <div className="flex items-center text-sm">
-                        <Calendar className="h-4 w-4 mr-2 text-purple-600" />
+                        <Calendar className="h-4 w-4 mr-2 text-blue-600" />
                         {new Date(selectedAppointment.date).toLocaleDateString('en-ZA', { 
                           weekday: 'long', 
                           year: 'numeric', 
@@ -341,7 +341,7 @@ const AppointmentsPage = ({ userName }: AppointmentsPageProps) => {
                         })}
                       </div>
                       <div className="flex items-center text-sm">
-                        <Clock className="h-4 w-4 mr-2 text-purple-600" />
+                        <Clock className="h-4 w-4 mr-2 text-blue-600" />
                         {selectedAppointment.time}
                       </div>
                       <div className="pt-2 border-t">
@@ -361,15 +361,15 @@ const AppointmentsPage = ({ userName }: AppointmentsPageProps) => {
                         <p className="text-sm text-gray-600">{selectedAppointment.salon}</p>
                       </div>
                       <div className="flex items-center text-sm">
-                        <MapPin className="h-4 w-4 mr-2 text-purple-600" />
+                        <MapPin className="h-4 w-4 mr-2 text-blue-600" />
                         {selectedAppointment.address}
                       </div>
                       <div className="flex items-center text-sm">
-                        <Phone className="h-4 w-4 mr-2 text-purple-600" />
+                        <Phone className="h-4 w-4 mr-2 text-blue-600" />
                         {selectedAppointment.phone}
                       </div>
                       <div className="flex items-center text-sm">
-                        <Mail className="h-4 w-4 mr-2 text-purple-600" />
+                        <Mail className="h-4 w-4 mr-2 text-blue-600" />
                         {selectedAppointment.email}
                       </div>
                     </CardContent>
@@ -451,7 +451,7 @@ const AppointmentsPage = ({ userName }: AppointmentsPageProps) => {
                   )}
                   {selectedAppointment.status === 'Completed' && !selectedAppointment.hasReview && (
                     <Button 
-                      className="flex-1 bg-purple-600 hover:bg-purple-700"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700"
                       onClick={() => console.log('Open review modal')}
                     >
                       Leave Review

@@ -153,7 +153,7 @@ const FavoritesManager = ({
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <div className="flex">
         {/* Image */}
-        <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-pink-100 flex-shrink-0">
+        <div className="w-24 h-24 bg-gradient-to-br from-blue-100 to-pink-100 flex-shrink-0">
           <img 
             src={item.image} 
             alt={item.name}
@@ -240,7 +240,7 @@ const FavoritesManager = ({
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Heart className="h-5 w-5 text-red-500" />
-            <Bookmark className="h-5 w-5 text-purple-600" />
+            <Bookmark className="h-5 w-5 text-blue-600" />
             <span>My Favorites</span>
           </CardTitle>
         </CardHeader>

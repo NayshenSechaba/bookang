@@ -346,7 +346,7 @@ const BookingPolicies = ({ userName }: BookingPoliciesProps) => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <Users className="h-5 w-5 mr-2 text-purple-600" />
+            <Users className="h-5 w-5 mr-2 text-blue-600" />
             Customer Reliability Tracking
           </CardTitle>
           <CardDescription>
@@ -478,7 +478,7 @@ const BookingPolicies = ({ userName }: BookingPoliciesProps) => {
       <div className="flex justify-end">
         <Button 
           onClick={handleSavePolicies}
-          className="bg-purple-600 hover:bg-purple-700"
+          className="bg-blue-600 hover:bg-blue-700"
         >
           Save Policies
         </Button>

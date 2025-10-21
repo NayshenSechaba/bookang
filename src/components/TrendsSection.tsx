@@ -133,7 +133,7 @@ const TrendsSection = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Latest <span className="text-purple-600">Hair Trends</span>
+            Latest <span className="text-blue-600">Hair Trends</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Stay ahead of the curve with the hottest hair trends, seasonal inspirations, and celebrity-inspired looks
@@ -163,7 +163,7 @@ const TrendsSection = () => {
                       <div className="flex items-center space-x-2 mb-2">
                         <Badge 
                           variant={style.category === 'Color' ? 'default' : 'secondary'}
-                          className={style.category === 'Color' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}
+                          className={style.category === 'Color' ? 'bg-blue-100 text-blue-800' : 'bg-blue-100 text-blue-800'}
                         >
                           {style.category}
                         </Badge>
@@ -175,7 +175,7 @@ const TrendsSection = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-purple-600">{style.popularity}%</div>
+                      <div className="text-2xl font-bold text-blue-600">{style.popularity}%</div>
                       <div className="text-xs text-gray-500">popularity</div>
                     </div>
                   </div>
@@ -202,7 +202,7 @@ const TrendsSection = () => {
                   </div>
                   
                   <div className="flex space-x-2">
-                    <Button size="sm" className="flex-1 bg-purple-600 hover:bg-purple-700">
+                    <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700">
                       Book This Style
                     </Button>
                     <Button size="sm" variant="outline">
@@ -224,13 +224,13 @@ const TrendsSection = () => {
 
           <div className="grid md:grid-cols-2 gap-6">
             {seasonalTrends.map((trend, index) => (
-              <Card key={index} className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
+              <Card key={index} className="bg-gradient-to-br from-blue-50 to-pink-50 border-blue-200">
                 <CardHeader>
                   <div className="flex items-center justify-between mb-2">
-                    <CardTitle className="text-xl text-purple-900">{trend.season}</CardTitle>
-                    <Badge className="bg-purple-600 text-white">{trend.theme}</Badge>
+                    <CardTitle className="text-xl text-blue-900">{trend.season}</CardTitle>
+                    <Badge className="bg-blue-600 text-white">{trend.theme}</Badge>
                   </div>
-                  <CardDescription className="text-purple-700">
+                  <CardDescription className="text-blue-700">
                     {trend.description}
                   </CardDescription>
                 </CardHeader>
@@ -238,10 +238,10 @@ const TrendsSection = () => {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <h4 className="font-semibold text-purple-900 mb-2">Trending Colors:</h4>
+                      <h4 className="font-semibold text-blue-900 mb-2">Trending Colors:</h4>
                       <div className="flex flex-wrap gap-2">
                         {trend.colors.map((color) => (
-                          <Badge key={color} variant="secondary" className="bg-white text-purple-700">
+                          <Badge key={color} variant="secondary" className="bg-white text-blue-700">
                             {color}
                           </Badge>
                         ))}
@@ -249,10 +249,10 @@ const TrendsSection = () => {
                     </div>
                     
                     <div>
-                      <h4 className="font-semibold text-purple-900 mb-2">Popular Styles:</h4>
+                      <h4 className="font-semibold text-blue-900 mb-2">Popular Styles:</h4>
                       <div className="flex flex-wrap gap-2">
                         {trend.styles.map((style) => (
-                          <Badge key={style} variant="outline" className="border-purple-300 text-purple-700">
+                          <Badge key={style} variant="outline" className="border-blue-300 text-blue-700">
                             {style}
                           </Badge>
                         ))}
@@ -277,11 +277,11 @@ const TrendsSection = () => {
               <Card key={inspo.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-gradient-to-r from-pink-400 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-pink-400 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                       <Users className="h-8 w-8 text-white" />
                     </div>
                     <CardTitle className="text-lg mb-1">{inspo.celebrity}</CardTitle>
-                    <CardDescription className="text-purple-600 font-medium">
+                    <CardDescription className="text-blue-600 font-medium">
                       {inspo.style}
                     </CardDescription>
                   </div>
@@ -295,7 +295,7 @@ const TrendsSection = () => {
                   <div className="flex items-center justify-center space-x-4 mb-4">
                     <Badge 
                       variant={inspo.category === 'Color' ? 'default' : 'secondary'}
-                      className={inspo.category === 'Color' ? 'bg-purple-100 text-purple-800' : ''}
+                      className={inspo.category === 'Color' ? 'bg-blue-100 text-blue-800' : ''}
                     >
                       {inspo.category}
                     </Badge>
@@ -305,7 +305,7 @@ const TrendsSection = () => {
                     </div>
                   </div>
                   
-                  <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700">
+                  <Button className="w-full bg-gradient-to-r from-pink-500 to-blue-600 hover:from-pink-600 hover:to-blue-700">
                     Get This Look
                   </Button>
                 </CardContent>
@@ -337,7 +337,7 @@ const TrendsSection = () => {
                 </div>
                 
                 <div className="space-y-2">
-                  <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mx-auto">
+                  <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mx-auto">
                     <TrendingUp className="h-6 w-6 text-white" />
                   </div>
                   <h4 className="font-semibold text-indigo-900">Summer 2025</h4>
@@ -357,22 +357,22 @@ const TrendsSection = () => {
         </section>
 
         {/* Call to Action */}
-        <div className="text-center py-12 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white">
-          <h3 className="text-2xl font-bold mb-4">
-            Ready to Try a New Trend?
-          </h3>
-          <p className="mb-6 max-w-2xl mx-auto">
-            Book an appointment with one of our expert stylists to bring these trending looks to life.
-          </p>
-          <div className="flex justify-center space-x-4">
-            <Button className="bg-white text-purple-600 hover:bg-gray-100">
-              Book Consultation
-            </Button>
-            <Button variant="outline" className="border-white text-white hover:bg-white hover:text-purple-600">
-              Browse Stylists
-            </Button>
-          </div>
-        </div>
+          <div className="text-center py-12 bg-gradient-to-r from-blue-600 to-pink-600 rounded-lg text-white">
+           <h3 className="text-2xl font-bold mb-4">
+              Ready to Try a New Trend?
+           </h3>
+           <p className="mb-6 max-w-2xl mx-auto">
+              Book an appointment with one of our expert stylists to bring these trending looks to life.
+           </p>
+           <div className="flex justify-center space-x-4">
+              <Button className="bg-white text-blue-600 hover:bg-gray-100">
+               Book Consultation
+             </Button>
+             <Button variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+               Browse Stylists
+             </Button>
+           </div>
+         </div>
       </div>
     </div>
   );
