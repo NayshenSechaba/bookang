@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Users, Package, Scissors, Settings, Camera } from 'lucide-react';
+import { Calendar, Users, Package, Scissors, Settings, Camera, CreditCard } from 'lucide-react';
 import DashboardHeader from './DashboardHeader';
 import QuickStats from './QuickStats';
 import PortfolioSection from './PortfolioSection';
@@ -27,6 +27,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
   const [profilePicture, setProfilePicture] = useState('/placeholder.svg');
   const [userName, setUserName] = useState(initialUserName);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [paystackStatus, setPaystackStatus] = useState<string>('Not Started');
 
   // Check if user needs onboarding tour and fetch services/products
   useEffect(() => {
@@ -36,12 +37,17 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
         if (user.user) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('id, onboarding_completed')
+            .select('id, onboarding_completed, paystack_status')
             .eq('user_id', user.user.id)
             .single();
           
           if (profile && !profile.onboarding_completed) {
             setShowOnboarding(true);
+          }
+
+          // Set paystack status
+          if (profile?.paystack_status) {
+            setPaystackStatus(profile.paystack_status);
           }
 
           // Fetch services from database
@@ -343,6 +349,19 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
     ));
   };
 
+  const getPaymentStatusConfig = () => {
+    switch (paystackStatus) {
+      case 'Completed':
+        return { text: 'Payment Status: Active', color: 'bg-green-500' };
+      case 'Pending':
+        return { text: 'Payment Status: Pending Setup', color: 'bg-orange-500' };
+      default:
+        return { text: 'Payment Status: Inactive', color: 'bg-red-500' };
+    }
+  };
+
+  const statusConfig = getPaymentStatusConfig();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -352,6 +371,19 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
           onUpdateProfilePicture={handleUpdateProfilePicture}
           onUserNameChange={handleUserNameChange}
         />
+
+        {/* Payment Status Display */}
+        <div className="mb-6 flex items-center justify-between">
+          <Badge className={`${statusConfig.color} text-white px-4 py-2 text-sm`}>
+            {statusConfig.text}
+          </Badge>
+          {paystackStatus !== 'Completed' && (
+            <a href="/business-profile#payment-setup" className="flex items-center gap-2 text-primary hover:underline">
+              <CreditCard className="h-5 w-5" />
+              <span>Setup Payment</span>
+            </a>
+          )}
+        </div>
 
         <QuickStats data={financialData} />
 

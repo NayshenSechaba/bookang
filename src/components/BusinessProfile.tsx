@@ -1,14 +1,16 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
-import { Camera, MapPin, Instagram, Facebook, Twitter, Link, Plus, Edit, Trash2, Save } from 'lucide-react';
+import { Camera, MapPin, Instagram, Facebook, Twitter, Link, Plus, Edit, Trash2, Save, CreditCard } from 'lucide-react';
 import CustomAlert from '@/components/CustomAlert';
 import { useForm } from 'react-hook-form';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 
 interface BusinessProfileData {
   businessName: string;
@@ -30,9 +32,12 @@ interface BusinessProfileData {
 }
 
 const BusinessProfile = () => {
+  const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [showPortfolioModal, setShowPortfolioModal] = useState(false);
   const [editingPortfolioItem, setEditingPortfolioItem] = useState<any>(null);
+  const [paystackPublicKey, setPaystackPublicKey] = useState('');
+  const [userId, setUserId] = useState<string | null>(null);
   
   // Alert state
   const [alertInfo, setAlertInfo] = useState<{
@@ -41,6 +46,26 @@ const BusinessProfile = () => {
     title: string;
     message: string;
   }>({ show: false, type: 'info', title: '', message: '' });
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('paystack_public_key')
+          .eq('user_id', user.id)
+          .single();
+        
+        if (profile?.paystack_public_key) {
+          setPaystackPublicKey(profile.paystack_public_key);
+        }
+      }
+    };
+    
+    fetchUserProfile();
+  }, []);
 
   // Business profile data - fetched from database
   const [profileData, setProfileData] = useState<BusinessProfileData>({
@@ -155,6 +180,38 @@ const BusinessProfile = () => {
       case 'twitter': return Twitter;
       case 'website': return Link;
       default: return Link;
+    }
+  };
+
+  const handleSavePaymentDetails = async () => {
+    if (!userId) {
+      toast({
+        title: "Error",
+        description: "User not logged in",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        paystack_public_key: paystackPublicKey,
+        paystack_status: 'Completed'
+      })
+      .eq('user_id', userId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save payment details",
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Payment details saved successfully"
+      });
     }
   };
 
@@ -414,6 +471,43 @@ const BusinessProfile = () => {
                 </form>
               </Form>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Payment Setup Section */}
+        <Card className="mb-8" id="payment-setup">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5" />
+              Payment Setup
+            </CardTitle>
+            <CardDescription>Configure your Paystack payment integration</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Paystack Public Key</label>
+              <Input 
+                placeholder="pk_test_xxxxxxxxxxxx"
+                value={paystackPublicKey}
+                onChange={(e) => setPaystackPublicKey(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Don't have a Paystack account?{' '}
+                <a 
+                  href="https://paystack.com/signup" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
+                  Register here
+                </a>
+              </p>
+              <Button onClick={handleSavePaymentDetails}>
+                Save Payment Details
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

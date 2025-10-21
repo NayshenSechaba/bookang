@@ -355,6 +355,8 @@ export type Database = {
           name: string | null
           onboarding_completed: boolean
           payment_verified: boolean | null
+          paystack_public_key: string | null
+          paystack_status: string | null
           phone: string | null
           phone_verified: boolean | null
           preferred_language: string | null
@@ -389,6 +391,8 @@ export type Database = {
           name?: string | null
           onboarding_completed?: boolean
           payment_verified?: boolean | null
+          paystack_public_key?: string | null
+          paystack_status?: string | null
           phone?: string | null
           phone_verified?: boolean | null
           preferred_language?: string | null
@@ -423,6 +427,8 @@ export type Database = {
           name?: string | null
           onboarding_completed?: boolean
           payment_verified?: boolean | null
+          paystack_public_key?: string | null
+          paystack_status?: string | null
           phone?: string | null
           phone_verified?: boolean | null
           preferred_language?: string | null
