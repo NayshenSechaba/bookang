@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Star, Scissors, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut } from 'lucide-react';
+import { Star, Scissors, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut, Bell, User as UserIcon } from 'lucide-react';
 import AuthModal from '@/components/AuthModal';
 import EnhancedRegistrationModal from '@/components/EnhancedRegistrationModal';
 import CustomerDashboard from '@/components/CustomerDashboard';
@@ -18,6 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from '@supabase/supabase-js';
 import { sendTestSMS } from '@/utils/sendTestSMS';
 import { TestEmailButton } from '@/components/TestEmailButton';
+import bookangLogo from '@/assets/bookang-logo.png';
 
 // Make sendTestSMS available globally for console testing
 (window as any).sendTestSMS = sendTestSMS;
@@ -404,15 +405,14 @@ const Index = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Navigation Header */}
-      <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
+      <nav className="bg-primary shadow-sm border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <div className="flex items-center space-x-2">
-              <Scissors className="h-8 w-8 text-purple-600" />
-              <span className="text-2xl font-bold text-gray-900">Bookang</span>
+            <div className="flex items-center">
+              <img src={bookangLogo} alt="Bookang - Your smart booking platform" className="h-10" />
             </div>
 
             {/* Desktop Navigation */}
@@ -420,8 +420,8 @@ const Index = () => {
               {getNavItems().map((item) => (
                  <Button
                    key={item.id}
-                   variant={currentPage === item.id ? "default" : "ghost"}
-                   className={currentPage === item.id ? "bg-purple-600 text-white" : "text-gray-600 hover:text-purple-600"}
+                   variant={currentPage === item.id ? "secondary" : "ghost"}
+                   className={currentPage === item.id ? "bg-accent text-accent-foreground hover:bg-accent/90" : "text-primary-foreground hover:bg-primary/90"}
                    onClick={() => {
                      setCurrentPage(item.id);
                      localStorage.setItem('salonconnect_current_page', item.id);
@@ -436,7 +436,7 @@ const Index = () => {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="border-gray-600 text-gray-700 hover:bg-gray-50"
+                  className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
                   onClick={() => openAuthModal('login')}
                 >
                   Login
@@ -444,11 +444,19 @@ const Index = () => {
               )}
               
               {user && (
-                <div className="flex items-center space-x-3 pl-4 border-l">
-                  <span className="text-sm text-gray-600">
-                    Welcome, <span className="font-medium text-purple-600">{userName}</span>
-                  </span>
-                  <Button variant="outline" size="sm" onClick={handleLogout}>
+                <div className="flex items-center space-x-3 pl-4 border-l border-primary-foreground/20">
+                  <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/90">
+                    <UserIcon className="h-5 w-5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/90">
+                    <Bell className="h-5 w-5" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                    onClick={handleLogout}
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout
                   </Button>
@@ -460,26 +468,26 @@ const Index = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden"
+              className="md:hidden text-primary-foreground hover:bg-primary/90"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               <div className="space-y-1">
-                <div className="w-5 h-0.5 bg-gray-600"></div>
-                <div className="w-5 h-0.5 bg-gray-600"></div>
-                <div className="w-5 h-0.5 bg-gray-600"></div>
+                <div className="w-5 h-0.5 bg-primary-foreground"></div>
+                <div className="w-5 h-0.5 bg-primary-foreground"></div>
+                <div className="w-5 h-0.5 bg-primary-foreground"></div>
               </div>
             </Button>
           </div>
 
           {/* Mobile Navigation */}
           {isMobileMenuOpen && (
-            <div className="md:hidden py-4 border-t">
+            <div className="md:hidden py-4 border-t border-primary-foreground/20">
               <div className="flex flex-col space-y-2">
                 {getNavItems().map((item) => (
                   <Button
                     key={item.id}
-                    variant={currentPage === item.id ? "default" : "ghost"}
-                    className={`justify-start ${currentPage === item.id ? "bg-purple-600 text-white" : "text-gray-600"}`}
+                    variant={currentPage === item.id ? "secondary" : "ghost"}
+                    className={`justify-start ${currentPage === item.id ? "bg-accent text-accent-foreground" : "text-primary-foreground"}`}
                      onClick={() => {
                        setCurrentPage(item.id);
                        localStorage.setItem('salonconnect_current_page', item.id);
@@ -492,11 +500,11 @@ const Index = () => {
                 ))}
                 
                 {!user && (
-                  <div className="pt-4 border-t">
+                  <div className="pt-4 border-t border-primary-foreground/20">
                     <Button 
                       variant="outline" 
                       size="sm"
-                      className="w-full border-gray-600 text-gray-700 hover:bg-gray-50"
+                      className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
                       onClick={() => {
                         openAuthModal('login');
                         setIsMobileMenuOpen(false);
@@ -508,11 +516,16 @@ const Index = () => {
                 )}
                 
                 {user && (
-                  <div className="pt-4 border-t">
-                    <p className="text-sm text-gray-600 px-3 mb-2">
-                      Welcome, <span className="font-medium text-purple-600">{userName}</span>
+                  <div className="pt-4 border-t border-primary-foreground/20">
+                    <p className="text-sm text-primary-foreground px-3 mb-2">
+                      Welcome, <span className="font-medium text-accent">{userName}</span>
                     </p>
-                    <Button variant="outline" size="sm" onClick={handleLogout} className="w-full">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleLogout} 
+                      className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                    >
                       Logout
                     </Button>
                   </div>
@@ -558,26 +571,25 @@ const Index = () => {
       />
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12 px-4">
+      <footer className="bg-primary text-primary-foreground py-12 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <Scissors className="h-6 w-6 text-purple-400" />
-                <span className="text-xl font-bold">Bookang</span>
+              <div className="flex items-center mb-4">
+                <img src={bookangLogo} alt="Bookang" className="h-8 brightness-0 invert" />
               </div>
-              <p className="text-gray-400">
-                Connecting customers with professional hairdressers for the perfect salon experience.
+              <p className="text-primary-foreground/80 text-sm">
+                Your smart booking platform - Connecting customers with professional service providers.
               </p>
             </div>
             
             <div>
               <h3 className="font-semibold mb-4">Quick Links</h3>
               <div className="space-y-2">
-                <p className="text-gray-400 hover:text-white cursor-pointer" onClick={() => setCurrentPage('explore')}>
-                  Explore Salons
+                <p className="text-primary-foreground/80 hover:text-accent cursor-pointer text-sm" onClick={() => setCurrentPage('explore')}>
+                  Explore Services
                 </p>
-                <p className="text-gray-400 hover:text-white cursor-pointer" onClick={() => openAuthModal('register')}>
+                <p className="text-primary-foreground/80 hover:text-accent cursor-pointer text-sm" onClick={() => openAuthModal('register')}>
                   Register
                 </p>
               </div>
@@ -586,24 +598,24 @@ const Index = () => {
             <div>
               <h3 className="font-semibold mb-4">Support</h3>
               <div className="space-y-2">
-                <p className="text-gray-400 hover:text-white cursor-pointer" onClick={() => setCurrentPage('faq')}>
+                <p className="text-primary-foreground/80 hover:text-accent cursor-pointer text-sm" onClick={() => setCurrentPage('faq')}>
                   FAQ
                 </p>
-                <p className="text-gray-400 hover:text-white cursor-pointer" onClick={() => setCurrentPage('contact')}>
+                <p className="text-primary-foreground/80 hover:text-accent cursor-pointer text-sm" onClick={() => setCurrentPage('contact')}>
                   Contact Us
                 </p>
-                <p className="text-gray-400 hover:text-white cursor-pointer">Help Center</p>
+                <p className="text-primary-foreground/80 hover:text-accent cursor-pointer text-sm">Help Center</p>
               </div>
             </div>
             
             <div>
               <h3 className="font-semibold mb-4">Contact</h3>
               <div className="space-y-2">
-                <div className="flex items-center space-x-2 text-gray-400">
+                <div className="flex items-center space-x-2 text-primary-foreground/80 text-sm">
                   <Mail className="h-4 w-4" />
                   <span>support@bookang.com</span>
                 </div>
-                <div className="flex items-center space-x-2 text-gray-400">
+                <div className="flex items-center space-x-2 text-primary-foreground/80 text-sm">
                   <Phone className="h-4 w-4" />
                   <span>+1 (555) 123-4567</span>
                 </div>
@@ -611,14 +623,14 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center">
-            <p className="text-gray-400 mb-4 sm:mb-0">&copy; 2024 Bookang. All rights reserved.</p>
+          <div className="border-t border-primary-foreground/20 mt-8 pt-8 flex flex-col sm:flex-row justify-between items-center">
+            <p className="text-primary-foreground/80 text-sm mb-4 sm:mb-0">&copy; 2024 Bookang. All rights reserved.</p>
             
             {/* Employee Login Button */}
             <Button
               variant="outline"
               size="sm"
-              className="border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white"
+              className="border-accent text-accent hover:bg-accent hover:text-accent-foreground"
               onClick={() => openAuthModal('login', 'employee')}
             >
               <UserCheck className="mr-2 h-4 w-4" />
