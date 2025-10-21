@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 interface DashboardHeaderProps {
   userName: string;
   profilePicture: string;
+  coverImage?: string;
   onUpdateProfilePicture: (newImageUrl: string) => void;
   onUserNameChange: (newName: string) => void;
   socialMedia?: {
@@ -16,7 +17,7 @@ interface DashboardHeaderProps {
   };
 }
 
-const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture, onUserNameChange, socialMedia }: DashboardHeaderProps) => {
+const DashboardHeader = ({ userName, profilePicture, coverImage, onUpdateProfilePicture, onUserNameChange, socialMedia }: DashboardHeaderProps) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showStoryModal, setShowStoryModal] = useState(false);
   const [hasStory, setHasStory] = useState(true); // Simulate having a story
@@ -150,20 +151,28 @@ const DashboardHeader = ({ userName, profilePicture, onUpdateProfilePicture, onU
     <>
       <div className="mb-8">
         {/* Headliner Image with Profile Picture Overlay */}
-        <div className="relative mb-16 h-48 w-full rounded-lg overflow-hidden">
-          <img 
-            src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
-            alt="Dashboard header"
-            className="w-full h-full object-cover"
-          />
+        <div className="relative mb-16 h-48 w-full rounded-lg overflow-hidden bg-gradient-to-r from-purple-100 to-pink-100">
+          {coverImage && (
+            <img 
+              src={coverImage}
+              alt="Dashboard header"
+              className="w-full h-full object-cover"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent">
             {/* Profile Picture in Header */}
             <div className="absolute bottom-4 right-4">
-              <img 
-                src={profilePicture}
-                alt="Profile"
-                className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-lg"
-              />
+              {profilePicture ? (
+                <img 
+                  src={profilePicture}
+                  alt="Profile"
+                  className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-lg"
+                />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-purple-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-xl">
+                  {userName?.charAt(0)?.toUpperCase() || 'U'}
+                </div>
+              )}
             </div>
           </div>
           

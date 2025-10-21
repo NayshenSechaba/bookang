@@ -23,8 +23,8 @@ interface CustomerDashboardProps {
 
 const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => {
   // Profile state
-  const [profilePicture, setProfilePicture] = useState('https://images.unsplash.com/photo-1649972904349-6e44c42644a7?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80');
-  const [coverImage, setCoverImage] = useState('https://images.unsplash.com/photo-1518005020951-eccb494ad742?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
+  const [profilePicture, setProfilePicture] = useState('');
+  const [coverImage, setCoverImage] = useState('');
   const [showProfileUpload, setShowProfileUpload] = useState(false);
   const [showCoverUpload, setShowCoverUpload] = useState(false);
   const [username, setUsername] = useState('');
@@ -34,28 +34,31 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
     return `R${amount.toFixed(2)}`;
   };
 
-  // Fetch username from database
+  // Fetch user profile data from database
   useEffect(() => {
-    const fetchUsername = async () => {
+    const fetchUserProfile = async () => {
       try {
         const { data: user } = await supabase.auth.getUser();
         if (user.user) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('username')
+            .select('username, avatar_url')
             .eq('user_id', user.user.id)
             .single();
           
-          if (profile?.username) {
-            setUsername(profile.username);
+          if (profile) {
+            setUsername(profile.username || '');
+            if (profile.avatar_url) {
+              setProfilePicture(profile.avatar_url);
+            }
           }
         }
       } catch (error) {
-        console.error('Failed to fetch username:', error);
+        console.error('Failed to fetch user profile:', error);
       }
     };
 
-    fetchUsername();
+    fetchUserProfile();
   }, []);
 
   // Name formatting function

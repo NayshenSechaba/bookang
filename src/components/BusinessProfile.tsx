@@ -42,31 +42,14 @@ const BusinessProfile = () => {
     message: string;
   }>({ show: false, type: 'info', title: '', message: '' });
 
-  // Sample business profile data
+  // Business profile data - fetched from database
   const [profileData, setProfileData] = useState<BusinessProfileData>({
-    businessName: 'Elegant Hair Studio',
-    businessDescription: 'Professional hair styling and beauty services with over 10 years of experience. We specialize in modern cuts, color treatments, and bridal styling.',
-    businessImage: 'https://images.unsplash.com/photo-1521322800607-8c38375eef04?w=300&h=200&fit=crop',
-    location: 'Cape Town, South Africa',
-    socialMedia: {
-      instagram: '@eleganthairstudio',
-      facebook: 'ElegantHairStudio',
-      website: 'www.eleganthairstudio.co.za'
-    },
-    portfolio: [
-      {
-        id: 1,
-        image: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=300&h=200&fit=crop',
-        title: 'Bridal Styling',
-        description: 'Elegant updo for wedding day'
-      },
-      {
-        id: 2,
-        image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=300&h=200&fit=crop',
-        title: 'Modern Haircut',
-        description: 'Contemporary layered cut with highlights'
-      }
-    ]
+    businessName: '',
+    businessDescription: '',
+    businessImage: '',
+    location: '',
+    socialMedia: {},
+    portfolio: []
   });
 
   // Forms
