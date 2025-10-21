@@ -228,7 +228,7 @@ const Index = () => {
           <div className="mb-8">
             <Badge variant="secondary" className="mb-4 text-blue-700 bg-blue-100">
               <Scissors className="mr-2 h-4 w-4" />
-              Professional Salon Services
+              Professional Booking Services
             </Badge>
           </div>
           
