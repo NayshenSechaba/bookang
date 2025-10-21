@@ -354,10 +354,60 @@ const SMEOnboarding = ({ onComplete, onBack }: SMEOnboardingProps) => {
           <div className="space-y-2">
             <Label>Business Logo</Label>
             <div className="flex items-center space-x-4">
-              <div className="h-16 w-16 bg-muted rounded-lg flex items-center justify-center">
-                <Upload className="h-6 w-6 text-muted-foreground" />
+              <div className="h-16 w-16 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
+                {businessData.businessLogo ? (
+                  <img src={businessData.businessLogo} alt="Logo" className="w-full h-full object-cover" />
+                ) : (
+                  <Upload className="h-6 w-6 text-muted-foreground" />
+                )}
               </div>
-              <Button variant="outline" size="sm">
+              <input
+                type="file"
+                id="logo-upload"
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    try {
+                      const { data: user } = await supabase.auth.getUser();
+                      if (!user.user) return;
+
+                      const fileExt = file.name.split('.').pop();
+                      const fileName = `${user.user.id}-${Date.now()}.${fileExt}`;
+                      const filePath = `${fileName}`;
+
+                      const { error: uploadError } = await supabase.storage
+                        .from('profile-avatars')
+                        .upload(filePath, file);
+
+                      if (uploadError) throw uploadError;
+
+                      const { data: { publicUrl } } = supabase.storage
+                        .from('profile-avatars')
+                        .getPublicUrl(filePath);
+
+                      setBusinessData({...businessData, businessLogo: publicUrl});
+                      
+                      toast({
+                        title: "Logo Uploaded",
+                        description: "Your business logo has been uploaded successfully.",
+                      });
+                    } catch (error: any) {
+                      toast({
+                        title: "Upload Failed",
+                        description: error.message,
+                        variant: "destructive"
+                      });
+                    }
+                  }
+                }}
+              />
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => document.getElementById('logo-upload')?.click()}
+              >
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Logo
               </Button>

@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Star, Scissors, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut, Bell, User as UserIcon } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import AuthModal from '@/components/AuthModal';
 import EnhancedRegistrationModal from '@/components/EnhancedRegistrationModal';
 import CustomerDashboard from '@/components/CustomerDashboard';
@@ -462,20 +463,26 @@ const Index = () => {
               
               {user && (
                 <div className="flex items-center space-x-3 pl-4 border-l border-primary-foreground/20">
-                  <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/90">
-                    <UserIcon className="h-5 w-5" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/90">
+                        <UserIcon className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 bg-background z-[100]">
+                      <DropdownMenuItem onClick={() => setCurrentPage('contact')}>
+                        <Phone className="mr-2 h-4 w-4" />
+                        Contact
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/90">
                     <Bell className="h-5 w-5" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
                   </Button>
                 </div>
               )}

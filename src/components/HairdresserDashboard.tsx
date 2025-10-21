@@ -28,7 +28,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
   const [userName, setUserName] = useState(initialUserName);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
-  // Check if user needs onboarding tour
+  // Check if user needs onboarding tour and fetch services/products
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       try {
@@ -36,12 +36,43 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
         if (user.user) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('onboarding_completed')
+            .select('id, onboarding_completed')
             .eq('user_id', user.user.id)
             .single();
           
           if (profile && !profile.onboarding_completed) {
             setShowOnboarding(true);
+          }
+
+          // Fetch services from database
+          if (profile) {
+            const { data: hairdresser } = await supabase
+              .from('hairdressers')
+              .select('id')
+              .eq('profile_id', profile.id)
+              .maybeSingle();
+
+            if (hairdresser) {
+              const { data: servicesData } = await supabase
+                .from('services')
+                .select('*')
+                .eq('hairdresser_id', hairdresser.id);
+
+              if (servicesData) {
+                const mappedServices: Service[] = servicesData.map((s: any) => ({
+                  id: parseInt(s.id),
+                  name: s.name,
+                  description: s.description || '',
+                  price: parseFloat(s.price),
+                  duration: s.duration_minutes,
+                  category: 'haircut' as const,
+                  isActive: s.is_active,
+                  cancellationFee: 0,
+                  cancellationPolicy: ''
+                }));
+                setServices(mappedServices);
+              }
+            }
           }
         }
       } catch (error) {
@@ -116,77 +147,9 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
     }
   ];
 
-  const [services, setServices] = useState<Service[]>([
-    { 
-      id: 1, 
-      name: 'Haircut & Style', 
-      description: 'Professional haircut with styling',
-      price: 85, 
-      duration: 60, 
-      category: 'haircut',
-      isActive: true,
-      cancellationFee: 25,
-      cancellationPolicy: '24 hours notice required for cancellation'
-    },
-    { 
-      id: 2, 
-      name: 'Hair Coloring', 
-      description: 'Full hair coloring service',
-      price: 150, 
-      duration: 120, 
-      category: 'color',
-      isActive: true,
-      cancellationFee: 50,
-      cancellationPolicy: '48 hours notice required due to product preparation'
-    },
-    { 
-      id: 3, 
-      name: 'Hair Treatment', 
-      description: 'Deep conditioning treatment',
-      price: 95, 
-      duration: 45, 
-      category: 'treatment',
-      isActive: false,
-      cancellationFee: 30,
-      cancellationPolicy: '24 hours notice required'
-    },
-  ]);
+  const [services, setServices] = useState<Service[]>([]);
 
-  const [products, setProducts] = useState<Product[]>([
-    { 
-      id: 1, 
-      name: 'Premium Shampoo', 
-      description: 'High-quality moisturizing shampoo',
-      price: 25,
-      costPrice: 15,
-      weight: 250, 
-      stock: 15, 
-      category: 'shampoo',
-      isActive: true 
-    },
-    { 
-      id: 2, 
-      name: 'Hair Styling Gel', 
-      description: 'Strong hold styling gel',
-      price: 18,
-      costPrice: 12,
-      weight: 150, 
-      stock: 8, 
-      category: 'styling',
-      isActive: true 
-    },
-    { 
-      id: 3, 
-      name: 'Hair Mask Treatment', 
-      description: 'Intensive repair mask',
-      price: 35,
-      costPrice: 20,
-      weight: 200, 
-      stock: 0, 
-      category: 'treatment',
-      isActive: false 
-    },
-  ]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   const [portfolioImages, setPortfolioImages] = useState<PortfolioImage[]>([
     { 
