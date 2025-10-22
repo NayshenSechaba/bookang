@@ -3,6 +3,9 @@ project_id = "qbkgyervpdcgzhojqfch"
 [functions.send-appointment-reminders]
 verify_jwt = false
 
+[functions.handle-appointment-response]
+verify_jwt = false
+
 [functions.send-booking-confirmation]
 verify_jwt = false
 
