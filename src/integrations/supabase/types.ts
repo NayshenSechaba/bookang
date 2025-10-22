@@ -24,11 +24,11 @@ export type Database = {
           created_at: string | null
           customer_id: string
           duration_minutes: number
-          hairdresser_id: string
+          hairdresser_id: string | null
           id: string
           reference_number: string
           saloon: string | null
-          service_id: string
+          service_id: string | null
           special_requests: string | null
           status: string | null
           total_price: number
@@ -43,11 +43,11 @@ export type Database = {
           created_at?: string | null
           customer_id: string
           duration_minutes: number
-          hairdresser_id: string
+          hairdresser_id?: string | null
           id?: string
           reference_number?: string
           saloon?: string | null
-          service_id: string
+          service_id?: string | null
           special_requests?: string | null
           status?: string | null
           total_price: number
@@ -62,11 +62,11 @@ export type Database = {
           created_at?: string | null
           customer_id?: string
           duration_minutes?: number
-          hairdresser_id?: string
+          hairdresser_id?: string | null
           id?: string
           reference_number?: string
           saloon?: string | null
-          service_id?: string
+          service_id?: string | null
           special_requests?: string | null
           status?: string | null
           total_price?: number
@@ -109,7 +109,7 @@ export type Database = {
           created_at: string | null
           granted_at: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           profile_id: string
           user_agent: string | null
           withdrawn_at: string | null
@@ -119,7 +119,7 @@ export type Database = {
           created_at?: string | null
           granted_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           profile_id: string
           user_agent?: string | null
           withdrawn_at?: string | null
@@ -129,7 +129,7 @@ export type Database = {
           created_at?: string | null
           granted_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           profile_id?: string
           user_agent?: string | null
           withdrawn_at?: string | null
