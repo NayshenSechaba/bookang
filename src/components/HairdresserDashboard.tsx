@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Users, Package, Scissors, Settings, Camera, CreditCard } from 'lucide-react';
+import { Calendar, Users, Package, Scissors, Settings, Camera, CreditCard, ShieldAlert } from 'lucide-react';
 import DashboardHeader from './DashboardHeader';
 import QuickStats from './QuickStats';
 import PortfolioSection from './PortfolioSection';
@@ -17,6 +17,7 @@ import CustomerManagement from './CustomerManagement';
 import StylistEarnings from './StylistEarnings';
 import OnboardingTour from './OnboardingTour';
 import { supabase } from '@/integrations/supabase/client';
+import { BusinessVerification } from './BusinessVerification';
 
 interface HairdresserDashboardProps {
   userName: string;
@@ -28,6 +29,8 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
   const [userName, setUserName] = useState(initialUserName);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [paystackStatus, setPaystackStatus] = useState<string>('Not Started');
+  const [verificationStatus, setVerificationStatus] = useState<string>('not_started');
+  const [profileId, setProfileId] = useState<string>('');
 
   // Check if user needs onboarding tour and fetch services/products
   useEffect(() => {
@@ -37,7 +40,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
         if (user.user) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('id, onboarding_completed, paystack_status')
+            .select('id, onboarding_completed, paystack_status, verification_status')
             .eq('user_id', user.user.id)
             .single();
           
@@ -45,9 +48,11 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
             setShowOnboarding(true);
           }
 
-          // Set paystack status
-          if (profile?.paystack_status) {
-            setPaystackStatus(profile.paystack_status);
+          // Set profile data
+          if (profile) {
+            setProfileId(profile.id);
+            setPaystackStatus(profile.paystack_status || 'Not Started');
+            setVerificationStatus(profile.verification_status || 'not_started');
           }
 
           // Fetch services from database
@@ -360,7 +365,19 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
     }
   };
 
+  const getVerificationStatusConfig = () => {
+    switch (verificationStatus) {
+      case 'approved':
+        return { text: 'Verification: Approved', color: 'bg-green-500' };
+      case 'pending':
+        return { text: 'Verification: Under Review', color: 'bg-orange-500' };
+      default:
+        return { text: 'Verification: Required', color: 'bg-red-500' };
+    }
+  };
+
   const statusConfig = getPaymentStatusConfig();
+  const verificationConfig = getVerificationStatusConfig();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50 p-6">
@@ -372,23 +389,44 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
           onUserNameChange={handleUserNameChange}
         />
 
-        {/* Payment Status Display */}
-        <div className="mb-6 flex items-center justify-between">
-          <Badge className={`${statusConfig.color} text-white px-4 py-2 text-sm`}>
-            {statusConfig.text}
-          </Badge>
-          {paystackStatus !== 'Completed' && (
-            <a href="/business-profile#payment-setup" className="flex items-center gap-2 text-primary hover:underline">
-              <CreditCard className="h-5 w-5" />
-              <span>Setup Payment</span>
-            </a>
-          )}
+        {/* Status Display */}
+        <div className="mb-6 flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Badge className={`${statusConfig.color} text-white px-4 py-2 text-sm`}>
+              {statusConfig.text}
+            </Badge>
+            {paystackStatus !== 'Completed' && (
+              <a href="/business-profile#payment-setup" className="text-primary hover:text-primary/80 transition-colors">
+                <CreditCard className="h-5 w-5" />
+              </a>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Badge className={`${verificationConfig.color} text-white px-4 py-2 text-sm`}>
+              {verificationConfig.text}
+            </Badge>
+            {verificationStatus !== 'approved' && (
+              <button
+                onClick={() => {
+                  // Scroll to verification tab
+                  const tabs = document.querySelector('[value="verification"]');
+                  if (tabs) {
+                    (tabs as HTMLElement).click();
+                  }
+                }}
+                className="text-primary hover:text-primary/80 transition-colors"
+              >
+                <ShieldAlert className="h-5 w-5" />
+              </button>
+            )}
+          </div>
         </div>
 
         <QuickStats data={financialData} />
 
         <Tabs defaultValue="calendar" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-8 lg:w-fit">
+          <TabsList className="grid w-full grid-cols-9 lg:w-fit">
             <TabsTrigger value="calendar" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               <span className="hidden sm:inline">Calendar</span>
@@ -418,6 +456,10 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
             <TabsTrigger value="customers" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Customers</span>
+            </TabsTrigger>
+            <TabsTrigger value="verification" className="flex items-center gap-2">
+              <ShieldAlert className="h-4 w-4" />
+              <span className="hidden sm:inline">Verify</span>
             </TabsTrigger>
           </TabsList>
 
@@ -474,6 +516,49 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
               customers={customers}
               onUpdateCustomer={handleUpdateCustomer}
             />
+          </TabsContent>
+
+          <TabsContent value="verification">
+            {verificationStatus === 'approved' ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center space-y-4">
+                    <div className="flex justify-center">
+                      <div className="rounded-full bg-green-100 p-3">
+                        <ShieldAlert className="h-8 w-8 text-green-600" />
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-semibold">Verification Approved</h3>
+                    <p className="text-muted-foreground">
+                      Your business has been successfully verified. You can now receive payments.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : verificationStatus === 'pending' ? (
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center space-y-4">
+                    <div className="flex justify-center">
+                      <div className="rounded-full bg-orange-100 p-3">
+                        <ShieldAlert className="h-8 w-8 text-orange-600" />
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-semibold">Verification Under Review</h3>
+                    <p className="text-muted-foreground">
+                      Your documents are being reviewed by our compliance team. We'll notify you by email once the verification is complete.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <BusinessVerification 
+                profileId={profileId}
+                onComplete={() => {
+                  setVerificationStatus('pending');
+                }}
+              />
+            )}
           </TabsContent>
         </Tabs>
 

@@ -342,6 +342,7 @@ export type Database = {
           bookings: string | null
           business_description: string | null
           business_name: string | null
+          business_type: string | null
           city: string | null
           contact_number: string | null
           country: string | null
@@ -369,6 +370,9 @@ export type Database = {
           updated_at: string | null
           user_id: string
           username: string | null
+          verification_approved_at: string | null
+          verification_status: string | null
+          verification_submitted_at: string | null
         }
         Insert: {
           address?: string | null
@@ -378,6 +382,7 @@ export type Database = {
           bookings?: string | null
           business_description?: string | null
           business_name?: string | null
+          business_type?: string | null
           city?: string | null
           contact_number?: string | null
           country?: string | null
@@ -405,6 +410,9 @@ export type Database = {
           updated_at?: string | null
           user_id: string
           username?: string | null
+          verification_approved_at?: string | null
+          verification_status?: string | null
+          verification_submitted_at?: string | null
         }
         Update: {
           address?: string | null
@@ -414,6 +422,7 @@ export type Database = {
           bookings?: string | null
           business_description?: string | null
           business_name?: string | null
+          business_type?: string | null
           city?: string | null
           contact_number?: string | null
           country?: string | null
@@ -441,6 +450,9 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
           username?: string | null
+          verification_approved_at?: string | null
+          verification_status?: string | null
+          verification_submitted_at?: string | null
         }
         Relationships: [
           {
@@ -571,6 +583,41 @@ export type Database = {
             columns: ["hairdresser_id"]
             isOneToOne: false
             referencedRelation: "hairdressers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verification_documents: {
+        Row: {
+          document_type: string
+          file_path: string
+          id: string
+          profile_id: string
+          uploaded_at: string | null
+          verified: boolean | null
+        }
+        Insert: {
+          document_type: string
+          file_path: string
+          id?: string
+          profile_id: string
+          uploaded_at?: string | null
+          verified?: boolean | null
+        }
+        Update: {
+          document_type?: string
+          file_path?: string
+          id?: string
+          profile_id?: string
+          uploaded_at?: string | null
+          verified?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_documents_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
