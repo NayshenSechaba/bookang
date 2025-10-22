@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
-import { Camera, MapPin, Instagram, Facebook, Twitter, Link, Plus, Edit, Trash2, Save, CreditCard } from 'lucide-react';
+import { Camera, MapPin, Instagram, Facebook, Twitter, Link, Plus, Edit, Trash2, Save, CreditCard, ArrowLeft } from 'lucide-react';
 import CustomAlert from '@/components/CustomAlert';
 import { useForm } from 'react-hook-form';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,6 +38,7 @@ const BusinessProfile = () => {
   const [editingPortfolioItem, setEditingPortfolioItem] = useState<any>(null);
   const [paystackPublicKey, setPaystackPublicKey] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string>('');
   
   // Alert state
   const [alertInfo, setAlertInfo] = useState<{
@@ -54,12 +55,15 @@ const BusinessProfile = () => {
         setUserId(user.id);
         const { data: profile } = await supabase
           .from('profiles')
-          .select('paystack_public_key')
+          .select('paystack_public_key, role')
           .eq('user_id', user.id)
           .single();
         
         if (profile?.paystack_public_key) {
           setPaystackPublicKey(profile.paystack_public_key);
+        }
+        if (profile?.role) {
+          setUserRole(profile.role);
         }
       }
     };
@@ -215,9 +219,32 @@ const BusinessProfile = () => {
     }
   };
 
+  const handleReturnToDashboard = () => {
+    // Navigate based on user role
+    if (userRole === 'hairdresser' || userRole === 'employee') {
+      window.location.href = '/';
+      localStorage.setItem('salonconnect_current_page', 'hairdresser-dashboard');
+    } else if (userRole === 'customer') {
+      window.location.href = '/';
+      localStorage.setItem('salonconnect_current_page', 'customer-dashboard');
+    } else {
+      window.location.href = '/';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
+        {/* Back to Dashboard Button */}
+        <Button
+          variant="ghost"
+          onClick={handleReturnToDashboard}
+          className="mb-4 hover:bg-gray-100"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Dashboard
+        </Button>
+
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
