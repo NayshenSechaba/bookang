@@ -137,11 +137,14 @@ Deno.serve(async (req) => {
       formattedPhone = '+27' + confirmationData.customer_phone
     }
 
-    // Create SMS message
-    const message = `Hi! Your appointment at ${confirmationData.salon_name} with ${confirmationData.hairdresser_name} has been CONFIRMED! 🎉\n\nDate: ${confirmationData.appointment_date}\nTime: ${confirmationData.appointment_time}\nLocation: ${confirmationData.salon_location}\n\nSee you soon!`
+    // Create interactive SMS message asking for confirmation
+    const message = `📅 BOOKING CONFIRMATION REQUIRED\n\nSalon: ${confirmationData.salon_name}\nStylist: ${confirmationData.hairdresser_name}\nDate: ${confirmationData.appointment_date}\nTime: ${confirmationData.appointment_time}\nLocation: ${confirmationData.salon_location}\n\nReply:\n1 - CONFIRM appointment ✅\n2 - CANCEL appointment ❌\n\nBooking ID: ${confirmationData.booking_id}`
 
-    // Send SMS via Twilio REST API
+    // Send SMS via Twilio REST API with StatusCallback for replies
     const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`
+    
+    // Construct the webhook URL for handling responses
+    const webhookUrl = `${supabaseUrl}/functions/v1/handle-appointment-response`
 
     const twilioResponse = await fetch(twilioUrl, {
       method: 'POST',
@@ -153,6 +156,7 @@ Deno.serve(async (req) => {
         To: formattedPhone,
         From: twilioPhoneNumber,
         Body: message,
+        StatusCallback: webhookUrl,
       }),
     })
 
