@@ -373,8 +373,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
           duration_minutes: service?.duration_minutes || 60,
           total_price: pendingBooking.cost,
           status: 'pending',
-          special_requests: pendingBooking.notes || null,
-          phone: pendingBooking.phone || null
+          special_requests: pendingBooking.notes || null
         })
         .select()
         .single();
