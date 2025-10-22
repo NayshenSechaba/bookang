@@ -108,6 +108,9 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
     message: string;
   }>({ show: false, type: 'info', title: '', message: '' });
 
+  // Test reminder state
+  const [sendingReminder, setSendingReminder] = useState(false);
+
   // Mock data for appointments and hairdressers
   const upcomingAppointments = [
     {
@@ -483,6 +486,40 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
     }, 3000);
   };
 
+  // Test appointment reminder function
+  const handleTestReminder = async () => {
+    try {
+      setSendingReminder(true);
+      showAlert('info', 'Sending Test Reminder', 'Testing the appointment reminder SMS...');
+
+      const { data, error } = await supabase.functions.invoke('send-appointment-reminders', {
+        body: {},
+      });
+
+      if (error) throw error;
+
+      console.log('Reminder test result:', data);
+
+      if (data.success) {
+        const processedCount = data.results?.length || 0;
+        const successCount = data.results?.filter((r: any) => r.success).length || 0;
+        
+        showAlert(
+          'success', 
+          'Test Complete!', 
+          `Processed ${processedCount} reminder(s). Successfully sent ${successCount} SMS message(s). Check your phone!`
+        );
+      } else {
+        showAlert('error', 'Test Failed', data.message || 'Failed to send test reminder');
+      }
+    } catch (error) {
+      console.error('Error testing reminder:', error);
+      showAlert('error', 'Error', 'Failed to test appointment reminder. Check console for details.');
+    } finally {
+      setSendingReminder(false);
+    }
+  };
+
   // Handle review submission
   const handleReviewSubmission = (e: React.FormEvent) => {
     e.preventDefault();
@@ -728,6 +765,32 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                         <Clock className="mr-2 h-4 w-4" />
                         View All Appointments
                       </Button>
+                    </div>
+                    
+                    {/* Test Reminder Button */}
+                    <div className="mt-4 pt-4 border-t">
+                      <p className="text-sm text-muted-foreground mb-2">Test SMS Flows:</p>
+                      <Button 
+                        onClick={handleTestReminder}
+                        disabled={sendingReminder}
+                        variant="secondary"
+                        className="w-full"
+                      >
+                        {sendingReminder ? (
+                          <>
+                            <Clock className="mr-2 h-4 w-4 animate-spin" />
+                            Sending Test Reminder...
+                          </>
+                        ) : (
+                          <>
+                            <Phone className="mr-2 h-4 w-4" />
+                            Test Appointment Reminder SMS
+                          </>
+                        )}
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        This will send reminder SMS for tomorrow's appointments
+                      </p>
                     </div>
                   </TabsContent>
                   
