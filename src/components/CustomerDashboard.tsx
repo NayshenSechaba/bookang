@@ -118,6 +118,37 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   const [availableHairdressers, setAvailableHairdressers] = useState<any[]>([]);
   const [salons, setSalons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  // Calculate distance between two coordinates (Haversine formula)
+  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  // Request user's location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.log('Geolocation not available:', error);
+        }
+      );
+    }
+  }, []);
 
   // Fetch real data from database
   useEffect(() => {
@@ -147,7 +178,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
               id,
               profiles(full_name)
             ),
-            salons(name, address)
+            salons!bookings_saloon_foreign(name, address)
           `)
           .eq('customer_id', profile.id)
           .gte('appointment_date', today)
@@ -162,38 +193,91 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
               id,
               profiles(full_name)
             ),
-            salons(name, address)
+            salons!bookings_saloon_foreign(name, address)
           `)
           .eq('customer_id', profile.id)
           .lt('appointment_date', today)
           .order('appointment_date', { ascending: false })
           .limit(10);
 
-        // Fetch services
+        // Fetch salons first
+        const { data: salonsData } = await supabase
+          .from('salons')
+          .select('*');
+
+        // Fetch services with hairdresser and salon information
         const { data: servicesData } = await supabase
           .from('services')
-          .select('*')
+          .select(`
+            *,
+            hairdressers!services_hairdresser_id_fkey(
+              id,
+              profiles(full_name),
+              salons!hairdressers_salon_id_fkey(
+                name,
+                address,
+                latitude,
+                longitude
+              )
+            )
+          `)
           .eq('is_active', true);
 
-        // Fetch hairdressers with their profiles
+        // Fetch hairdressers with their profiles and salons
         const { data: hairdressersData } = await supabase
           .from('hairdressers')
           .select(`
             *,
             profiles(full_name),
-            salons(name)
+            salons!hairdressers_salon_id_fkey(
+              name,
+              address,
+              latitude,
+              longitude
+            )
           `)
           .eq('is_available', true);
 
-        // Fetch salons
-        const { data: salonsData } = await supabase
-          .from('salons')
-          .select('*');
+        // Sort by distance if user location is available
+        let sortedHairdressers = hairdressersData || [];
+        let sortedServices = servicesData || [];
+        
+        if (userLocation && hairdressersData) {
+          sortedHairdressers = [...hairdressersData]
+            .map(h => ({
+              ...h,
+              distance: h.salons?.latitude && h.salons?.longitude
+                ? calculateDistance(
+                    userLocation.lat,
+                    userLocation.lng,
+                    h.salons.latitude,
+                    h.salons.longitude
+                  )
+                : Infinity
+            }))
+            .sort((a, b) => a.distance - b.distance);
+        }
+
+        if (userLocation && servicesData) {
+          sortedServices = [...servicesData]
+            .map(s => ({
+              ...s,
+              distance: s.hairdressers?.salons?.latitude && s.hairdressers?.salons?.longitude
+                ? calculateDistance(
+                    userLocation.lat,
+                    userLocation.lng,
+                    s.hairdressers.salons.latitude,
+                    s.hairdressers.salons.longitude
+                  )
+                : Infinity
+            }))
+            .sort((a, b) => a.distance - b.distance);
+        }
 
         setUpcomingAppointments(upcomingData || []);
         setPastAppointments(pastData || []);
-        setAvailableServices(servicesData || []);
-        setAvailableHairdressers(hairdressersData || []);
+        setAvailableServices(sortedServices);
+        setAvailableHairdressers(sortedHairdressers);
         setSalons(salonsData || []);
         setLoading(false);
       } catch (error) {
@@ -964,7 +1048,14 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                   ) : (
                     availableServices.map((service) => (
                       <SelectItem key={service.id} value={service.name}>
-                        {service.name} - {formatCurrency(Number(service.price))} ({service.duration_minutes} min)
+                        <div className="flex items-center justify-between w-full">
+                          <span>{service.name} - {formatCurrency(Number(service.price))} ({service.duration_minutes} min)</span>
+                          {service.distance && service.distance !== Infinity && (
+                            <span className="text-xs text-muted-foreground ml-2">
+                              {service.distance.toFixed(1)} km away
+                            </span>
+                          )}
+                        </div>
                       </SelectItem>
                     ))
                   )}
@@ -988,10 +1079,17 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                     availableHairdressers.map((hairdresser) => (
                       <SelectItem key={hairdresser.id} value={hairdresser.profiles?.full_name || 'Provider'}>
                         <div className="flex items-center justify-between w-full">
-                          <span>{hairdresser.profiles?.full_name || 'Provider'}</span>
-                          <span className="text-xs text-gray-500 ml-2">
-                            {hairdresser.salons?.name || 'Salon'}
-                          </span>
+                          <div className="flex flex-col">
+                            <span>{hairdresser.profiles?.full_name || 'Provider'}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {hairdresser.salons?.name || 'Salon'}
+                            </span>
+                          </div>
+                          {hairdresser.distance && hairdresser.distance !== Infinity && (
+                            <span className="text-xs text-muted-foreground ml-2">
+                              {hairdresser.distance.toFixed(1)} km
+                            </span>
+                          )}
                         </div>
                       </SelectItem>
                     ))
