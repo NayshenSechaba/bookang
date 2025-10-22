@@ -111,174 +111,99 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   // Test reminder state
   const [sendingReminder, setSendingReminder] = useState(false);
 
-  // Mock data for appointments and hairdressers
-  const upcomingAppointments = [
-    {
-      id: 1,
-      service: 'Haircut & Styling',
-      hairdresser: 'Sarah Johnson',
-      date: '2024-07-15',
-      time: '2:00 PM',
-      status: 'Confirmed',
-      salon: 'Glamour Studio',
-      cost: formatCurrency(75)
-    },
-    {
-      id: 2,
-      service: 'Hair Color & Highlights',
-      hairdresser: 'Maria Garcia',
-      date: '2024-07-20',
-      time: '10:00 AM',
-      status: 'Pending',
-      salon: 'Elite Hair Lounge',
-      cost: formatCurrency(150)
-    }
-  ];
+  // Real data from database
+  const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([]);
+  const [pastAppointments, setPastAppointments] = useState<any[]>([]);
+  const [availableServices, setAvailableServices] = useState<any[]>([]);
+  const [availableHairdressers, setAvailableHairdressers] = useState<any[]>([]);
+  const [salons, setSalons] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const pastAppointments = [
-    {
-      id: 3,
-      service: 'Haircut',
-      hairdresser: 'Emma Wilson',
-      date: '2024-06-28',
-      time: '3:30 PM',
-      status: 'Completed',
-      salon: 'Trendy Cuts',
-      cost: formatCurrency(60),
-      hasReview: false
-    },
-    {
-      id: 4,
-      service: 'Hair Treatment',
-      hairdresser: 'Lisa Chen',
-      date: '2024-06-15',
-      time: '1:00 PM',
-      status: 'Completed',
-      salon: 'Luxury Hair Spa',
-      cost: formatCurrency(120),
-      hasReview: true,
-      rating: 5
-    }
-  ];
+  // Fetch real data from database
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-  // Customer profile data including ratings from hairdressers
-  const customerProfile = {
-    overallRating: 4.6,
-    totalRatings: 15,
-    ratingBreakdown: {
-      5: 8,
-      4: 5,
-      3: 2,
-      2: 0,
-      1: 0
-    },
-    recentFeedback: [
-      {
-        id: 1,
-        hairdresser: 'Sarah Johnson',
-        salon: 'Glamour Studio',
-        rating: 5,
-        comment: 'Always punctual and professional. Great communication about styling preferences.',
-        date: '2024-01-15'
-      },
-      {
-        id: 2,
-        hairdresser: 'Maria Garcia',
-        salon: 'Elite Hair Lounge',
-        rating: 4,
-        comment: 'Pleasant customer, follows instructions well. Easy to work with.',
-        date: '2024-01-10'
-      },
-      {
-        id: 3,
-        hairdresser: 'Emma Wilson',
-        salon: 'Trendy Cuts',
-        rating: 5,
-        comment: 'Excellent client! Very clear about what she wants and appreciates the work.',
-        date: '2024-01-05'
+        // Get current user's profile
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .single();
+
+        if (!profile) return;
+
+        // Fetch appointments
+        const today = new Date().toISOString().split('T')[0];
+        
+        const { data: upcomingData } = await supabase
+          .from('bookings')
+          .select(`
+            *,
+            services(name),
+            hairdressers(
+              id,
+              profiles(full_name)
+            ),
+            salons(name, address)
+          `)
+          .eq('customer_id', profile.id)
+          .gte('appointment_date', today)
+          .order('appointment_date', { ascending: true });
+
+        const { data: pastData } = await supabase
+          .from('bookings')
+          .select(`
+            *,
+            services(name),
+            hairdressers(
+              id,
+              profiles(full_name)
+            ),
+            salons(name, address)
+          `)
+          .eq('customer_id', profile.id)
+          .lt('appointment_date', today)
+          .order('appointment_date', { ascending: false })
+          .limit(10);
+
+        // Fetch services
+        const { data: servicesData } = await supabase
+          .from('services')
+          .select('*')
+          .eq('is_active', true);
+
+        // Fetch hairdressers with their profiles
+        const { data: hairdressersData } = await supabase
+          .from('hairdressers')
+          .select(`
+            *,
+            profiles(full_name),
+            salons(name)
+          `)
+          .eq('is_available', true);
+
+        // Fetch salons
+        const { data: salonsData } = await supabase
+          .from('salons')
+          .select('*');
+
+        setUpcomingAppointments(upcomingData || []);
+        setPastAppointments(pastData || []);
+        setAvailableServices(servicesData || []);
+        setAvailableHairdressers(hairdressersData || []);
+        setSalons(salonsData || []);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
       }
-    ],
-    badges: ['Punctual', 'Professional', 'Easy Going', 'Good Tipper']
-  };
+    };
 
-  const favoriteHairdresser = {
-    name: 'Sarah Johnson',
-    salon: 'Glamour Studio',
-    rating: 4.9,
-    specialties: ['Cutting', 'Styling', 'Color'],
-    totalAppointments: 8
-  };
-
-  const availableServices = [
-    // Hair Services
-    'Haircut',
-    'Hair Styling',
-    'Hair Color',
-    'Highlights',
-    'Hair Treatment',
-    'Blowout',
-    'Perm',
-    'Hair Extensions',
-    'Keratin Treatment',
-    'Hair Wash & Blow Dry',
-    
-    // Spa & Wellness Services
-    'Swedish Massage',
-    'Deep Tissue Massage',
-    'Hot Stone Massage',
-    'Aromatherapy Massage',
-    'Couples Massage',
-    'Reflexology',
-    'Body Scrub',
-    'Body Wrap',
-    'Facial Treatment',
-    'Anti-Aging Facial',
-    'Hydrating Facial',
-    'Acne Treatment Facial',
-    
-    // Nail Services
-    'Classic Manicure',
-    'Gel Manicure',
-    'French Manicure',
-    'Nail Art Design',
-    'Classic Pedicure',
-    'Spa Pedicure',
-    'Gel Pedicure',
-    'Nail Extensions',
-    'Nail Repair',
-    
-    // Beauty & Grooming Services
-    'Eyebrow Threading',
-    'Eyebrow Tinting',
-    'Eyelash Extensions',
-    'Eyelash Tinting',
-    'Waxing - Full Leg',
-    'Waxing - Half Leg',
-    'Waxing - Bikini',
-    'Waxing - Brazilian',
-    'Waxing - Underarm',
-    'Waxing - Facial',
-    'Makeup Application',
-    'Bridal Makeup',
-    'Special Event Makeup',
-    
-    // Men's Grooming
-    'Men\'s Haircut',
-    'Beard Trim',
-    'Mustache Trim',
-    'Hot Towel Shave',
-    'Beard Styling',
-    'Men\'s Facial',
-    'Scalp Treatment'
-  ];
-
-  const availableHairdressers = [
-    { id: 1, name: 'Sarah Johnson', salon: 'Glamour Studio', rating: 4.9 },
-    { id: 2, name: 'Maria Garcia', salon: 'Elite Hair Lounge', rating: 4.8 },
-    { id: 3, name: 'Emma Wilson', salon: 'Trendy Cuts', rating: 4.7 },
-    { id: 4, name: 'Lisa Chen', salon: 'Luxury Hair Spa', rating: 4.9 },
-    { id: 5, name: 'Anna Rodriguez', salon: 'Style Central', rating: 4.6 }
-  ];
+    fetchData();
+  }, []);
 
   // Show custom alert
   const showAlert = (type: 'success' | 'error' | 'info', title: string, message: string) => {
@@ -680,10 +605,10 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-yellow-100">Your Rating</p>
-                  <p className="text-2xl font-bold">{customerProfile.overallRating}</p>
+                  <p className="text-yellow-100">Total Bookings</p>
+                  <p className="text-2xl font-bold">{upcomingAppointments.length + pastAppointments.length}</p>
                 </div>
-                <Star className="h-8 w-8 text-yellow-200" />
+                <Calendar className="h-8 w-8 text-yellow-200" />
               </div>
             </CardContent>
           </Card>
@@ -692,10 +617,10 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100">Wallet Balance</p>
-                  <p className="text-2xl font-bold">R250</p>
+                  <p className="text-green-100">Upcoming</p>
+                  <p className="text-2xl font-bold">{upcomingAppointments.length}</p>
                 </div>
-                <Wallet className="h-8 w-8 text-green-200" />
+                <Clock className="h-8 w-8 text-green-200" />
               </div>
             </CardContent>
           </Card>
@@ -704,10 +629,10 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-indigo-100">Favorite Rating</p>
-                  <p className="text-2xl font-bold">{favoriteHairdresser.rating}</p>
+                  <p className="text-indigo-100">Available Services</p>
+                  <p className="text-2xl font-bold">{availableServices.length}</p>
                 </div>
-                <Heart className="h-8 w-8 text-indigo-200" />
+                <Scissors className="h-8 w-8 text-indigo-200" />
               </div>
             </CardContent>
           </Card>
@@ -716,8 +641,8 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-emerald-100">Total Visits</p>
-                  <p className="text-2xl font-bold">{favoriteHairdresser.totalAppointments}</p>
+                  <p className="text-emerald-100">Service Providers</p>
+                  <p className="text-2xl font-bold">{availableHairdressers.length}</p>
                 </div>
                 <User className="h-8 w-8 text-emerald-200" />
               </div>
@@ -814,82 +739,92 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                   </TabsList>
                   
                   <TabsContent value="upcoming" className="space-y-4 mt-6">
-                    {upcomingAppointments.map((appointment) => (
-                      <div key={appointment.id} className="border rounded-lg p-4 bg-white">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h3 className="font-semibold text-lg">{appointment.service}</h3>
-                            <p className="text-gray-600">with {appointment.hairdresser}</p>
+                    {loading ? (
+                      <div className="text-center py-8 text-gray-500">Loading appointments...</div>
+                    ) : upcomingAppointments.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">No upcoming appointments</div>
+                    ) : (
+                      upcomingAppointments.map((appointment) => (
+                        <div key={appointment.id} className="border rounded-lg p-4 bg-white">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h3 className="font-semibold text-lg">
+                                {appointment.services?.name || 'Service'}
+                              </h3>
+                              <p className="text-gray-600">
+                                with {appointment.hairdressers?.profiles?.full_name || 'Service Provider'}
+                              </p>
+                            </div>
+                            <Badge 
+                              variant={appointment.status === 'confirmed' ? 'default' : 'secondary'}
+                              className={appointment.status === 'confirmed' ? 'bg-green-100 text-green-800' : ''}
+                            >
+                              {appointment.status}
+                            </Badge>
                           </div>
-                          <Badge 
-                            variant={appointment.status === 'Confirmed' ? 'default' : 'secondary'}
-                            className={appointment.status === 'Confirmed' ? 'bg-green-100 text-green-800' : ''}
-                          >
-                            {appointment.status}
-                          </Badge>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
+                            <div className="flex items-center">
+                              <Calendar className="mr-2 h-4 w-4" />
+                              {appointment.appointment_date}
+                            </div>
+                            <div className="flex items-center">
+                              <Clock className="mr-2 h-4 w-4" />
+                              {appointment.appointment_time}
+                            </div>
+                            <div className="flex items-center">
+                              <MapPin className="mr-2 h-4 w-4" />
+                              {appointment.salons?.name || 'Salon'}
+                            </div>
+                            <div className="flex items-center">
+                              <span className="font-medium text-purple-600">{formatCurrency(Number(appointment.total_price))}</span>
+                            </div>
+                          </div>
                         </div>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600">
-                          <div className="flex items-center">
-                            <Calendar className="mr-2 h-4 w-4" />
-                            {appointment.date}
-                          </div>
-                          <div className="flex items-center">
-                            <Clock className="mr-2 h-4 w-4" />
-                            {appointment.time}
-                          </div>
-                          <div className="flex items-center">
-                            <MapPin className="mr-2 h-4 w-4" />
-                            {appointment.salon}
-                          </div>
-                          <div className="flex items-center">
-                            <span className="font-medium text-purple-600">R{parseFloat(appointment.cost.replace(/[^\d.-]/g, '')).toFixed(2)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </TabsContent>
                   
                   <TabsContent value="past" className="space-y-4 mt-6">
-                    {pastAppointments.map((appointment) => (
-                      <div key={appointment.id} className="border rounded-lg p-4 bg-white">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h3 className="font-semibold text-lg">{appointment.service}</h3>
-                            <p className="text-gray-600">with {appointment.hairdresser}</p>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            {appointment.hasReview && (
-                              <div className="flex items-center">
-                                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400 mr-1" />
-                                <span className="text-sm">{appointment.rating}</span>
-                              </div>
-                            )}
+                    {loading ? (
+                      <div className="text-center py-8 text-gray-500">Loading appointments...</div>
+                    ) : pastAppointments.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">No past appointments</div>
+                    ) : (
+                      pastAppointments.map((appointment) => (
+                        <div key={appointment.id} className="border rounded-lg p-4 bg-white">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h3 className="font-semibold text-lg">
+                                {appointment.services?.name || 'Service'}
+                              </h3>
+                              <p className="text-gray-600">
+                                with {appointment.hairdressers?.profiles?.full_name || 'Service Provider'}
+                              </p>
+                            </div>
                             <Badge variant="outline" className="bg-gray-50">
                               {appointment.status}
                             </Badge>
                           </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-3">
-                          <div className="flex items-center">
-                            <Calendar className="mr-2 h-4 w-4" />
-                            {appointment.date}
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-3">
+                            <div className="flex items-center">
+                              <Calendar className="mr-2 h-4 w-4" />
+                              {appointment.appointment_date}
+                            </div>
+                            <div className="flex items-center">
+                              <Clock className="mr-2 h-4 w-4" />
+                              {appointment.appointment_time}
+                            </div>
+                            <div className="flex items-center">
+                              <MapPin className="mr-2 h-4 w-4" />
+                              {appointment.salons?.name || 'Salon'}
+                            </div>
+                            <div className="flex items-center">
+                              <span className="font-medium text-purple-600">{formatCurrency(Number(appointment.total_price))}</span>
+                            </div>
                           </div>
-                          <div className="flex items-center">
-                            <Clock className="mr-2 h-4 w-4" />
-                            {appointment.time}
-                          </div>
-                          <div className="flex items-center">
-                            <MapPin className="mr-2 h-4 w-4" />
-                            {appointment.salon}
-                          </div>
-                          <div className="flex items-center">
-                            <span className="font-medium text-purple-600">{appointment.cost}</span>
-                          </div>
-                        </div>
-                        
-                        {!appointment.hasReview && (
+                          
                           <Button 
                             size="sm" 
                             variant="outline"
@@ -899,9 +834,9 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                             <Star className="mr-2 h-4 w-4" />
                             Leave Review
                           </Button>
-                        )}
-                      </div>
-                    ))}
+                        </div>
+                      ))
+                    )}
                   </TabsContent>
                 </Tabs>
               </CardContent>
@@ -910,138 +845,68 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Favorite Hairdresser */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Heart className="mr-2 h-5 w-5 text-pink-500" />
-                  Favorite Hairdresser
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <User className="h-8 w-8 text-purple-600" />
-                  </div>
-                  <h3 className="font-semibold text-lg">{favoriteHairdresser.name}</h3>
-                  <p className="text-gray-600 mb-2">{favoriteHairdresser.salon}</p>
-                  
-                  <div className="flex items-center justify-center mb-3">
-                    <StarRating rating={Math.floor(favoriteHairdresser.rating)} readonly />
-                    <span className="ml-2 text-sm text-gray-600">{favoriteHairdresser.rating}</span>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-1 justify-center mb-4">
-                    {favoriteHairdresser.specialties.map((specialty) => (
-                      <Badge key={specialty} variant="secondary" className="text-xs">
-                        {specialty}
-                      </Badge>
-                    ))}
-                  </div>
-                  
-                  <p className="text-sm text-gray-600 mb-4">
-                    {favoriteHairdresser.totalAppointments} appointments completed
-                  </p>
-                  
-                  <Button 
-                    size="sm" 
-                    className="w-full bg-purple-600 hover:bg-purple-700"
-                    onClick={() => {
-                      setBookingData(prev => ({ 
-                        ...prev, 
-                        hairdresser: favoriteHairdresser.name 
-                      }));
-                      setShowBookingModal(true);
-                    }}
-                  >
-                    Book with {favoriteHairdresser.name.split(' ')[0]}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Customer Rating Profile */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Star className="mr-2 h-5 w-5 text-yellow-500" />
-                  Your Rating Profile
-                </CardTitle>
-                <CardDescription>
-                  How hairdressers rate you as a client
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {/* Overall Rating */}
+            {/* Favorite Service Provider - Only show if have bookings */}
+            {pastAppointments.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Heart className="mr-2 h-5 w-5 text-pink-500" />
+                    Recent Service Provider
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-yellow-600 mb-1">
-                      {customerProfile.overallRating}
+                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <User className="h-8 w-8 text-purple-600" />
                     </div>
-                    <div className="flex items-center justify-center mb-2">
-                      <StarRating rating={Math.round(customerProfile.overallRating)} readonly />
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Based on {customerProfile.totalRatings} reviews
+                    <h3 className="font-semibold text-lg">
+                      {pastAppointments[0]?.hairdressers?.profiles?.full_name || 'Service Provider'}
+                    </h3>
+                    <p className="text-gray-600 mb-2">
+                      {pastAppointments[0]?.salons?.name || 'Salon'}
                     </p>
+                    
+                    <p className="text-sm text-gray-600 mb-4">
+                      {pastAppointments.length} appointment{pastAppointments.length !== 1 ? 's' : ''} completed
+                    </p>
+                    
+                    <Button 
+                      size="sm" 
+                      className="w-full bg-purple-600 hover:bg-purple-700"
+                      onClick={() => setShowBookingModal(true)}
+                    >
+                      Book New Appointment
+                    </Button>
                   </div>
+                </CardContent>
+              </Card>
+            )}
 
-                  {/* Rating Breakdown */}
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">Rating Breakdown</h4>
-                    {[5, 4, 3, 2, 1].map((rating) => (
-                      <div key={rating} className="flex items-center text-xs">
-                        <span className="w-6">{rating}</span>
-                        <Star className="h-3 w-3 text-yellow-400 mr-2" />
-                        <div className="flex-1 bg-gray-200 rounded-full h-2 mr-2">
-                          <div 
-                            className="bg-yellow-400 h-2 rounded-full" 
-                            style={{ 
-                              width: `${(customerProfile.ratingBreakdown[rating as keyof typeof customerProfile.ratingBreakdown] / customerProfile.totalRatings) * 100}%` 
-                            }}
-                          />
-                        </div>
-                        <span className="w-6 text-right">
-                          {customerProfile.ratingBreakdown[rating as keyof typeof customerProfile.ratingBreakdown]}
-                        </span>
-                      </div>
-                    ))}
+            {/* Show empty state if no bookings */}
+            {pastAppointments.length === 0 && upcomingAppointments.length === 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Calendar className="mr-2 h-5 w-5 text-purple-500" />
+                    Get Started
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Scissors className="h-8 w-8 text-purple-600" />
                   </div>
-
-                  {/* Customer Badges */}
-                  <div>
-                    <h4 className="font-medium text-sm mb-2">Your Badges</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {customerProfile.badges.map((badge) => (
-                        <Badge key={badge} variant="secondary" className="text-xs bg-green-100 text-green-800">
-                          {badge}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Recent Feedback */}
-                  <div>
-                    <h4 className="font-medium text-sm mb-2">Recent Feedback</h4>
-                    <div className="space-y-3 max-h-48 overflow-y-auto">
-                      {customerProfile.recentFeedback.map((feedback) => (
-                        <div key={feedback.id} className="bg-gray-50 rounded-lg p-3 text-xs">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-medium">{feedback.hairdresser}</span>
-                            <div className="flex items-center">
-                              <StarRating rating={feedback.rating} readonly />
-                            </div>
-                          </div>
-                          <p className="text-gray-600 mb-1">{feedback.salon}</p>
-                          <p className="text-gray-700 italic">"{feedback.comment}"</p>
-                          <p className="text-gray-500 mt-1 text-right">{feedback.date}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  <p className="text-gray-600 mb-4">
+                    You haven't made any bookings yet
+                  </p>
+                  <Button 
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    onClick={() => setShowBookingModal(true)}
+                  >
+                    Book Your First Appointment
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Quick Tips */}
             <Card>
@@ -1094,36 +959,43 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                   <SelectValue placeholder="Select a service" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableServices.map((service) => (
-                    <SelectItem key={service} value={service}>
-                      {service}
-                    </SelectItem>
-                  ))}
+                  {availableServices.length === 0 ? (
+                    <SelectItem value="no-services" disabled>No services available</SelectItem>
+                  ) : (
+                    availableServices.map((service) => (
+                      <SelectItem key={service.id} value={service.name}>
+                        {service.name} - {formatCurrency(Number(service.price))} ({service.duration_minutes} min)
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
             
             <div>
-              <Label htmlFor="hairdresser">Hairdresser</Label>
+              <Label htmlFor="hairdresser">Service Provider</Label>
               <Select 
                 value={bookingData.hairdresser} 
                 onValueChange={(value) => setBookingData(prev => ({ ...prev, hairdresser: value }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a hairdresser" />
+                  <SelectValue placeholder="Select a service provider" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableHairdressers.map((hairdresser) => (
-                    <SelectItem key={hairdresser.id} value={hairdresser.name}>
-                      <div className="flex items-center justify-between w-full">
-                        <span>{hairdresser.name}</span>
-                        <div className="flex items-center ml-2">
-                          <Star className="h-3 w-3 text-yellow-400 fill-yellow-400 mr-1" />
-                          <span className="text-xs">{hairdresser.rating}</span>
+                  {availableHairdressers.length === 0 ? (
+                    <SelectItem value="no-hairdressers" disabled>No service providers available</SelectItem>
+                  ) : (
+                    availableHairdressers.map((hairdresser) => (
+                      <SelectItem key={hairdresser.id} value={hairdresser.profiles?.full_name || 'Provider'}>
+                        <div className="flex items-center justify-between w-full">
+                          <span>{hairdresser.profiles?.full_name || 'Provider'}</span>
+                          <span className="text-xs text-gray-500 ml-2">
+                            {hairdresser.salons?.name || 'Salon'}
+                          </span>
                         </div>
-                      </div>
-                    </SelectItem>
-                  ))}
+                      </SelectItem>
+                    ))
+                  )}
                 </SelectContent>
               </Select>
             </div>
