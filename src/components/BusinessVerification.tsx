@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, FileCheck, Shield } from "lucide-react";
 
@@ -12,17 +14,32 @@ interface BusinessVerificationProps {
   onComplete: () => void;
 }
 
+const SOUTH_AFRICAN_BANKS = [
+  "ABSA Bank", "African Bank", "Capitec Bank", "Discovery Bank", "First National Bank (FNB)",
+  "Investec Bank", "Nedbank", "Standard Bank", "TymeBank", "Bidvest Bank", "Grindrod Bank",
+  "Sasfin Bank", "Access Bank South Africa", "Albaraka Bank", "Bank of Athens", "Bank Zero",
+  "Finbond Mutual Bank", "Grobank", "Habib Overseas Bank", "HBZ Bank", "Ithala SOC", 
+  "Mercantile Bank", "Olympus Mobile", "Ubank", "VBS Mutual Bank"
+];
+
 export const BusinessVerification = ({ profileId, onComplete }: BusinessVerificationProps) => {
   const [businessType, setBusinessType] = useState<string>("");
   const [uploading, setUploading] = useState(false);
   const [documents, setDocuments] = useState<{
     idDocument?: File;
     addressDocument?: File;
+    bankDocument?: File;
     companyDocument?: File;
     businessAddress?: File;
     representativeId?: File;
     representativeAddress?: File;
   }>({});
+  const [bankDetails, setBankDetails] = useState({
+    accountHolder: "",
+    branchNumber: "",
+    accountNumber: "",
+    bankName: ""
+  });
   const { toast } = useToast();
 
   const handleFileChange = (documentType: string, file: File | undefined) => {
@@ -64,8 +81,8 @@ export const BusinessVerification = ({ profileId, onComplete }: BusinessVerifica
     }
 
     const requiredDocs = businessType === 'individual'
-      ? ['idDocument', 'addressDocument']
-      : ['companyDocument', 'businessAddress', 'representativeId', 'representativeAddress'];
+      ? ['idDocument', 'addressDocument', 'bankDocument']
+      : ['companyDocument', 'businessAddress', 'representativeId', 'representativeAddress', 'bankDocument'];
 
     const missingDocs = requiredDocs.filter(doc => !documents[doc as keyof typeof documents]);
     
@@ -73,6 +90,16 @@ export const BusinessVerification = ({ profileId, onComplete }: BusinessVerifica
       toast({
         title: "Missing Documents",
         description: "Please upload all required documents",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate bank details
+    if (!bankDetails.accountHolder || !bankDetails.branchNumber || !bankDetails.accountNumber || !bankDetails.bankName) {
+      toast({
+        title: "Missing Bank Details",
+        description: "Please fill in all bank account information",
         variant: "destructive",
       });
       return;
@@ -91,13 +118,15 @@ export const BusinessVerification = ({ profileId, onComplete }: BusinessVerifica
         }
       }
 
-      // Update profile with verification status
+      // Update profile with verification status and bank details
+      const profileInfo = JSON.stringify({ bankDetails });
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
           verification_status: 'pending',
           business_type: businessType,
           verification_submitted_at: new Date().toISOString(),
+          profile_information: profileInfo,
         })
         .eq('id', profileId);
 
@@ -209,6 +238,79 @@ export const BusinessVerification = ({ profileId, onComplete }: BusinessVerifica
                     {documents.addressDocument && <FileCheck className="h-5 w-5 text-green-500" />}
                   </div>
                 </div>
+
+                {/* Bank Document */}
+                <div className="space-y-2">
+                  <Label className="text-base">3. Bank Letter or Bank Statement</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Please upload an official bank letter or bank statement from the last 3 months
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" className="w-full" asChild>
+                      <label className="cursor-pointer">
+                        <Upload className="h-4 w-4 mr-2" />
+                        {documents.bankDocument ? documents.bankDocument.name : 'Upload Bank Document'}
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*,.pdf"
+                          onChange={(e) => handleFileChange('bankDocument', e.target.files?.[0])}
+                        />
+                      </label>
+                    </Button>
+                    {documents.bankDocument && <FileCheck className="h-5 w-5 text-green-500" />}
+                  </div>
+                </div>
+
+                {/* Bank Account Details */}
+                <div className="space-y-2">
+                  <Label className="text-base">4. Bank Account Information</Label>
+                  <div className="space-y-3 pl-4 border-l-2">
+                    <div className="space-y-2">
+                      <Label className="text-sm">Bank Account Holder</Label>
+                      <Input
+                        placeholder="Full name as it appears on your bank account"
+                        value={bankDetails.accountHolder}
+                        onChange={(e) => setBankDetails(prev => ({ ...prev, accountHolder: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Branch Number</Label>
+                      <Input
+                        placeholder="6-digit branch code"
+                        value={bankDetails.branchNumber}
+                        onChange={(e) => setBankDetails(prev => ({ ...prev, branchNumber: e.target.value }))}
+                        maxLength={6}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Account Number</Label>
+                      <Input
+                        placeholder="Your bank account number"
+                        value={bankDetails.accountNumber}
+                        onChange={(e) => setBankDetails(prev => ({ ...prev, accountNumber: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Bank</Label>
+                      <Select
+                        value={bankDetails.bankName}
+                        onValueChange={(value) => setBankDetails(prev => ({ ...prev, bankName: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your bank" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SOUTH_AFRICAN_BANKS.map((bank) => (
+                            <SelectItem key={bank} value={bank}>
+                              {bank}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
@@ -304,6 +406,79 @@ export const BusinessVerification = ({ profileId, onComplete }: BusinessVerifica
                         </Button>
                         {documents.representativeAddress && <FileCheck className="h-5 w-5 text-green-500" />}
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bank Document */}
+                <div className="space-y-2">
+                  <Label className="text-base">4. Bank Letter or Bank Statement</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Please upload an official bank letter or bank statement from the last 3 months
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" className="w-full" asChild>
+                      <label className="cursor-pointer">
+                        <Upload className="h-4 w-4 mr-2" />
+                        {documents.bankDocument ? documents.bankDocument.name : 'Upload Bank Document'}
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*,.pdf"
+                          onChange={(e) => handleFileChange('bankDocument', e.target.files?.[0])}
+                        />
+                      </label>
+                    </Button>
+                    {documents.bankDocument && <FileCheck className="h-5 w-5 text-green-500" />}
+                  </div>
+                </div>
+
+                {/* Bank Account Details */}
+                <div className="space-y-2">
+                  <Label className="text-base">5. Bank Account Information</Label>
+                  <div className="space-y-3 pl-4 border-l-2">
+                    <div className="space-y-2">
+                      <Label className="text-sm">Bank Account Holder</Label>
+                      <Input
+                        placeholder="Business/Company name as it appears on bank account"
+                        value={bankDetails.accountHolder}
+                        onChange={(e) => setBankDetails(prev => ({ ...prev, accountHolder: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Branch Number</Label>
+                      <Input
+                        placeholder="6-digit branch code"
+                        value={bankDetails.branchNumber}
+                        onChange={(e) => setBankDetails(prev => ({ ...prev, branchNumber: e.target.value }))}
+                        maxLength={6}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Account Number</Label>
+                      <Input
+                        placeholder="Company bank account number"
+                        value={bankDetails.accountNumber}
+                        onChange={(e) => setBankDetails(prev => ({ ...prev, accountNumber: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm">Bank</Label>
+                      <Select
+                        value={bankDetails.bankName}
+                        onValueChange={(value) => setBankDetails(prev => ({ ...prev, bankName: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your bank" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SOUTH_AFRICAN_BANKS.map((bank) => (
+                            <SelectItem key={bank} value={bank}>
+                              {bank}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
