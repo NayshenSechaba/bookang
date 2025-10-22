@@ -39,6 +39,7 @@ const BusinessProfile = () => {
   const [paystackPublicKey, setPaystackPublicKey] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string>('');
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   
   // Alert state
   const [alertInfo, setAlertInfo] = useState<{
@@ -232,6 +233,67 @@ const BusinessProfile = () => {
     }
   };
 
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !userId) return;
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 2MB",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file (JPG, PNG, etc.)",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUploadingLogo(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${userId}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('salon-images')
+        .upload(filePath, file, {
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('salon-images')
+        .getPublicUrl(filePath);
+
+      profileForm.setValue('businessImage', publicUrl);
+      
+      toast({
+        title: "Success",
+        description: "Business logo uploaded successfully"
+      });
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload business logo",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
@@ -347,9 +409,36 @@ const BusinessProfile = () => {
                     name="businessImage"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Business Image URL</FormLabel>
+                        <FormLabel>Business Logo</FormLabel>
                         <FormControl>
-                          <Input placeholder="https://example.com/image.jpg" {...field} />
+                          <div className="space-y-4">
+                            <div className="flex items-center gap-4">
+                              {field.value && (
+                                <img 
+                                  src={field.value} 
+                                  alt="Business logo preview"
+                                  className="w-20 h-20 rounded-lg object-cover border-2 border-gray-200"
+                                />
+                              )}
+                              <div className="flex-1">
+                                <Input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleLogoUpload}
+                                  disabled={uploadingLogo}
+                                  className="cursor-pointer"
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  Upload a square image (JPG or PNG, max 2MB)
+                                </p>
+                              </div>
+                            </div>
+                            <Input 
+                              placeholder="Or enter image URL" 
+                              {...field}
+                              disabled={uploadingLogo}
+                            />
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
