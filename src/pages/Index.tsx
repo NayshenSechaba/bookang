@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Star, Scissors, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut, Bell, User as UserIcon } from 'lucide-react';
+import { Star, Scissors, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut, Bell, User as UserIcon, Settings } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import AuthModal from '@/components/AuthModal';
 import EnhancedRegistrationModal from '@/components/EnhancedRegistrationModal';
@@ -470,6 +470,10 @@ const Index = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56 bg-background z-[100]">
+                      <DropdownMenuItem onClick={() => setCurrentPage('dashboard')}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        Account Settings
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setCurrentPage('contact')}>
                         <Phone className="mr-2 h-4 w-4" />
                         Contact
