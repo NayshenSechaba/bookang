@@ -31,6 +31,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
   const [paystackStatus, setPaystackStatus] = useState<string>('Not Started');
   const [verificationStatus, setVerificationStatus] = useState<string>('not_started');
   const [profileId, setProfileId] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<string>('calendar');
 
   // Check if user needs onboarding tour and fetch services/products
   useEffect(() => {
@@ -408,14 +409,9 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
             </Badge>
             {verificationStatus !== 'approved' && (
               <button
-                onClick={() => {
-                  // Scroll to verification tab
-                  const tabs = document.querySelector('[value="verification"]');
-                  if (tabs) {
-                    (tabs as HTMLElement).click();
-                  }
-                }}
+                onClick={() => setActiveTab('verification')}
                 className="text-primary hover:text-primary/80 transition-colors"
+                title="Complete Business Verification"
               >
                 <ShieldAlert className="h-5 w-5" />
               </button>
@@ -425,7 +421,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
 
         <QuickStats data={financialData} />
 
-        <Tabs defaultValue="calendar" className="space-y-8">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <TabsList className="grid w-full grid-cols-9 lg:w-fit">
             <TabsTrigger value="calendar" className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
