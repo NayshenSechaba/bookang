@@ -119,21 +119,6 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Send test SMS on mount - run every time for testing
-  useEffect(() => {
-    const sendSMS = async () => {
-      try {
-        console.log('Attempting to send test SMS to Sechaba at 0712284870...');
-        const result = await sendTestSMS('0712284870', 'Sechaba');
-        console.log('Test SMS sent successfully!', result);
-      } catch (error) {
-        console.error('Failed to send test SMS:', error);
-      }
-    };
-    
-    // Send SMS - will run on every page load for testing
-    sendSMS();
-  }, []);
 
   // Handle successful authentication
   const handleAuthSuccess = (role: 'customer' | 'hairdresser' | 'employee', name: string) => {

@@ -43,24 +43,10 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey)
 
-    // Fetch booking with related data including customer phone
+    // Fetch booking with customer profile
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
-      .select(`
-        id,
-        appointment_date,
-        appointment_time,
-        profiles!bookings_customer_id_fkey(
-          phone
-        ),
-        hairdressers!bookings_hairdresser_id_fkey(
-          profiles!hairdressers_profile_id_fkey(full_name)
-        ),
-        salons!bookings_saloon_fkey(
-          name,
-          address
-        )
-      `)
+      .select('*')
       .eq('id', booking_id)
       .single()
 
@@ -69,7 +55,57 @@ Deno.serve(async (req) => {
       throw new Error('Booking not found')
     }
 
-    const customerPhone = booking.profiles?.phone
+    // Fetch customer profile for phone number
+    const { data: customerProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('phone, full_name')
+      .eq('id', booking.customer_id)
+      .single()
+    
+    if (profileError || !customerProfile) {
+      console.error('Error fetching customer profile:', profileError)
+      throw new Error('Customer profile not found')
+    }
+
+    // Fetch hairdresser details if hairdresser_id exists
+    let hairdresserName = 'Your stylist'
+    if (booking.hairdresser_id) {
+      const { data: hairdresser } = await supabase
+        .from('hairdressers')
+        .select('profile_id')
+        .eq('id', booking.hairdresser_id)
+        .single()
+      
+      if (hairdresser) {
+        const { data: hairdresserProfile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', hairdresser.profile_id)
+          .single()
+        
+        if (hairdresserProfile) {
+          hairdresserName = hairdresserProfile.full_name
+        }
+      }
+    }
+
+    // Fetch salon details if saloon exists
+    let salonName = 'The salon'
+    let salonLocation = 'Location TBA'
+    if (booking.saloon) {
+      const { data: salon } = await supabase
+        .from('salons')
+        .select('name, address')
+        .eq('id', booking.saloon)
+        .single()
+      
+      if (salon) {
+        salonName = salon.name
+        salonLocation = salon.address || salonLocation
+      }
+    }
+
+    const customerPhone = customerProfile.phone
     
     if (!customerPhone) {
       console.log('No phone number found for customer in booking:', booking_id)
@@ -82,12 +118,14 @@ Deno.serve(async (req) => {
     const confirmationData: BookingConfirmationData = {
       booking_id: booking.id,
       customer_phone: customerPhone,
-      hairdresser_name: booking.hairdressers?.profiles?.full_name || 'Your stylist',
-      salon_name: booking.salons?.name || 'The salon',
-      salon_location: booking.salons?.address || 'Location TBA',
+      hairdresser_name: hairdresserName,
+      salon_name: salonName,
+      salon_location: salonLocation,
       appointment_date: booking.appointment_date,
       appointment_time: booking.appointment_time,
     }
+
+    console.log('Confirmation data:', confirmationData)
 
     console.log('Sending confirmation SMS to:', confirmationData.customer_phone)
 
