@@ -16,6 +16,7 @@ import FAQSection from '@/components/FAQSection';
 import ContactSection from '@/components/ContactSection';
 import SMEOnboarding from '@/components/SMEOnboarding';
 import ProfileCompletionModal from '@/components/ProfileCompletionModal';
+import AccountSettings from '@/components/AccountSettings';
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from '@supabase/supabase-js';
 import { sendTestSMS } from '@/utils/sendTestSMS';
@@ -207,6 +208,9 @@ const Index = () => {
         if (userRole === 'hairdresser') return <HairdresserDashboard userName={userName} />;
         if (userRole === 'employee') return <EmployeeDashboard userName={userName} />;
         return renderHomePage();
+      case 'settings':
+      case 'account-settings':
+        return user ? <AccountSettings userName={userName} /> : renderHomePage();
       case 'appointments':
         return <AppointmentsPage userName={userName} />;
       case 'explore':
@@ -470,7 +474,7 @@ const Index = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56 bg-background z-[100]">
-                      <DropdownMenuItem onClick={() => setCurrentPage('dashboard')}>
+                      <DropdownMenuItem onClick={() => setCurrentPage('settings')}>
                         <Settings className="mr-2 h-4 w-4" />
                         Account Settings
                       </DropdownMenuItem>
