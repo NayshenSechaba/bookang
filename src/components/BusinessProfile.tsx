@@ -56,15 +56,57 @@ const BusinessProfile = () => {
         setUserId(user.id);
         const { data: profile } = await supabase
           .from('profiles')
-          .select('paystack_public_key, role')
+          .select('paystack_public_key, role, business_name, business_description, avatar_url, address, profile_information')
           .eq('user_id', user.id)
-          .single();
+          .maybeSingle();
         
-        if (profile?.paystack_public_key) {
-          setPaystackPublicKey(profile.paystack_public_key);
-        }
-        if (profile?.role) {
-          setUserRole(profile.role);
+        if (profile) {
+          if (profile.paystack_public_key) {
+            setPaystackPublicKey(profile.paystack_public_key);
+          }
+          if (profile.role) {
+            setUserRole(profile.role);
+          }
+          
+          // Parse profile_information for social media links if it exists
+          let socialMedia: {
+            instagram?: string;
+            facebook?: string;
+            twitter?: string;
+            website?: string;
+          } = {};
+          if (profile.profile_information) {
+            try {
+              const parsed = JSON.parse(profile.profile_information);
+              socialMedia = parsed.socialMedia || {};
+            } catch (e) {
+              console.error('Error parsing profile information:', e);
+            }
+          }
+          
+          // Update profile data state
+          const businessData: BusinessProfileData = {
+            businessName: profile.business_name || '',
+            businessDescription: profile.business_description || '',
+            businessImage: profile.avatar_url || 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=400',
+            location: profile.address || '',
+            socialMedia: socialMedia,
+            portfolio: []
+          };
+          
+          setProfileData(businessData);
+          
+          // Update form with fetched data
+          profileForm.reset({
+            businessName: businessData.businessName,
+            businessDescription: businessData.businessDescription,
+            businessImage: businessData.businessImage,
+            location: businessData.location,
+            instagram: socialMedia.instagram || '',
+            facebook: socialMedia.facebook || '',
+            twitter: socialMedia.twitter || '',
+            website: socialMedia.website || ''
+          });
         }
       }
     };
@@ -110,20 +152,54 @@ const BusinessProfile = () => {
   };
 
   // Handle profile save
-  const handleProfileSave = (data: any) => {
+  const handleProfileSave = async (data: any) => {
+    if (!userId) {
+      toast({
+        title: "Error",
+        description: "User not logged in",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const socialMedia = {
+      instagram: data.instagram,
+      facebook: data.facebook,
+      twitter: data.twitter,
+      website: data.website
+    };
+
+    // Save to database
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        business_name: data.businessName,
+        business_description: data.businessDescription,
+        avatar_url: data.businessImage,
+        address: data.location,
+        profile_information: JSON.stringify({ socialMedia })
+      })
+      .eq('user_id', userId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save profile",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Update local state
     setProfileData({
       ...profileData,
       businessName: data.businessName,
       businessDescription: data.businessDescription,
       businessImage: data.businessImage,
       location: data.location,
-      socialMedia: {
-        instagram: data.instagram,
-        facebook: data.facebook,
-        twitter: data.twitter,
-        website: data.website
-      }
+      socialMedia: socialMedia
     });
+    
     setIsEditing(false);
     showAlert('success', 'Profile Updated', 'Your business profile has been successfully updated.');
   };
