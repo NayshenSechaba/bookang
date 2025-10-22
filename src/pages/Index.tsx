@@ -340,7 +340,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-gray-600 mb-4">
-                  Connect with verified, professional hairdressers with excellent reviews and ratings.
+                  Connect with verified, professional service providers with excellent reviews and ratings.
                 </CardDescription>
                 <Button 
                   variant="outline"
@@ -364,7 +364,7 @@ const Index = () => {
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-gray-600 mb-4">
-                  Join our platform as a professional hairdresser and grow your business.
+                  Join our platform as a service provider and grow your business with online bookings.
                 </CardDescription>
                 <Button 
                   variant="outline"
