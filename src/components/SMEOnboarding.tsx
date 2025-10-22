@@ -48,20 +48,23 @@ const SMEOnboarding = ({ onComplete, onBack }: SMEOnboardingProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Step 1: Account Creation
-  const [accountData, setAccountData] = useState({
-    fullName: '',
-    businessName: '',
-    email: '',
-    password: ''
+  // Step 1: Public Business Profile
+  const [businessProfile, setBusinessProfile] = useState({
+    businessLogo: '',
+    publicBusinessName: '',
+    category: '',
+    description: '',
+    publicPhone: '',
+    publicEmail: '',
+    businessAddress: '',
+    socialMediaLink: '',
+    googleBusinessLink: ''
   });
 
-  // Step 2: Business Profile
-  const [businessData, setBusinessData] = useState({
-    businessLogo: '',
-    category: '',
-    location: '',
-    description: ''
+  // Account credentials
+  const [accountData, setAccountData] = useState({
+    fullName: '',
+    password: ''
   });
 
   const [services, setServices] = useState<Service[]>([]);
@@ -76,14 +79,23 @@ const SMEOnboarding = ({ onComplete, onBack }: SMEOnboardingProps) => {
   });
 
   const businessCategories = [
+    'Plumbing',
     'Hair Salon',
     'Beauty Spa',
     'Barbershop',
     'Nail Salon',
+    'Consulting',
+    'Electrical Services',
+    'Carpentry',
+    'Cleaning Services',
+    'Photography',
+    'Tutoring',
+    'Personal Training',
     'Wellness Center',
     'Fitness Studio',
     'Massage Therapy',
-    'Skincare Clinic'
+    'Skincare Clinic',
+    'Other'
   ];
 
   const daysOfWeek = [
@@ -130,12 +142,24 @@ const SMEOnboarding = ({ onComplete, onBack }: SMEOnboardingProps) => {
     }));
   };
 
-  // Handle account creation
-  const handleAccountCreation = async () => {
-    if (!accountData.fullName || !accountData.businessName || !accountData.email || !accountData.password) {
+  // Handle business profile creation
+  const handleBusinessProfileCreation = async () => {
+    if (!businessProfile.publicBusinessName || !businessProfile.category || 
+        !businessProfile.description || !businessProfile.publicPhone || 
+        !businessProfile.publicEmail || !businessProfile.businessAddress ||
+        !accountData.fullName || !accountData.password) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields.",
+        description: "Please fill in all required fields marked with *",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (businessProfile.description.length > 500) {
+      toast({
+        title: "Description Too Long",
+        description: "Business description must be 500 characters or less.",
         variant: "destructive"
       });
       return;
@@ -145,11 +169,12 @@ const SMEOnboarding = ({ onComplete, onBack }: SMEOnboardingProps) => {
     try {
       // Create Supabase auth user
       const { data, error } = await supabase.auth.signUp({
-        email: accountData.email,
+        email: businessProfile.publicEmail,
         password: accountData.password,
         options: {
           data: {
             full_name: accountData.fullName,
+            business_name: businessProfile.publicBusinessName,
             role: 'hairdresser'
           }
         }
@@ -157,8 +182,24 @@ const SMEOnboarding = ({ onComplete, onBack }: SMEOnboardingProps) => {
 
       if (error) throw error;
 
+      // Update profile with additional business info
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            business_description: businessProfile.description,
+            contact_number: businessProfile.publicPhone,
+            address: businessProfile.businessAddress,
+            avatar_url: businessProfile.businessLogo,
+            business_type: businessProfile.category
+          })
+          .eq('user_id', data.user.id);
+
+        if (profileError) console.error('Profile update error:', profileError);
+      }
+
       toast({
-        title: "Account Created",
+        title: "Profile Created",
         description: "Please check your email to verify your account.",
       });
 
@@ -166,7 +207,7 @@ const SMEOnboarding = ({ onComplete, onBack }: SMEOnboardingProps) => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to create account",
+        description: error.message || "Failed to create profile",
         variant: "destructive"
       });
     } finally {
@@ -174,17 +215,8 @@ const SMEOnboarding = ({ onComplete, onBack }: SMEOnboardingProps) => {
     }
   };
 
-  // Handle business profile completion
-  const handleBusinessProfile = () => {
-    if (!businessData.category || !businessData.location || !businessData.description) {
-      toast({
-        title: "Missing Information",
-        description: "Please complete all business profile fields.",
-        variant: "destructive"
-      });
-      return;
-    }
-
+  // Handle services and availability
+  const handleServicesAndAvailability = () => {
     if (services.length === 0) {
       toast({
         title: "Add Services",
@@ -226,195 +258,268 @@ const SMEOnboarding = ({ onComplete, onBack }: SMEOnboardingProps) => {
     onComplete();
   };
 
-  // Render step 1: Account Creation
+  // Render step 1: Create Public Business Profile
   const renderStep1 = () => (
-    <Card className="max-w-md mx-auto">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-bold text-primary">Join Bookang Today</CardTitle>
-        <CardDescription>
-          Start your journey as a service provider on our platform
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="fullName">Full Name *</Label>
-          <Input
-            id="fullName"
-            placeholder="Your full name"
-            value={accountData.fullName}
-            onChange={(e) => setAccountData({...accountData, fullName: e.target.value})}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="businessName">Business Name *</Label>
-          <Input
-            id="businessName"
-            placeholder="Your business name"
-            value={accountData.businessName}
-            onChange={(e) => setAccountData({...accountData, businessName: e.target.value})}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="email">Email Address *</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="your@email.com"
-            value={accountData.email}
-            onChange={(e) => setAccountData({...accountData, email: e.target.value})}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="password">Password *</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Choose a secure password"
-            value={accountData.password}
-            onChange={(e) => setAccountData({...accountData, password: e.target.value})}
-          />
-        </div>
-
-        <div className="flex space-x-3 pt-4">
-          <Button variant="outline" onClick={onBack} className="flex-1">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-          <Button onClick={handleAccountCreation} disabled={isLoading} className="flex-1">
-            {isLoading ? "Creating..." : "Get Started"}
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  // Render step 2: Business Profile
-  const renderStep2 = () => (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-3xl mx-auto">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-primary mb-2">Tell Us About Your Business</h1>
-        <p className="text-muted-foreground">Help customers discover your services</p>
+        <h1 className="text-3xl font-bold text-primary mb-2">Step 1 of 3: Create Your Public Business Profile</h1>
+        <p className="text-muted-foreground">
+          Let's get your profile ready for customers. This information will be displayed publicly on your "Bookang" profile page.
+        </p>
       </div>
 
-      {/* Business Details */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Building2 className="mr-2 h-5 w-5" />
-            Business Details
-          </CardTitle>
+          <CardTitle>Business Logo</CardTitle>
+          <CardDescription>
+            Upload your company's logo. (Recommended: Square image, .jpg or .png, max 2MB)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center space-x-4">
+            <div className="h-20 w-20 bg-muted rounded-lg flex items-center justify-center overflow-hidden border-2 border-dashed">
+              {businessProfile.businessLogo ? (
+                <img src={businessProfile.businessLogo} alt="Logo" className="w-full h-full object-cover" />
+              ) : (
+                <Upload className="h-8 w-8 text-muted-foreground" />
+              )}
+            </div>
+            <input
+              type="file"
+              id="logo-upload-step1"
+              accept="image/*"
+              className="hidden"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  if (file.size > 2 * 1024 * 1024) {
+                    toast({
+                      title: "File Too Large",
+                      description: "Please upload an image smaller than 2MB.",
+                      variant: "destructive"
+                    });
+                    return;
+                  }
+                  try {
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `business-logo-${Date.now()}.${fileExt}`;
+                    const filePath = `${fileName}`;
+
+                    const { error: uploadError } = await supabase.storage
+                      .from('profile-avatars')
+                      .upload(filePath, file);
+
+                    if (uploadError) throw uploadError;
+
+                    const { data: { publicUrl } } = supabase.storage
+                      .from('profile-avatars')
+                      .getPublicUrl(filePath);
+
+                    setBusinessProfile({...businessProfile, businessLogo: publicUrl});
+                    
+                    toast({
+                      title: "Logo Uploaded",
+                      description: "Your business logo has been uploaded successfully.",
+                    });
+                  } catch (error: any) {
+                    toast({
+                      title: "Upload Failed",
+                      description: error.message,
+                      variant: "destructive"
+                    });
+                  }
+                }
+              }}
+            />
+            <Button 
+              variant="outline" 
+              onClick={() => document.getElementById('logo-upload-step1')?.click()}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              Upload Logo
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Business Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="category">Business Category *</Label>
-              <Select 
-                value={businessData.category} 
-                onValueChange={(value) => setBusinessData({...businessData, category: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your business type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {businessCategories.map(category => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="location">Location/Address *</Label>
-              <Input
-                id="location"
-                placeholder="City, Province or full address"
-                value={businessData.location}
-                onChange={(e) => setBusinessData({...businessData, location: e.target.value})}
-              />
-            </div>
-          </div>
-
           <div className="space-y-2">
-            <Label htmlFor="description">Business Description *</Label>
-            <Textarea
-              id="description"
-              placeholder="Tell customers about your business, specialties, and what makes you unique..."
-              className="min-h-[100px]"
-              value={businessData.description}
-              onChange={(e) => setBusinessData({...businessData, description: e.target.value})}
+            <Label htmlFor="publicBusinessName">Public Business Name *</Label>
+            <Input
+              id="publicBusinessName"
+              placeholder="The trading name your customers will see"
+              value={businessProfile.publicBusinessName}
+              onChange={(e) => setBusinessProfile({...businessProfile, publicBusinessName: e.target.value})}
             />
           </div>
 
           <div className="space-y-2">
-            <Label>Business Logo</Label>
-            <div className="flex items-center space-x-4">
-              <div className="h-16 w-16 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                {businessData.businessLogo ? (
-                  <img src={businessData.businessLogo} alt="Logo" className="w-full h-full object-cover" />
-                ) : (
-                  <Upload className="h-6 w-6 text-muted-foreground" />
-                )}
-              </div>
-              <input
-                type="file"
-                id="logo-upload"
-                accept="image/*"
-                className="hidden"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    try {
-                      const { data: user } = await supabase.auth.getUser();
-                      if (!user.user) return;
+            <Label htmlFor="category">Business Category *</Label>
+            <Select 
+              value={businessProfile.category} 
+              onValueChange={(value) => setBusinessProfile({...businessProfile, category: value})}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a Category..." />
+              </SelectTrigger>
+              <SelectContent>
+                {businessCategories.map(category => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              e.g., "Plumbing", "Hair Salon", "Consulting"
+            </p>
+          </div>
 
-                      const fileExt = file.name.split('.').pop();
-                      const fileName = `${user.user.id}-${Date.now()}.${fileExt}`;
-                      const filePath = `${fileName}`;
-
-                      const { error: uploadError } = await supabase.storage
-                        .from('profile-avatars')
-                        .upload(filePath, file);
-
-                      if (uploadError) throw uploadError;
-
-                      const { data: { publicUrl } } = supabase.storage
-                        .from('profile-avatars')
-                        .getPublicUrl(filePath);
-
-                      setBusinessData({...businessData, businessLogo: publicUrl});
-                      
-                      toast({
-                        title: "Logo Uploaded",
-                        description: "Your business logo has been uploaded successfully.",
-                      });
-                    } catch (error: any) {
-                      toast({
-                        title: "Upload Failed",
-                        description: error.message,
-                        variant: "destructive"
-                      });
-                    }
-                  }
-                }}
-              />
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => document.getElementById('logo-upload')?.click()}
-              >
-                <Upload className="mr-2 h-4 w-4" />
-                Upload Logo
-              </Button>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Business Description (Bio) *</Label>
+            <Textarea
+              id="description"
+              placeholder="Tell customers what makes your business great."
+              className="min-h-[100px]"
+              value={businessProfile.description}
+              onChange={(e) => setBusinessProfile({...businessProfile, description: e.target.value})}
+              maxLength={500}
+            />
+            <p className="text-xs text-muted-foreground text-right">
+              {businessProfile.description.length}/500 characters
+            </p>
           </div>
         </CardContent>
       </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Public Contact Information</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="publicPhone">Public Phone Number *</Label>
+            <Input
+              id="publicPhone"
+              type="tel"
+              placeholder="+27 12 345 6789"
+              value={businessProfile.publicPhone}
+              onChange={(e) => setBusinessProfile({...businessProfile, publicPhone: e.target.value})}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="publicEmail">Public Email Address *</Label>
+            <Input
+              id="publicEmail"
+              type="email"
+              placeholder="business@example.com"
+              value={businessProfile.publicEmail}
+              onChange={(e) => setBusinessProfile({...businessProfile, publicEmail: e.target.value})}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="businessAddress">Business Address or Service Area *</Label>
+            <Input
+              id="businessAddress"
+              placeholder='e.g., "123 Main St, Sandton" or "Servicing all of Gauteng"'
+              value={businessProfile.businessAddress}
+              onChange={(e) => setBusinessProfile({...businessProfile, businessAddress: e.target.value})}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Online Links</CardTitle>
+          <CardDescription>Optional, but highly recommended</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="socialMediaLink">Social Media Link</Label>
+            <Input
+              id="socialMediaLink"
+              type="url"
+              placeholder="https://facebook.com/yourbusiness"
+              value={businessProfile.socialMediaLink}
+              onChange={(e) => setBusinessProfile({...businessProfile, socialMediaLink: e.target.value})}
+            />
+            <p className="text-xs text-muted-foreground">
+              e.g., Your Facebook, Instagram, or LinkedIn page
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="googleBusinessLink">Google Business Link</Label>
+            <Input
+              id="googleBusinessLink"
+              type="url"
+              placeholder="https://maps.google.com/yourbusiness"
+              value={businessProfile.googleBusinessLink}
+              onChange={(e) => setBusinessProfile({...businessProfile, googleBusinessLink: e.target.value})}
+            />
+            <p className="text-xs text-muted-foreground">
+              Link to your Google Maps / Business Profile
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Account Setup</CardTitle>
+          <CardDescription>Create your account credentials</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="fullName">Your Full Name *</Label>
+            <Input
+              id="fullName"
+              placeholder="Your full name"
+              value={accountData.fullName}
+              onChange={(e) => setAccountData({...accountData, fullName: e.target.value})}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Password *</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Choose a secure password (min 6 characters)"
+              value={accountData.password}
+              onChange={(e) => setAccountData({...accountData, password: e.target.value})}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-between mt-6">
+        <Button variant="outline" onClick={onBack}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+        <Button onClick={handleBusinessProfileCreation} disabled={isLoading}>
+          {isLoading ? "Creating Profile..." : "Save & Continue to Verification"}
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+
+  // Render step 2: Services and Availability
+  const renderStep2 = () => (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-primary mb-2">Step 2 of 3: Add Your Services & Availability</h1>
+        <p className="text-muted-foreground">Define what services you offer and when you're available</p>
+      </div>
 
       {/* Services */}
       <Card>
@@ -539,7 +644,7 @@ const SMEOnboarding = ({ onComplete, onBack }: SMEOnboardingProps) => {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Previous
         </Button>
-        <Button onClick={handleBusinessProfile}>
+        <Button onClick={handleServicesAndAvailability}>
           Save and Continue
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
@@ -553,7 +658,7 @@ const SMEOnboarding = ({ onComplete, onBack }: SMEOnboardingProps) => {
       <CardHeader className="text-center">
         <CardTitle className="text-2xl font-bold text-primary flex items-center justify-center">
           <CreditCard className="mr-2 h-6 w-6" />
-          Set Up Payouts to Get Paid
+          Step 3 of 3: Set Up Payouts to Get Paid
         </CardTitle>
         <CardDescription className="max-w-lg mx-auto">
           Bookang partners with Paystack and Payfast, South Africa's leading payment gateways, 
