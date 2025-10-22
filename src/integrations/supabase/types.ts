@@ -477,7 +477,9 @@ export type Database = {
           email: string | null
           hairdressers: string | null
           id: string
+          latitude: number | null
           location: string | null
+          longitude: number | null
           name: string
           owner_id: string
           phone: string | null
@@ -496,7 +498,9 @@ export type Database = {
           email?: string | null
           hairdressers?: string | null
           id?: string
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           name: string
           owner_id: string
           phone?: string | null
@@ -515,7 +519,9 @@ export type Database = {
           email?: string | null
           hairdressers?: string | null
           id?: string
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           name?: string
           owner_id?: string
           phone?: string | null

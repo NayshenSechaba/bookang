@@ -244,33 +244,39 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
         
         if (userLocation && hairdressersData) {
           sortedHairdressers = [...hairdressersData]
-            .map(h => ({
-              ...h,
-              distance: h.salons?.latitude && h.salons?.longitude
-                ? calculateDistance(
-                    userLocation.lat,
-                    userLocation.lng,
-                    h.salons.latitude,
-                    h.salons.longitude
-                  )
-                : Infinity
-            }))
+            .map(h => {
+              const salon = h.salons as any;
+              return {
+                ...h,
+                distance: salon?.latitude && salon?.longitude
+                  ? calculateDistance(
+                      userLocation.lat,
+                      userLocation.lng,
+                      salon.latitude,
+                      salon.longitude
+                    )
+                  : Infinity
+              };
+            })
             .sort((a, b) => a.distance - b.distance);
         }
 
         if (userLocation && servicesData) {
           sortedServices = [...servicesData]
-            .map(s => ({
-              ...s,
-              distance: s.hairdressers?.salons?.latitude && s.hairdressers?.salons?.longitude
-                ? calculateDistance(
-                    userLocation.lat,
-                    userLocation.lng,
-                    s.hairdressers.salons.latitude,
-                    s.hairdressers.salons.longitude
-                  )
-                : Infinity
-            }))
+            .map(s => {
+              const salon = (s.hairdressers as any)?.salons;
+              return {
+                ...s,
+                distance: salon?.latitude && salon?.longitude
+                  ? calculateDistance(
+                      userLocation.lat,
+                      userLocation.lng,
+                      salon.latitude,
+                      salon.longitude
+                    )
+                  : Infinity
+              };
+            })
             .sort((a, b) => a.distance - b.distance);
         }
 
