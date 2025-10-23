@@ -289,24 +289,190 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
     console.log('User name updated to:', newName);
   };
 
-  const handleServiceAdd = (newService: Service) => {
-    setServices([...services, newService]);
+  const handleServiceAdd = async (newService: Service) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!profile) return;
+
+      const { data: hairdresser } = await supabase
+        .from('hairdressers')
+        .select('id')
+        .eq('profile_id', profile.id)
+        .maybeSingle();
+
+      if (!hairdresser) {
+        console.error('No hairdresser profile found');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('services')
+        .insert({
+          hairdresser_id: hairdresser.id,
+          name: newService.name,
+          description: newService.description,
+          duration_minutes: newService.duration,
+          price: newService.price,
+          is_active: newService.isActive
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error adding service:', error);
+        return;
+      }
+
+      if (data) {
+        const mappedService: Service = {
+          id: parseInt(data.id),
+          name: data.name,
+          description: data.description || '',
+          duration: data.duration_minutes,
+          price: Number(data.price),
+          category: 'haircut', // Default category
+          isActive: data.is_active
+        };
+        setServices([...services, mappedService]);
+      }
+    } catch (error) {
+      console.error('Error in handleServiceAdd:', error);
+    }
   };
 
-  const handleServiceEdit = (updatedService: Service) => {
-    setServices(services.map(service => 
-      service.id === updatedService.id ? updatedService : service
-    ));
+  const handleServiceEdit = async (updatedService: Service) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!profile) return;
+
+      const { data: hairdresser } = await supabase
+        .from('hairdressers')
+        .select('id')
+        .eq('profile_id', profile.id)
+        .maybeSingle();
+
+      if (!hairdresser) return;
+
+      const { error } = await supabase
+        .from('services')
+        .update({
+          name: updatedService.name,
+          description: updatedService.description,
+          duration_minutes: updatedService.duration,
+          price: updatedService.price,
+          is_active: updatedService.isActive
+        })
+        .eq('id', updatedService.id.toString())
+        .eq('hairdresser_id', hairdresser.id);
+
+      if (error) {
+        console.error('Error updating service:', error);
+        return;
+      }
+
+      setServices(services.map(service => 
+        service.id === updatedService.id ? updatedService : service
+      ));
+    } catch (error) {
+      console.error('Error in handleServiceEdit:', error);
+    }
   };
 
-  const handleServiceDelete = (id: number) => {
-    setServices(services.filter(service => service.id !== id));
+  const handleServiceDelete = async (id: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!profile) return;
+
+      const { data: hairdresser } = await supabase
+        .from('hairdressers')
+        .select('id')
+        .eq('profile_id', profile.id)
+        .maybeSingle();
+
+      if (!hairdresser) return;
+
+      const { error } = await supabase
+        .from('services')
+        .delete()
+        .eq('id', id.toString())
+        .eq('hairdresser_id', hairdresser.id);
+
+      if (error) {
+        console.error('Error deleting service:', error);
+        return;
+      }
+
+      setServices(services.filter(service => service.id !== id));
+    } catch (error) {
+      console.error('Error in handleServiceDelete:', error);
+    }
   };
 
-  const handleServiceToggle = (id: number) => {
-    setServices(services.map(service => 
-      service.id === id ? { ...service, isActive: !service.isActive } : service
-    ));
+  const handleServiceToggle = async (id: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!profile) return;
+
+      const { data: hairdresser } = await supabase
+        .from('hairdressers')
+        .select('id')
+        .eq('profile_id', profile.id)
+        .maybeSingle();
+
+      if (!hairdresser) return;
+
+      const service = services.find(s => s.id === id);
+      if (!service) return;
+
+      const { error } = await supabase
+        .from('services')
+        .update({ is_active: !service.isActive })
+        .eq('id', id.toString())
+        .eq('hairdresser_id', hairdresser.id);
+
+      if (error) {
+        console.error('Error toggling service:', error);
+        return;
+      }
+
+      setServices(services.map(service => 
+        service.id === id ? { ...service, isActive: !service.isActive } : service
+      ));
+    } catch (error) {
+      console.error('Error in handleServiceToggle:', error);
+    }
   };
 
   const handleProductAdd = (newProduct: Product) => {
