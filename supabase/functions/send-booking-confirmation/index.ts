@@ -127,8 +127,6 @@ Deno.serve(async (req) => {
 
     console.log('Confirmation data:', confirmationData)
 
-    console.log('Sending confirmation SMS to:', confirmationData.customer_phone)
-
     // Format phone number to international format if needed
     let formattedPhone = confirmationData.customer_phone
     if (confirmationData.customer_phone.startsWith('0')) {
@@ -137,8 +135,25 @@ Deno.serve(async (req) => {
       formattedPhone = '+27' + confirmationData.customer_phone
     }
 
+    console.log('Original phone:', confirmationData.customer_phone)
+    console.log('Formatted phone (E.164):', formattedPhone)
+
     // Create interactive SMS message asking for confirmation
-    const message = `📅 BOOKING CONFIRMATION REQUIRED\n\nSalon: ${confirmationData.salon_name}\nStylist: ${confirmationData.hairdresser_name}\nDate: ${confirmationData.appointment_date}\nTime: ${confirmationData.appointment_time}\nLocation: ${confirmationData.salon_location}\n\nReply:\n1 - CONFIRM appointment ✅\n2 - CANCEL appointment ❌\n\nBooking ID: ${confirmationData.booking_id}`
+    const message = `📅 BOOKING CONFIRMATION REQUIRED
+
+Salon: ${confirmationData.salon_name}
+Stylist: ${confirmationData.hairdresser_name}
+Date: ${confirmationData.appointment_date}
+Time: ${confirmationData.appointment_time}
+Location: ${confirmationData.salon_location}
+
+Reply:
+1 - CONFIRM appointment ✅
+2 - CANCEL appointment ❌
+
+Booking ID: ${confirmationData.booking_id}`
+
+    console.log('Sending SMS to:', formattedPhone, 'from:', twilioPhoneNumber)
 
     // Send SMS via Twilio REST API with StatusCallback for replies
     const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioAccountSid}/Messages.json`
