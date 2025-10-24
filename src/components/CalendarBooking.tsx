@@ -1,11 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Calendar as CalendarIcon, Clock, User, DollarSign, Plus, ChevronLeft, ChevronRight, Heart, ShoppingBag } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Calendar as CalendarIcon, Clock, User, DollarSign, Plus, ChevronLeft, ChevronRight, Heart, ShoppingBag, CalendarX, Trash2 } from 'lucide-react';
 import { format, isSameDay, addDays, subDays } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface CustomerInfo {
   preferences: string[];
@@ -40,6 +46,127 @@ const CalendarBooking = () => {
   const [showAvailableSlots, setShowAvailableSlots] = useState(false);
   const [showBookingsSummary, setShowBookingsSummary] = useState(false);
   const [hourlyViewDate, setHourlyViewDate] = useState<Date>(new Date());
+  
+  // Blocked times state
+  const [showBlockTimeDialog, setShowBlockTimeDialog] = useState(false);
+  const [blockedTimes, setBlockedTimes] = useState<any[]>([]);
+  const [hairdresserId, setHairdresserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [startTime, setStartTime] = useState('09:00');
+  const [endTime, setEndTime] = useState('17:00');
+  const [blockReason, setBlockReason] = useState('');
+
+  // Fetch hairdresser ID
+  useEffect(() => {
+    const fetchHairdresserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!profile) return;
+
+      const { data: hairdresser } = await supabase
+        .from('hairdressers')
+        .select('id')
+        .eq('profile_id', profile.id)
+        .maybeSingle();
+
+      if (hairdresser) {
+        setHairdresserId(hairdresser.id);
+      }
+    };
+
+    fetchHairdresserId();
+  }, []);
+
+  // Fetch blocked times
+  useEffect(() => {
+    if (!hairdresserId) return;
+    fetchBlockedTimes();
+  }, [hairdresserId]);
+
+  const fetchBlockedTimes = async () => {
+    if (!hairdresserId) return;
+
+    const { data, error } = await supabase
+      .from('blocked_times')
+      .select('*')
+      .eq('hairdresser_id', hairdresserId)
+      .order('blocked_date', { ascending: true })
+      .order('start_time', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching blocked times:', error);
+      return;
+    }
+
+    setBlockedTimes(data || []);
+  };
+
+  const handleAddBlockedTime = async () => {
+    if (!hairdresserId) {
+      toast.error('Hairdresser profile not found');
+      return;
+    }
+
+    if (!startTime || !endTime) {
+      toast.error('Please select start and end times');
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await supabase
+      .from('blocked_times')
+      .insert({
+        hairdresser_id: hairdresserId,
+        blocked_date: format(selectedDate, 'yyyy-MM-dd'),
+        start_time: startTime,
+        end_time: endTime,
+        reason: blockReason || null,
+      });
+
+    setLoading(false);
+
+    if (error) {
+      console.error('Error adding blocked time:', error);
+      toast.error('Failed to block time slot');
+      return;
+    }
+
+    toast.success('Time slot blocked successfully');
+    setShowBlockTimeDialog(false);
+    setStartTime('09:00');
+    setEndTime('17:00');
+    setBlockReason('');
+    fetchBlockedTimes();
+  };
+
+  const handleDeleteBlockedTime = async (id: string) => {
+    const { error } = await supabase
+      .from('blocked_times')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting blocked time:', error);
+      toast.error('Failed to remove blocked time');
+      return;
+    }
+
+    toast.success('Blocked time removed');
+    fetchBlockedTimes();
+  };
+
+  const getBlockedTimesForDate = (date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return blockedTimes.filter(bt => bt.blocked_date === dateStr);
+  };
 
   // Mock booking data with customer information
   const bookings: Booking[] = [
@@ -155,9 +282,14 @@ const CalendarBooking = () => {
     isSameDay(booking.date, selectedDate)
   );
 
-  // Check if a date has bookings
+  // Check if a date has bookings or blocked times
   const hasBookings = (date: Date) => {
     return bookings.some(booking => isSameDay(booking.date, date));
+  };
+
+  const hasBlockedTimes = (date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    return blockedTimes.some(bt => bt.blocked_date === dateStr);
   };
 
   // Generate available time slots summary for selected date
@@ -183,14 +315,22 @@ const CalendarBooking = () => {
 
   const { availableSlots, groupedSlots } = getAvailableSlotsForDate(selectedDate);
 
+  const selectedDateBlocks = getBlockedTimesForDate(selectedDate);
+
   // Custom day content to show booking indicators
   const modifiers = {
-    hasBookings: (date: Date) => hasBookings(date)
+    hasBookings: (date: Date) => hasBookings(date),
+    hasBlockedTimes: (date: Date) => hasBlockedTimes(date)
   };
 
   const modifiersStyles = {
     hasBookings: {
       backgroundColor: '#3b82f6',
+      color: 'white',
+      fontWeight: 'bold'
+    },
+    hasBlockedTimes: {
+      backgroundColor: '#ef4444',
       color: 'white',
       fontWeight: 'bold'
     }
@@ -224,16 +364,20 @@ const CalendarBooking = () => {
                 }}
                 modifiers={modifiers}
                 modifiersStyles={modifiersStyles}
-                className="rounded-md border"
+                className={cn("rounded-md border pointer-events-auto")}
               />
               
-              <div className="flex items-center gap-4 text-sm text-gray-600">
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-blue-500 rounded"></div>
                   <span>Has bookings</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 border border-gray-300 rounded"></div>
+                  <div className="w-3 h-3 bg-destructive rounded"></div>
+                  <span>Blocked times</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 border border-border rounded"></div>
                   <span>Available</span>
                 </div>
               </div>
@@ -245,23 +389,36 @@ const CalendarBooking = () => {
                 <h3 className="text-lg font-semibold">
                   {format(selectedDate, 'EEEE, MMMM d, yyyy')}
                 </h3>
-                <Button 
-                  size="sm"
-                  onClick={() => setShowDayDetails(true)}
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Booking
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowBlockTimeDialog(true)}
+                    disabled={!hairdresserId}
+                  >
+                    <CalendarX className="mr-2 h-4 w-4" />
+                    Block Time
+                  </Button>
+                  <Button 
+                    size="sm"
+                    onClick={() => setShowDayDetails(true)}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Booking
+                  </Button>
+                </div>
               </div>
 
-              {selectedDateBookings.length > 0 ? (
+              {/* Bookings */}
+              {selectedDateBookings.length > 0 && (
                 <div className="space-y-3">
+                  <h4 className="text-sm font-medium text-muted-foreground">Bookings</h4>
                   {selectedDateBookings.map((booking) => (
-                    <div key={booking.id} className="border rounded-lg p-3 bg-white">
+                    <div key={booking.id} className="border rounded-lg p-3 bg-card">
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <h4 className="font-medium">{booking.customerName}</h4>
-                          <p className="text-sm text-gray-600">{booking.service}</p>
+                          <p className="text-sm text-muted-foreground">{booking.service}</p>
                         </div>
                         <Badge 
                           variant={
@@ -277,7 +434,7 @@ const CalendarBooking = () => {
                         </Badge>
                       </div>
                       
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Clock className="h-4 w-4" />
                           {booking.time}
@@ -290,27 +447,67 @@ const CalendarBooking = () => {
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="text-center py-8 bg-gray-50 rounded-lg">
-                  <CalendarIcon className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                  <p className="text-gray-600">No bookings for this day</p>
-                  <p className="text-sm text-gray-500">You're available all day!</p>
+              )}
+
+              {/* Blocked Times */}
+              {selectedDateBlocks.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-sm font-medium text-muted-foreground">Blocked Times</h4>
+                  {selectedDateBlocks.map((block) => (
+                    <div key={block.id} className="border border-destructive/20 rounded-lg p-3 bg-destructive/5">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <CalendarX className="h-4 w-4 text-destructive" />
+                            <span className="font-medium">
+                              {block.start_time} - {block.end_time}
+                            </span>
+                          </div>
+                          {block.reason && (
+                            <p className="text-sm text-muted-foreground">{block.reason}</p>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteBlockedTime(block.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {selectedDateBookings.length === 0 && selectedDateBlocks.length === 0 && (
+                <div className="text-center py-8 bg-muted rounded-lg">
+                  <CalendarIcon className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+                  <p className="text-muted-foreground">No bookings or blocks for this day</p>
+                  <p className="text-sm text-muted-foreground">You're available all day!</p>
                 </div>
               )}
 
               {/* Quick stats for the day */}
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+              <div className="grid grid-cols-3 gap-4 pt-4 border-t">
                 <div className="text-center cursor-pointer" onClick={() => setShowBookingsSummary(true)}>
                   <div className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition-colors">
                     {selectedDateBookings.length}
                   </div>
-                  <p className="text-xs text-gray-600">Appointments</p>
+                  <p className="text-xs text-muted-foreground">Appointments</p>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-destructive">
+                    {selectedDateBlocks.length}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Blocked</p>
                 </div>
                 <div className="text-center cursor-pointer" onClick={() => setShowAvailableSlots(true)}>
                   <div className="text-2xl font-bold text-green-600 hover:text-green-700 transition-colors">
                     {availableSlots.length}
                   </div>
-                  <p className="text-xs text-gray-600">Available slots</p>
+                  <p className="text-xs text-muted-foreground">Available slots</p>
                 </div>
               </div>
             </div>
@@ -655,6 +852,61 @@ const CalendarBooking = () => {
               Close
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Block Time Dialog */}
+      <Dialog open={showBlockTimeDialog} onOpenChange={setShowBlockTimeDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Block Time Slot</DialogTitle>
+            <DialogDescription>
+              Block a time slot on {format(selectedDate, 'MMMM d, yyyy')}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="start-time">Start Time</Label>
+                <Input
+                  id="start-time"
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="end-time">End Time</Label>
+                <Input
+                  id="end-time"
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="reason">Reason (Optional)</Label>
+              <Textarea
+                id="reason"
+                placeholder="e.g., Lunch break, Personal appointment, etc."
+                value={blockReason}
+                onChange={(e) => setBlockReason(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBlockTimeDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddBlockedTime} disabled={loading}>
+              {loading ? 'Blocking...' : 'Block Time'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
