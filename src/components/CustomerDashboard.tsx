@@ -119,6 +119,10 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   const [salons, setSalons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [blockedTimes, setBlockedTimes] = useState<any[]>([]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([
+    '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
+  ]);
 
   // Calculate distance between two coordinates (Haversine formula)
   const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
@@ -300,6 +304,82 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
     setAlertInfo({ show: true, type, title, message });
   };
 
+  // Convert time from 12-hour to 24-hour format
+  const convertTo24Hour = (time: string): string => {
+    const [hourMin, period] = time.split(' ');
+    let [hour, min] = hourMin.split(':');
+    let hourNum = parseInt(hour);
+    
+    if (period === 'PM' && hourNum !== 12) {
+      hourNum += 12;
+    } else if (period === 'AM' && hourNum === 12) {
+      hourNum = 0;
+    }
+    
+    return `${hourNum.toString().padStart(2, '0')}:${min}:00`;
+  };
+
+  // Fetch blocked times when hairdresser and date are selected
+  useEffect(() => {
+    const fetchBlockedTimes = async () => {
+      if (!bookingData.hairdresser || !bookingData.date) {
+        setAvailableTimeSlots(['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM']);
+        return;
+      }
+
+      try {
+        // Find hairdresser ID
+        const selectedHairdresser = availableHairdressers.find(
+          h => (h.profiles?.full_name || 'Provider') === bookingData.hairdresser
+        );
+
+        if (!selectedHairdresser) {
+          setAvailableTimeSlots(['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM']);
+          return;
+        }
+
+        // Fetch blocked times for this hairdresser and date
+        const { data, error } = await supabase
+          .from('blocked_times')
+          .select('*')
+          .eq('hairdresser_id', selectedHairdresser.id)
+          .eq('blocked_date', bookingData.date);
+
+        if (error) {
+          console.error('Error fetching blocked times:', error);
+          setBlockedTimes([]);
+          setAvailableTimeSlots(['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM']);
+          return;
+        }
+
+        setBlockedTimes(data || []);
+
+        // Filter available time slots
+        const allSlots = ['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
+        const filteredSlots = allSlots.filter(slot => {
+          const slotTime = convertTo24Hour(slot);
+          const isBlocked = (data || []).some(blocked => {
+            return slotTime >= blocked.start_time && slotTime < blocked.end_time;
+          });
+          return !isBlocked;
+        });
+
+        setAvailableTimeSlots(filteredSlots);
+
+        // Clear selected time if it's no longer available
+        if (bookingData.time && !filteredSlots.includes(bookingData.time)) {
+          setBookingData(prev => ({ ...prev, time: '' }));
+        }
+      } catch (error) {
+        console.error('Error fetching blocked times:', error);
+        setBlockedTimes([]);
+        setAvailableTimeSlots(['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM']);
+      }
+    };
+
+    fetchBlockedTimes();
+  }, [bookingData.hairdresser, bookingData.date, availableHairdressers]);
+
   // Handle booking form submission
   const handleBooking = (e: React.FormEvent) => {
     e.preventDefault();
@@ -316,6 +396,19 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
     
     if (selectedDate < today) {
       showAlert('error', 'Invalid Date', 'Please select a future date for your appointment.');
+      return;
+    }
+
+    // Check if the selected time is blocked
+    const selectedTime = convertTo24Hour(bookingData.time);
+    const isBlocked = blockedTimes.some(blocked => {
+      return blocked.blocked_date === bookingData.date &&
+             selectedTime >= blocked.start_time &&
+             selectedTime < blocked.end_time;
+    });
+
+    if (isBlocked) {
+      showAlert('error', 'Time Unavailable', 'This time slot is not available. Please select a different time.');
       return;
     }
     
@@ -1126,11 +1219,15 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                     <SelectValue placeholder="Select time" />
                   </SelectTrigger>
                   <SelectContent>
-                    {['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'].map((time) => (
-                      <SelectItem key={time} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
+                    {availableTimeSlots.length === 0 ? (
+                      <SelectItem value="no-times" disabled>No times available</SelectItem>
+                    ) : (
+                      availableTimeSlots.map((time) => (
+                        <SelectItem key={time} value={time}>
+                          {time}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>
