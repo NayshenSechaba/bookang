@@ -18,6 +18,7 @@ import StylistEarnings from './StylistEarnings';
 import OnboardingTour from './OnboardingTour';
 import { supabase } from '@/integrations/supabase/client';
 import { BusinessVerification } from './BusinessVerification';
+import BlockedTimesManagement from './BlockedTimesManagement';
 
 interface HairdresserDashboardProps {
   userName: string;
@@ -626,7 +627,10 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
           </TabsList>
 
           <TabsContent value="calendar">
-            <CalendarBooking />
+            <div className="space-y-6">
+              <CalendarBooking />
+              <BlockedTimesManagement />
+            </div>
           </TabsContent>
 
           <TabsContent value="portfolio">

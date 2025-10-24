@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      blocked_times: {
+        Row: {
+          blocked_date: string
+          created_at: string
+          end_time: string
+          hairdresser_id: string
+          id: string
+          reason: string | null
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          blocked_date: string
+          created_at?: string
+          end_time: string
+          hairdresser_id: string
+          id?: string
+          reason?: string | null
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          blocked_date?: string
+          created_at?: string
+          end_time?: string
+          hairdresser_id?: string
+          id?: string
+          reason?: string | null
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocked_times_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "hairdressers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           airtable_created_time: string | null
