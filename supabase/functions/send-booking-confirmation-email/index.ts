@@ -13,9 +13,32 @@ Deno.serve(async (req) => {
   try {
     console.log('Starting booking confirmation email process...')
 
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Missing authentication' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const sendGridApiKey = Deno.env.get('SENDGRID_API_KEY')
+
+    // First verify the user is authenticated
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    })
+
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser()
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
     if (!sendGridApiKey) {
       throw new Error('SendGrid API key not configured')
@@ -24,12 +47,25 @@ Deno.serve(async (req) => {
     const { booking_id } = await req.json()
 
     if (!booking_id) {
-      throw new Error('booking_id is required')
+      return new Response(
+        JSON.stringify({ error: 'booking_id is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Validate booking_id format (UUID)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(booking_id)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid booking_id format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     console.log('Fetching booking details for:', booking_id)
 
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    // Use service role to fetch booking data
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Fetch booking with related data
     const { data: booking, error: bookingError } = await supabase

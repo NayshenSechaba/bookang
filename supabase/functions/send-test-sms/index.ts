@@ -1,3 +1,4 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3'
 import { corsHeaders } from '../_shared/cors.ts'
 
 interface SMSRequest {
@@ -6,6 +7,9 @@ interface SMSRequest {
   recipient_name?: string
 }
 
+// E.164 phone format regex (international format)
+const phoneRegex = /^\+[1-9]\d{1,14}$/
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -13,6 +17,29 @@ Deno.serve(async (req) => {
 
   try {
     console.log('Starting SMS send process...')
+
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Missing authentication' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    })
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
     const twilioAccountSid = Deno.env.get('TWILIO_ACCOUNT_SID')
     const twilioAuthToken = Deno.env.get('TWILIO_AUTH_TOKEN')
@@ -24,8 +51,20 @@ Deno.serve(async (req) => {
 
     const { phone_number, message, recipient_name }: SMSRequest = await req.json()
 
+    // Input validation
     if (!phone_number || !message) {
-      throw new Error('phone_number and message are required')
+      return new Response(
+        JSON.stringify({ error: 'phone_number and message are required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Validate message length
+    if (message.length > 1600) {
+      return new Response(
+        JSON.stringify({ error: 'Message exceeds maximum length of 1600 characters' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     console.log('Sending SMS to:', phone_number)
@@ -36,6 +75,14 @@ Deno.serve(async (req) => {
       formattedPhone = '+27' + phone_number.substring(1)
     } else if (!phone_number.startsWith('+')) {
       formattedPhone = '+27' + phone_number
+    }
+
+    // Validate E.164 format after formatting
+    if (!phoneRegex.test(formattedPhone)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid phone number format. Must be in E.164 format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     // Send SMS via Twilio REST API

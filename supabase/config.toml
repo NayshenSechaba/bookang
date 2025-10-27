@@ -10,10 +10,10 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.send-booking-confirmation-email]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-email]
-verify_jwt = false
+verify_jwt = true
 
 [functions.send-test-sms]
-verify_jwt = false
+verify_jwt = true

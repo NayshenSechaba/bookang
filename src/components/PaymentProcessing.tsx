@@ -26,7 +26,6 @@ interface PaymentProcessingProps {
 const PaymentProcessing = ({ appointmentDetails, isOpen, onClose, onPaymentComplete }: PaymentProcessingProps) => {
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [webhookUrl, setWebhookUrl] = useState('');
   const [cardDetails, setCardDetails] = useState({
     number: '',
     expiry: '',
@@ -55,32 +54,8 @@ const PaymentProcessing = ({ appointmentDetails, isOpen, onClose, onPaymentCompl
     setIsProcessing(true);
 
     try {
-      // If Zapier webhook URL is provided, trigger it
-      if (webhookUrl) {
-        await fetch(webhookUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          mode: "no-cors",
-          body: JSON.stringify({
-            timestamp: new Date().toISOString(),
-            payment_method: paymentMethod,
-            amount: appointmentDetails.cost,
-            currency: 'ZAR',
-            appointment: appointmentDetails,
-            customer_data: {
-              card_details: paymentMethod === 'card' ? cardDetails : null,
-              mobile_wallet: paymentMethod === 'mobile' ? mobileWallet : null
-            }
-          }),
-        });
-
-        toast({
-          title: "Payment Processing",
-          description: "Payment request sent to processor. Please check your payment provider for confirmation.",
-        });
-      }
+      // NOTE: In production, implement server-side payment processing
+      // via edge functions with proper PCI-compliant payment gateway integration
 
       // Simulate payment processing
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -303,29 +278,6 @@ const PaymentProcessing = ({ appointmentDetails, isOpen, onClose, onPaymentCompl
             </Card>
           )}
 
-          {/* Zapier Integration (Optional) */}
-          <Card className="bg-blue-50 border-blue-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm text-blue-800">Payment Processor Integration</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor="webhook" className="text-sm text-blue-700">
-                  Zapier Webhook URL (Optional)
-                </Label>
-                <Input
-                  id="webhook"
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                  placeholder="https://hooks.zapier.com/hooks/catch/..."
-                  className="text-sm"
-                />
-                <p className="text-xs text-blue-600">
-                  Connect your payment processor via Zapier to process real payments
-                </p>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Security Notice */}
           <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">

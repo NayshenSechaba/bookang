@@ -13,6 +13,9 @@ interface EmailRequest {
   from_email?: string
 }
 
+// Email validation regex
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -20,6 +23,29 @@ Deno.serve(async (req) => {
 
   try {
     console.log('Starting email send process...')
+
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Missing authentication' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    })
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
     const sendGridApiKey = Deno.env.get('SENDGRID_API_KEY')
     const defaultFromEmail = Deno.env.get('MAIL_FROM_EMAIL') || 'noreply@bookang.com'
@@ -31,8 +57,28 @@ Deno.serve(async (req) => {
 
     const { to, subject, html, from_name, from_email }: EmailRequest = await req.json()
 
+    // Input validation
     if (!to || !subject || !html) {
-      throw new Error('to, subject, and html are required')
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields: to, subject, and html' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Validate email format
+    if (!emailRegex.test(to)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid email address format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Validate input lengths
+    if (to.length > 255 || subject.length > 200 || html.length > 100000) {
+      return new Response(
+        JSON.stringify({ error: 'Input exceeds maximum allowed length' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     console.log('Sending email to:', to)
