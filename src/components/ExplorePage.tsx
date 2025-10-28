@@ -37,10 +37,7 @@ interface Salon {
 const ExplorePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
-  const [locationPermissionAsked, setLocationPermissionAsked] = useState(false);
-  const [showLocationPrompt, setShowLocationPrompt] = useState(true);
-  const [isLoadingLocation, setIsLoadingLocation] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState('all');
   const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
   const [savedItems, setSavedItems] = useState<Set<number>>(new Set());
   
@@ -56,14 +53,31 @@ const ExplorePage = () => {
   
   const { toast } = useToast();
 
-  // Mock data for salons with coordinates
+  // South African locations
+  const locations = [
+    { id: 'all', label: 'All Areas' },
+    { id: 'sandton', label: 'Sandton' },
+    { id: 'soweto', label: 'Soweto' },
+    { id: 'rosebank', label: 'Rosebank' },
+    { id: 'alexandra', label: 'Alexandra' },
+    { id: 'johannesburg-cbd', label: 'Johannesburg CBD' },
+    { id: 'midrand', label: 'Midrand' },
+    { id: 'randburg', label: 'Randburg' },
+    { id: 'diepsloot', label: 'Diepsloot' },
+    { id: 'yeoville', label: 'Yeoville' },
+    { id: 'braamfontein', label: 'Braamfontein' },
+    { id: 'tembisa', label: 'Tembisa' },
+    { id: 'fourways', label: 'Fourways' },
+  ];
+
+  // Mock data for salons with South African locations
   const allSalons: Salon[] = [
     {
       id: 1,
       name: 'Glamour Studio',
       rating: 4.9,
       reviewCount: 127,
-      location: 'Downtown',
+      location: 'Sandton',
       specialties: ['Color', 'Styling'],
       priceRange: 'Premium',
       image: '/placeholder.svg',
@@ -71,14 +85,14 @@ const ExplorePage = () => {
       isLiked: false,
       isSaved: false,
       category: 'popular',
-      coordinates: { lat: 40.7128, lng: -74.0060 }
+      coordinates: { lat: -26.1076, lng: 28.0567 }
     },
     {
       id: 2,
       name: 'Elite Hair Lounge',
       rating: 4.8,
       reviewCount: 98,
-      location: 'Midtown',
+      location: 'Soweto',
       specialties: ['Cuts', 'Extensions'],
       priceRange: 'Mid-Range',
       image: '/placeholder.svg',
@@ -86,14 +100,14 @@ const ExplorePage = () => {
       isLiked: true,
       isSaved: false,
       category: 'popular',
-      coordinates: { lat: 40.7589, lng: -73.9851 }
+      coordinates: { lat: -26.2678, lng: 27.8585 }
     },
     {
       id: 3,
       name: 'Luxury Hair Spa',
       rating: 4.7,
       reviewCount: 85,
-      location: 'Uptown',
+      location: 'Rosebank',
       specialties: ['Spa', 'Treatment'],
       priceRange: 'Luxury',
       image: '/placeholder.svg',
@@ -101,14 +115,14 @@ const ExplorePage = () => {
       isLiked: false,
       isSaved: true,
       category: 'popular',
-      coordinates: { lat: 40.7831, lng: -73.9712 }
+      coordinates: { lat: -26.1464, lng: 28.0414 }
     },
     {
       id: 4,
       name: 'Modern Edge',
       rating: 4.6,
       reviewCount: 23,
-      location: 'Arts District',
+      location: 'Alexandra',
       specialties: ['Modern Cuts'],
       priceRange: 'Mid-Range',
       image: '/placeholder.svg',
@@ -117,14 +131,14 @@ const ExplorePage = () => {
       isSaved: false,
       category: 'new',
       isNew: true,
-      coordinates: { lat: 40.7505, lng: -73.9934 }
+      coordinates: { lat: -26.1021, lng: 28.0949 }
     },
     {
       id: 5,
       name: 'Fresh Look',
       rating: 4.5,
       reviewCount: 15,
-      location: 'Creative Quarter',
+      location: 'Johannesburg CBD',
       specialties: ['Color', 'Beard'],
       priceRange: 'Budget',
       image: '/placeholder.svg',
@@ -133,14 +147,14 @@ const ExplorePage = () => {
       isSaved: false,
       category: 'new',
       isNew: true,
-      coordinates: { lat: 40.7282, lng: -74.0776 }
+      coordinates: { lat: -26.2041, lng: 28.0473 }
     },
     {
       id: 6,
       name: 'Corner Cuts',
       rating: 4.3,
       reviewCount: 67,
-      location: 'Your Neighborhood',
+      location: 'Midrand',
       specialties: ['Quick Cuts'],
       priceRange: 'Budget',
       image: '/placeholder.svg',
@@ -148,14 +162,14 @@ const ExplorePage = () => {
       isLiked: false,
       isSaved: false,
       category: 'nearby',
-      coordinates: { lat: 40.7614, lng: -73.9776 }
+      coordinates: { lat: -25.9896, lng: 28.1285 }
     },
     {
       id: 7,
       name: 'Hair Hub',
       rating: 4.5,
       reviewCount: 54,
-      location: 'Your Area',
+      location: 'Randburg',
       specialties: ['Family Cuts'],
       priceRange: 'Mid-Range',
       image: '/placeholder.svg',
@@ -163,14 +177,14 @@ const ExplorePage = () => {
       isLiked: false,
       isSaved: true,
       category: 'nearby',
-      coordinates: { lat: 40.7480, lng: -73.9857 }
+      coordinates: { lat: -26.0943, lng: 27.9819 }
     },
     {
       id: 8,
       name: 'Style Express',
       rating: 4.2,
       reviewCount: 89,
-      location: 'Near You',
+      location: 'Diepsloot',
       specialties: ['Express'],
       priceRange: 'Budget',
       image: '/placeholder.svg',
@@ -178,7 +192,38 @@ const ExplorePage = () => {
       isLiked: true,
       isSaved: false,
       category: 'nearby',
-      coordinates: { lat: 40.7549, lng: -73.9840 }
+      coordinates: { lat: -25.9321, lng: 28.0122 }
+    },
+    {
+      id: 9,
+      name: 'Yeoville Styles',
+      rating: 4.4,
+      reviewCount: 72,
+      location: 'Yeoville',
+      specialties: ['Braids', 'Weaves'],
+      priceRange: 'Mid-Range',
+      image: '/placeholder.svg',
+      distance: '1.2 km',
+      isLiked: false,
+      isSaved: false,
+      category: 'popular',
+      coordinates: { lat: -26.1789, lng: 28.0683 }
+    },
+    {
+      id: 10,
+      name: 'Tembisa Touch',
+      rating: 4.6,
+      reviewCount: 91,
+      location: 'Tembisa',
+      specialties: ['Natural Hair', 'Color'],
+      priceRange: 'Budget',
+      image: '/placeholder.svg',
+      distance: '2.1 km',
+      isLiked: false,
+      isSaved: false,
+      category: 'new',
+      isNew: true,
+      coordinates: { lat: -25.9966, lng: 28.2269 }
     }
   ];
 
@@ -261,61 +306,6 @@ const ExplorePage = () => {
     setSavedItems(newSavedItems);
   };
 
-  // Calculate distance between two coordinates
-  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
-    const R = 3959; // Earth's radius in miles
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLng = (lng2 - lng1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLng/2) * Math.sin(dLng/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
-  };
-
-  // Request user's location
-  const requestLocation = async () => {
-    setIsLoadingLocation(true);
-    setLocationPermissionAsked(true);
-    
-    if (!navigator.geolocation) {
-      toast({
-        title: "Location not supported",
-        description: "Your browser doesn't support location services.",
-        variant: "destructive"
-      });
-      setIsLoadingLocation(false);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setUserLocation({ lat: latitude, lng: longitude });
-        setShowLocationPrompt(false);
-        setIsLoadingLocation(false);
-        toast({
-          title: "Location enabled",
-          description: "Now showing salons sorted by distance from your location.",
-        });
-      },
-      (error) => {
-        console.error('Error getting location:', error);
-        setIsLoadingLocation(false);
-        toast({
-          title: "Location access denied",
-          description: "Enable location permissions to see nearby salons.",
-          variant: "destructive"
-        });
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000
-      }
-    );
-  };
 
   // Filter and sort salons
   const getFilteredSalons = (): Salon[] => {
@@ -339,79 +329,16 @@ const ExplorePage = () => {
       filtered = filtered.filter(salon => salon.category === selectedCategory);
     }
 
-    // Sort by distance if user location is available
-    if (userLocation) {
-      filtered = filtered.map(salon => ({
-        ...salon,
-        calculatedDistance: calculateDistance(
-          userLocation.lat,
-          userLocation.lng,
-          salon.coordinates.lat,
-          salon.coordinates.lng
-        )
-      })).sort((a, b) => (a.calculatedDistance || 0) - (b.calculatedDistance || 0));
-
-      // Update distance display
-      filtered = filtered.map(salon => ({
-        ...salon,
-        distance: `${(salon.calculatedDistance! * 1.60934).toFixed(1)} km`
-      }));
+    // Filter by selected location
+    if (selectedLocation !== 'all') {
+      filtered = filtered.filter(salon => 
+        salon.location.toLowerCase() === locations.find(loc => loc.id === selectedLocation)?.label.toLowerCase()
+      );
     }
     
     return filtered;
   };
 
-  // Location prompt component
-  const LocationPrompt = () => (
-    showLocationPrompt && !locationPermissionAsked && (
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start space-x-3">
-            <Navigation className="h-5 w-5 text-blue-600 mt-0.5" />
-            <div>
-              <h3 className="font-medium text-blue-900">Find salons near you</h3>
-              <p className="text-sm text-blue-700 mt-1">
-                Allow location access to see salons sorted by distance from your current location.
-              </p>
-              <div className="flex space-x-2 mt-3">
-                <Button 
-                  size="sm" 
-                  onClick={requestLocation}
-                  disabled={isLoadingLocation}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  {isLoadingLocation ? (
-                    <>Getting location...</>
-                  ) : (
-                    <>
-                      <Navigation className="h-4 w-4 mr-2" />
-                      Enable Location
-                    </>
-                  )}
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => setShowLocationPrompt(false)}
-                  className="border-blue-300 text-blue-700 hover:bg-blue-50"
-                >
-                  Maybe later
-                </Button>
-              </div>
-            </div>
-          </div>
-          <Button 
-            size="sm" 
-            variant="ghost" 
-            onClick={() => setShowLocationPrompt(false)}
-            className="text-blue-600 hover:bg-blue-100 p-1"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    )
-  );
 
   // Instagram-like salon card
   const SalonCard = ({ salon }: { salon: Salon }) => (
@@ -444,13 +371,11 @@ const ExplorePage = () => {
             </Button>
           </div>
 
-          {/* Distance badge */}
+          {/* Location badge */}
           <div className="absolute bottom-3 right-3">
-            <Badge className={`text-xs px-2 py-1 rounded-full ${
-              userLocation ? 'bg-blue-500 text-white' : 'bg-white/90 text-gray-900'
-            }`}>
+            <Badge className="text-xs px-2 py-1 rounded-full bg-white/90 text-gray-900">
               <MapPin className="h-3 w-3 mr-1" />
-              {salon.distance}
+              {salon.location}
             </Badge>
           </div>
         </div>
@@ -525,9 +450,6 @@ const ExplorePage = () => {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          {/* Location Prompt */}
-          <LocationPrompt />
-          
           {/* Search */}
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -538,6 +460,22 @@ const ExplorePage = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 border-gray-300 rounded-full bg-gray-50 focus:bg-white"
             />
+          </div>
+
+          {/* Location Filter */}
+          <div className="mb-4">
+            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+              <SelectTrigger className="w-full bg-background">
+                <SelectValue placeholder="Filter by location" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border z-50 max-h-60">
+                {locations.map((location) => (
+                  <SelectItem key={location.id} value={location.id}>
+                    {location.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           
           {/* Category tabs */}
@@ -562,14 +500,6 @@ const ExplorePage = () => {
               </Button>
             ))}
           </div>
-
-          {/* Location status */}
-          {userLocation && (
-            <div className="flex items-center justify-center mt-3 text-sm text-green-600">
-              <Navigation className="h-4 w-4 mr-2" />
-              Showing salons sorted by distance from your location
-            </div>
-          )}
 
           {/* Favorites Counter */}
           <div className="flex items-center justify-center mt-3 space-x-4 text-sm text-gray-600">

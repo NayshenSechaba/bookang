@@ -137,22 +137,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
     return R * c;
   };
 
-  // Request user's location
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-        },
-        (error) => {
-          console.log('Geolocation not available:', error);
-        }
-      );
-    }
-  }, []);
+  // Geolocation disabled - users will filter by suburb/township instead
 
   // Fetch real data from database
   useEffect(() => {
