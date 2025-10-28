@@ -14,7 +14,7 @@ const QuickStats = ({ data }: QuickStatsProps) => {
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+      <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -26,11 +26,11 @@ const QuickStats = ({ data }: QuickStatsProps) => {
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-r from-amber-500 to-amber-600 text-white">
+      <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-amber-100">Average Rating</p>
+              <p className="text-blue-100">Average Rating</p>
               <div className="flex items-center space-x-1">
                 <p className="text-2xl font-bold">{data.averageRating}</p>
                 <div className="flex">
@@ -47,28 +47,28 @@ const QuickStats = ({ data }: QuickStatsProps) => {
                 </div>
               </div>
             </div>
-            <Scissors className="h-8 w-8 text-amber-200" />
+            <Scissors className="h-8 w-8 text-blue-200" />
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
+      <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-emerald-100">Commission Rate</p>
+              <p className="text-blue-100">Commission Rate</p>
               <p className="text-2xl font-bold">{data.commissionRate}</p>
             </div>
-            <Package className="h-8 w-8 text-emerald-200" />
+            <Package className="h-8 w-8 text-blue-200" />
           </div>
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+      <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-purple-100">Monthly Performance</p>
+              <p className="text-blue-100">Monthly Performance</p>
               <div className="flex items-center space-x-2">
                 <p className="text-2xl font-bold">{Math.abs(performanceChange)}%</p>
                 {isImprovement ? (
@@ -77,7 +77,7 @@ const QuickStats = ({ data }: QuickStatsProps) => {
                   <TrendingDown className="h-5 w-5 text-red-300" />
                 )}
               </div>
-              <p className="text-xs text-purple-200 mt-1">
+              <p className="text-xs text-blue-200 mt-1">
                 {isImprovement ? 'Better' : 'Lower'} than last month
               </p>
             </div>
