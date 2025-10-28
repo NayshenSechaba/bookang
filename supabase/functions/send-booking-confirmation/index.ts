@@ -127,6 +127,27 @@ Deno.serve(async (req) => {
 
     console.log('Confirmation data:', confirmationData)
 
+    // Generate secure booking token
+    const secureToken = crypto.randomUUID().replace(/-/g, '')
+    const expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + 7) // Token valid for 7 days
+
+    const { error: tokenError } = await supabase
+      .from('secure_booking_tokens')
+      .insert({
+        booking_id: booking.id,
+        token: secureToken,
+        expires_at: expiresAt.toISOString(),
+      })
+
+    if (tokenError) {
+      console.error('Error creating secure token:', tokenError)
+      throw new Error('Failed to create secure booking link')
+    }
+
+    const secureBookingLink = `${supabaseUrl.replace('.supabase.co', '')}.lovable.app/booking/manage/${secureToken}`
+    console.log('Generated secure booking link:', secureBookingLink)
+
     // Format phone number to international format if needed
     let formattedPhone = confirmationData.customer_phone
     if (confirmationData.customer_phone.startsWith('0')) {
@@ -138,8 +159,8 @@ Deno.serve(async (req) => {
     console.log('Original phone:', confirmationData.customer_phone)
     console.log('Formatted phone (E.164):', formattedPhone)
 
-    // Create interactive SMS message asking for confirmation
-    const message = `📅 BOOKING CONFIRMATION REQUIRED
+    // Create interactive SMS message with secure booking link
+    const message = `📅 BOOKING CONFIRMATION
 
 Salon: ${confirmationData.salon_name}
 Stylist: ${confirmationData.hairdresser_name}
@@ -147,9 +168,8 @@ Date: ${confirmationData.appointment_date}
 Time: ${confirmationData.appointment_time}
 Location: ${confirmationData.salon_location}
 
-Reply:
-1 - CONFIRM appointment ✅
-2 - CANCEL appointment ❌
+Manage your booking:
+${secureBookingLink}
 
 Booking ID: ${confirmationData.booking_id}`
 

@@ -17,3 +17,9 @@ verify_jwt = true
 
 [functions.send-test-sms]
 verify_jwt = true
+
+[functions.verify-booking-token]
+verify_jwt = false
+
+[functions.update-booking-status]
+verify_jwt = false

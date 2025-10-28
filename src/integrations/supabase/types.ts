@@ -593,6 +593,47 @@ export type Database = {
           },
         ]
       }
+      secure_booking_tokens: {
+        Row: {
+          booking_id: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          ip_address: unknown
+          token: string
+          used_at: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          ip_address?: unknown
+          token: string
+          used_at?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          ip_address?: unknown
+          token?: string
+          used_at?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "secure_booking_tokens_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           created_at: string | null
