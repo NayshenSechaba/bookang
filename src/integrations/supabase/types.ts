@@ -1066,6 +1066,10 @@ export type Database = {
           file_path: string
           id: string
           profile_id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["verification_status"]
           uploaded_at: string | null
           verified: boolean | null
         }
@@ -1074,6 +1078,10 @@ export type Database = {
           file_path: string
           id?: string
           profile_id: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["verification_status"]
           uploaded_at?: string | null
           verified?: boolean | null
         }
@@ -1082,6 +1090,10 @@ export type Database = {
           file_path?: string
           id?: string
           profile_id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["verification_status"]
           uploaded_at?: string | null
           verified?: boolean | null
         }
@@ -1225,6 +1237,7 @@ export type Database = {
         | "admin"
       employee_role: "employee" | "super_user"
       user_role: "customer" | "hairdresser" | "salon_owner"
+      verification_status: "pending" | "verified" | "rejected" | "outstanding"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1355,6 +1368,7 @@ export const Constants = {
       app_role: ["customer", "hairdresser", "employee", "salon_owner", "admin"],
       employee_role: ["employee", "super_user"],
       user_role: ["customer", "hairdresser", "salon_owner"],
+      verification_status: ["pending", "verified", "rejected", "outstanding"],
     },
   },
 } as const

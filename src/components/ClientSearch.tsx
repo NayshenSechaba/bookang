@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Search, UserCircle, FileText, CheckCircle, XCircle, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { DocumentVerificationDialog } from "@/components/DocumentVerificationDialog";
+import { Button } from "@/components/ui/button";
 
 interface ClientProfile {
   id: string;
@@ -34,12 +36,36 @@ export const ClientSearch = () => {
   const [filteredClients, setFilteredClients] = useState<ClientProfile[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isSuperUser, setIsSuperUser] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<{ id: string; name: string } | null>(null);
+  const [showDocDialog, setShowDocDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
+    checkSuperUserStatus();
     fetchClients();
   }, []);
+
+  const checkSuperUserStatus = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("employee_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "super_user")
+        .single();
+
+      if (!error && data) {
+        setIsSuperUser(true);
+      }
+    } catch (error) {
+      console.error("Error checking super user status:", error);
+    }
+  };
 
   useEffect(() => {
     if (searchTerm.trim() === "") {
@@ -312,10 +338,28 @@ export const ClientSearch = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{client.documents_count || 0}</span>
-                      </div>
+                      {isSuperUser ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto p-1"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedClient({ id: client.profile_id, name: client.full_name });
+                            setShowDocDialog(true);
+                          }}
+                        >
+                          <div className="flex items-center gap-1">
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm">{client.documents_count || 0}</span>
+                          </div>
+                        </Button>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{client.documents_count || 0}</span>
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
@@ -339,6 +383,15 @@ export const ClientSearch = () => {
           </div>
         )}
       </CardContent>
+
+      {selectedClient && (
+        <DocumentVerificationDialog
+          open={showDocDialog}
+          onOpenChange={setShowDocDialog}
+          profileId={selectedClient.id}
+          clientName={selectedClient.name}
+        />
+      )}
     </Card>
   );
 };
