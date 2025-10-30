@@ -8,6 +8,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ManageBooking from "./pages/ManageBooking";
 import BusinessProfile from "./components/BusinessProfile";
+import EmployeeDashboard from "./pages/EmployeeDashboard";
+import ClientDetail from "./pages/ClientDetail";
+import AmendmentApproval from "./pages/AmendmentApproval";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +24,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/business-profile" element={<BusinessProfile />} />
           <Route path="/booking/manage/:token" element={<ManageBooking />} />
+          <Route path="/employee" element={<EmployeeDashboard />} />
+          <Route path="/employee/client/:clientId" element={<ClientDetail />} />
+          <Route path="/employee/amendments" element={<AmendmentApproval />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

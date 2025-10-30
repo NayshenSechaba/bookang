@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      amendment_requests: {
+        Row: {
+          client_profile_id: string
+          created_at: string | null
+          field_name: string
+          id: string
+          new_value: string
+          old_value: string | null
+          reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string | null
+          user_id_client: string
+          user_id_employee: string
+        }
+        Insert: {
+          client_profile_id: string
+          created_at?: string | null
+          field_name: string
+          id?: string
+          new_value: string
+          old_value?: string | null
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id_client: string
+          user_id_employee: string
+        }
+        Update: {
+          client_profile_id?: string
+          created_at?: string | null
+          field_name?: string
+          id?: string
+          new_value?: string
+          old_value?: string | null
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string | null
+          user_id_client?: string
+          user_id_employee?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "amendment_requests_client_profile_id_fkey"
+            columns: ["client_profile_id"]
+            isOneToOne: false
+            referencedRelation: "client_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "amendment_requests_user_id_client_fkey"
+            columns: ["user_id_client"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blocked_times: {
         Row: {
           blocked_date: string
@@ -144,6 +207,62 @@ export type Database = {
           },
         ]
       }
+      client_profiles: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          last_booking_date: string | null
+          notes: string | null
+          phone: string | null
+          postal_code: string | null
+          profile_id: string
+          province: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string | null
+          email: string
+          full_name: string
+          id?: string
+          last_booking_date?: string | null
+          notes?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          profile_id: string
+          province?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          last_booking_date?: string | null
+          notes?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          profile_id?: string
+          province?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_profiles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       consent_records: {
         Row: {
           consent_type: string
@@ -184,6 +303,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      employee_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["employee_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["employee_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["employee_role"]
+          user_id?: string
+        }
+        Relationships: []
       }
       hairdressers: {
         Row: {
@@ -736,6 +876,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_employee_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["employee_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -751,6 +898,7 @@ export type Database = {
         | "employee"
         | "salon_owner"
         | "admin"
+      employee_role: "employee" | "super_user"
       user_role: "customer" | "hairdresser" | "salon_owner"
     }
     CompositeTypes: {
@@ -880,6 +1028,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["customer", "hairdresser", "employee", "salon_owner", "admin"],
+      employee_role: ["employee", "super_user"],
       user_role: ["customer", "hairdresser", "salon_owner"],
     },
   },
