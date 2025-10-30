@@ -320,7 +320,47 @@ export const ClientSearch = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      {client.verification_status === "approved" ? (
+                      {isSuperUser ? (
+                        <select
+                          value={client.verification_status || "not_started"}
+                          onChange={async (e) => {
+                            e.stopPropagation();
+                            const newStatus = e.target.value;
+                            try {
+                              const { error } = await supabase
+                                .from("profiles")
+                                .update({ 
+                                  verification_status: newStatus,
+                                  verification_approved_at: newStatus === 'approved' ? new Date().toISOString() : null
+                                })
+                                .eq("id", client.profile_id);
+
+                              if (error) throw error;
+
+                              toast({
+                                title: "Success",
+                                description: "Verification status updated",
+                              });
+                              
+                              fetchClients();
+                            } catch (error) {
+                              console.error("Error updating status:", error);
+                              toast({
+                                title: "Error",
+                                description: "Failed to update verification status",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                          className="text-xs border rounded px-2 py-1 cursor-pointer"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <option value="not_started">Not Started</option>
+                          <option value="pending">Pending</option>
+                          <option value="approved">Approved</option>
+                          <option value="rejected">Rejected</option>
+                        </select>
+                      ) : client.verification_status === "approved" ? (
                         <div className="flex items-center gap-1 text-green-600">
                           <CheckCircle className="h-4 w-4" />
                           <span className="text-xs">Verified</span>
