@@ -20,7 +20,6 @@ import AccountSettings from '@/components/AccountSettings';
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from '@supabase/supabase-js';
 import { sendTestSMS } from '@/utils/sendTestSMS';
-import { TestEmailButton } from '@/components/TestEmailButton';
 import bookangLogo from '@/assets/bookang-logo.png';
 
 // Make sendTestSMS available globally for console testing
@@ -277,8 +276,6 @@ const Index = () => {
             >
               Register Now
             </Button>
-            
-            <TestEmailButton />
           </div>
         </div>
       </section>
