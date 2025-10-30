@@ -558,7 +558,7 @@ const AccountSettings = ({ userName }: AccountSettingsProps) => {
                   id="businessType"
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
-                  placeholder="e.g., Hair Salon, Barber Shop"
+                  placeholder="e.g., Consulting, Clinic, Legal Services, Coaching"
                   maxLength={100}
                 />
               </div>

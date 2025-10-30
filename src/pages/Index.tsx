@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Star, Scissors, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut, Bell, User as UserIcon, Settings } from 'lucide-react';
+import { Star, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut, Bell, User as UserIcon, Settings } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import AuthModal from '@/components/AuthModal';
 import EnhancedRegistrationModal from '@/components/EnhancedRegistrationModal';
@@ -216,17 +216,19 @@ const Index = () => {
         <div className="max-w-6xl mx-auto text-center">
           <div className="mb-8">
             <Badge variant="secondary" className="mb-4 text-blue-700 bg-blue-100">
-              <Scissors className="mr-2 h-4 w-4" />
-              Professional Booking Services
+              <Calendar className="mr-2 h-4 w-4" />
+              Professional Services Booking Platform
             </Badge>
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            <span className="text-blue-600">B<span className="text-yellow-500">oo</span>kang</span>
+            <span className="text-blue-600">Bookang</span>: Automate Your Bookings. 
+            <br />
+            <span className="text-2xl md:text-4xl text-gray-700">Scale Your Professional Service Business.</span>
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Connect with professional service providers, book appointments seamlessly, and discover quality services in your area. Your perfect booking experience awaits.
+            The all-in-one client management and booking platform for consultants, clinics, coaches, and every South African SME.
           </p>
 
           {/* Authentication Buttons */}
@@ -265,7 +267,7 @@ const Index = () => {
               onClick={() => openAuthModal('login', 'hairdresser')}
             >
               <Store className="mr-2 h-4 w-4" />
-              Business Login
+              Service Provider Login
             </Button>
             
             <Button 
@@ -274,7 +276,7 @@ const Index = () => {
               className="w-full sm:w-auto bg-pink-100 text-pink-700 hover:bg-pink-200 px-8 py-3"
               onClick={() => openAuthModal('register')}
             >
-              Register Now
+              Start Your Free Trial
             </Button>
           </div>
         </div>
@@ -292,11 +294,11 @@ const Index = () => {
                   onClick={() => user ? setCurrentPage('dashboard') : openAuthModal('login', 'customer')}>
               <CardHeader>
                 <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <CardTitle className="text-blue-900">Easy Book</CardTitle>
+                <CardTitle className="text-blue-900">24/7 Online Booking</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-gray-600 mb-4">
-                  Book appointments with your favorite hairdressers in just a few clicks. Simple, fast, and convenient.
+                  Secure 24/7 online booking, allowing clients to schedule any service from legal consultations to coaching sessions.
                 </CardDescription>
                 <Button 
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
@@ -381,7 +383,7 @@ const Index = () => {
               onClick={() => setCurrentPage('explore')}
             >
               <MapPin className="h-6 w-6 text-blue-600" />
-              Explore Salons
+              Explore Service Providers
             </Button>
             
             

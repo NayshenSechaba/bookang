@@ -11,12 +11,12 @@ import { Star, MapPin, Search, Heart, Bookmark, MoreHorizontal, Navigation, X, C
 import { useToast } from "@/hooks/use-toast";
 
 // Define types for better TypeScript support
-interface SalonCoordinates {
+interface ServiceProviderCoordinates {
   lat: number;
   lng: number;
 }
 
-interface Salon {
+interface ServiceProvider {
   id: number;
   name: string;
   rating: number;
@@ -29,7 +29,7 @@ interface Salon {
   isLiked: boolean;
   isSaved: boolean;
   category: string;
-  coordinates: SalonCoordinates;
+  coordinates: ServiceProviderCoordinates;
   isNew?: boolean;
   calculatedDistance?: number;
 }
@@ -43,7 +43,7 @@ const ExplorePage = () => {
   
   // Booking modal state
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [selectedSalon, setSelectedSalon] = useState<Salon | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<ServiceProvider | null>(null);
   const [bookingData, setBookingData] = useState({
     service: '',
     date: '',
@@ -70,15 +70,15 @@ const ExplorePage = () => {
     { id: 'fourways', label: 'Fourways' },
   ];
 
-  // Mock data for salons with South African locations
-  const allSalons: Salon[] = [
+  // Mock data for service providers with South African locations
+  const allProviders: ServiceProvider[] = [
     {
       id: 1,
-      name: 'Glamour Studio',
+      name: 'Premier Business Consultants',
       rating: 4.9,
       reviewCount: 127,
       location: 'Sandton',
-      specialties: ['Color', 'Styling'],
+      specialties: ['Strategy', 'Financial Planning'],
       priceRange: 'Premium',
       image: '/placeholder.svg',
       distance: '0.8 km',
@@ -89,11 +89,11 @@ const ExplorePage = () => {
     },
     {
       id: 2,
-      name: 'Elite Hair Lounge',
+      name: 'Wellness Clinic Soweto',
       rating: 4.8,
       reviewCount: 98,
       location: 'Soweto',
-      specialties: ['Cuts', 'Extensions'],
+      specialties: ['Health', 'Physiotherapy'],
       priceRange: 'Mid-Range',
       image: '/placeholder.svg',
       distance: '1.9 km',
@@ -104,11 +104,11 @@ const ExplorePage = () => {
     },
     {
       id: 3,
-      name: 'Luxury Hair Spa',
+      name: 'Executive Coaching Hub',
       rating: 4.7,
       reviewCount: 85,
       location: 'Rosebank',
-      specialties: ['Spa', 'Treatment'],
+      specialties: ['Leadership', 'Career Development'],
       priceRange: 'Luxury',
       image: '/placeholder.svg',
       distance: '3.4 km',
@@ -119,11 +119,11 @@ const ExplorePage = () => {
     },
     {
       id: 4,
-      name: 'Modern Edge',
+      name: 'Legal Services Alex',
       rating: 4.6,
       reviewCount: 23,
       location: 'Alexandra',
-      specialties: ['Modern Cuts'],
+      specialties: ['Legal Advice', 'Contract Review'],
       priceRange: 'Mid-Range',
       image: '/placeholder.svg',
       distance: '2.9 km',
@@ -135,11 +135,11 @@ const ExplorePage = () => {
     },
     {
       id: 5,
-      name: 'Fresh Look',
+      name: 'Tech Support Solutions',
       rating: 4.5,
       reviewCount: 15,
       location: 'Johannesburg CBD',
-      specialties: ['Color', 'Beard'],
+      specialties: ['IT Consulting', 'Network Setup'],
       priceRange: 'Budget',
       image: '/placeholder.svg',
       distance: '3.7 km',
@@ -151,11 +151,11 @@ const ExplorePage = () => {
     },
     {
       id: 6,
-      name: 'Corner Cuts',
+      name: 'Accounting Firm Midrand',
       rating: 4.3,
       reviewCount: 67,
       location: 'Midrand',
-      specialties: ['Quick Cuts'],
+      specialties: ['Tax', 'Bookkeeping'],
       priceRange: 'Budget',
       image: '/placeholder.svg',
       distance: '0.3 km',
@@ -166,11 +166,11 @@ const ExplorePage = () => {
     },
     {
       id: 7,
-      name: 'Hair Hub',
+      name: 'Marketing Agency Randburg',
       rating: 4.5,
       reviewCount: 54,
       location: 'Randburg',
-      specialties: ['Family Cuts'],
+      specialties: ['Digital Marketing', 'Branding'],
       priceRange: 'Mid-Range',
       image: '/placeholder.svg',
       distance: '0.5 km',
@@ -181,11 +181,11 @@ const ExplorePage = () => {
     },
     {
       id: 8,
-      name: 'Style Express',
+      name: 'Quick Fix Home Services',
       rating: 4.2,
       reviewCount: 89,
       location: 'Diepsloot',
-      specialties: ['Express'],
+      specialties: ['Repairs', 'Maintenance'],
       priceRange: 'Budget',
       image: '/placeholder.svg',
       distance: '0.6 km',
@@ -196,11 +196,11 @@ const ExplorePage = () => {
     },
     {
       id: 9,
-      name: 'Yeoville Styles',
+      name: 'Yeoville Therapy Centre',
       rating: 4.4,
       reviewCount: 72,
       location: 'Yeoville',
-      specialties: ['Braids', 'Weaves'],
+      specialties: ['Counseling', 'Mental Health'],
       priceRange: 'Mid-Range',
       image: '/placeholder.svg',
       distance: '1.2 km',
@@ -211,11 +211,11 @@ const ExplorePage = () => {
     },
     {
       id: 10,
-      name: 'Tembisa Touch',
+      name: 'Tembisa Education Hub',
       rating: 4.6,
       reviewCount: 91,
       location: 'Tembisa',
-      specialties: ['Natural Hair', 'Color'],
+      specialties: ['Tutoring', 'Training'],
       priceRange: 'Budget',
       image: '/placeholder.svg',
       distance: '2.1 km',
@@ -227,14 +227,14 @@ const ExplorePage = () => {
     }
   ];
 
-  // Initialize liked and saved items from salon data
+  // Initialize liked and saved items from provider data
   useEffect(() => {
     const initialLiked = new Set<number>();
     const initialSaved = new Set<number>();
     
-    allSalons.forEach(salon => {
-      if (salon.isLiked) initialLiked.add(salon.id);
-      if (salon.isSaved) initialSaved.add(salon.id);
+    allProviders.forEach(provider => {
+      if (provider.isLiked) initialLiked.add(provider.id);
+      if (provider.isSaved) initialSaved.add(provider.id);
     });
     
     setLikedItems(initialLiked);
@@ -242,27 +242,27 @@ const ExplorePage = () => {
   }, []);
 
   // Handle like/unlike
-  const toggleLike = (salonId: number) => {
+  const toggleLike = (providerId: number) => {
     const newLikedItems = new Set(likedItems);
-    if (newLikedItems.has(salonId)) {
-      newLikedItems.delete(salonId);
+    if (newLikedItems.has(providerId)) {
+      newLikedItems.delete(providerId);
       toast({
         title: "Removed from favorites",
-        description: "Salon removed from your liked list.",
+        description: "Service provider removed from your liked list.",
       });
     } else {
-      newLikedItems.add(salonId);
+      newLikedItems.add(providerId);
       toast({
         title: "Added to favorites",
-        description: "Salon added to your liked list.",
+        description: "Service provider added to your liked list.",
       });
     }
     setLikedItems(newLikedItems);
   };
 
   // Handle booking
-  const handleBooking = (salon: Salon) => {
-    setSelectedSalon(salon);
+  const handleBooking = (provider: ServiceProvider) => {
+    setSelectedProvider(provider);
     setShowBookingModal(true);
   };
 
@@ -280,59 +280,59 @@ const ExplorePage = () => {
 
     toast({
       title: "Booking request sent!",
-      description: `Your appointment at ${selectedSalon?.name} has been requested for ${bookingData.date} at ${bookingData.time}.`,
+      description: `Your appointment with ${selectedProvider?.name} has been requested for ${bookingData.date} at ${bookingData.time}.`,
     });
 
     // Reset form and close modal
     setBookingData({ service: '', date: '', time: '', notes: '' });
     setShowBookingModal(false);
-    setSelectedSalon(null);
+    setSelectedProvider(null);
   };
-  const toggleSave = (salonId: number) => {
+  const toggleSave = (providerId: number) => {
     const newSavedItems = new Set(savedItems);
-    if (newSavedItems.has(salonId)) {
-      newSavedItems.delete(salonId);
+    if (newSavedItems.has(providerId)) {
+      newSavedItems.delete(providerId);
       toast({
         title: "Removed from saved",
-        description: "Salon removed from your bookmarks.",
+        description: "Service provider removed from your bookmarks.",
       });
     } else {
-      newSavedItems.add(salonId);
+      newSavedItems.add(providerId);
       toast({
         title: "Saved for later",
-        description: "Salon bookmarked for future reference.",
+        description: "Service provider bookmarked for future reference.",
       });
     }
     setSavedItems(newSavedItems);
   };
 
 
-  // Filter and sort salons
-  const getFilteredSalons = (): Salon[] => {
-    let filtered = allSalons.map(salon => ({
-      ...salon,
-      isLiked: likedItems.has(salon.id),
-      isSaved: savedItems.has(salon.id)
+  // Filter and sort providers
+  const getFilteredProviders = (): ServiceProvider[] => {
+    let filtered = allProviders.map(provider => ({
+      ...provider,
+      isLiked: likedItems.has(provider.id),
+      isSaved: savedItems.has(provider.id)
     }));
     
     if (searchQuery) {
-      filtered = filtered.filter(salon => 
-        salon.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        salon.specialties.some((specialty: string) => 
+      filtered = filtered.filter(provider => 
+        provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        provider.specialties.some((specialty: string) => 
           specialty.toLowerCase().includes(searchQuery.toLowerCase())
         ) ||
-        salon.location.toLowerCase().includes(searchQuery.toLowerCase())
+        provider.location.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(salon => salon.category === selectedCategory);
+      filtered = filtered.filter(provider => provider.category === selectedCategory);
     }
 
     // Filter by selected location
     if (selectedLocation !== 'all') {
-      filtered = filtered.filter(salon => 
-        salon.location.toLowerCase() === locations.find(loc => loc.id === selectedLocation)?.label.toLowerCase()
+      filtered = filtered.filter(provider => 
+        provider.location.toLowerCase() === locations.find(loc => loc.id === selectedLocation)?.label.toLowerCase()
       );
     }
     
@@ -340,27 +340,27 @@ const ExplorePage = () => {
   };
 
 
-  // Instagram-like salon card
-  const SalonCard = ({ salon }: { salon: Salon }) => (
+  // Service provider card
+  const ProviderCard = ({ provider }: { provider: ServiceProvider }) => (
     <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="relative">
         {/* Image */}
         <div className="aspect-square bg-gradient-to-br from-purple-100 to-pink-100 relative overflow-hidden">
           <img 
-            src={salon.image} 
-            alt={salon.name}
+            src={provider.image} 
+            alt={provider.name}
             className="w-full h-full object-cover"
           />
           
           {/* Overlay badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-1">
-            {salon.isNew && (
+            {provider.isNew && (
               <Badge className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">
                 NEW
               </Badge>
             )}
             <Badge className="bg-black/70 text-white text-xs px-2 py-1 rounded-full">
-              {salon.priceRange}
+              {provider.priceRange}
             </Badge>
           </div>
 
@@ -375,7 +375,7 @@ const ExplorePage = () => {
           <div className="absolute bottom-3 right-3">
             <Badge className="text-xs px-2 py-1 rounded-full bg-white/90 text-gray-900">
               <MapPin className="h-3 w-3 mr-1" />
-              {salon.location}
+              {provider.location}
             </Badge>
           </div>
         </div>
@@ -385,27 +385,27 @@ const ExplorePage = () => {
           {/* Header */}
           <div className="flex justify-between items-start mb-2">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 truncate">{salon.name}</h3>
-              <p className="text-sm text-gray-600 truncate">{salon.location}</p>
+              <h3 className="font-semibold text-gray-900 truncate">{provider.name}</h3>
+              <p className="text-sm text-gray-600 truncate">{provider.location}</p>
             </div>
             
             {/* Rating */}
             <div className="flex items-center ml-2">
               <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-sm font-medium ml-1">{salon.rating}</span>
+              <span className="text-sm font-medium ml-1">{provider.rating}</span>
             </div>
           </div>
 
           {/* Specialties */}
           <div className="flex flex-wrap gap-1 mb-3">
-            {salon.specialties.slice(0, 2).map((specialty: string) => (
+            {provider.specialties.slice(0, 2).map((specialty: string) => (
               <Badge key={specialty} variant="outline" className="text-xs px-2 py-0.5">
                 {specialty}
               </Badge>
             ))}
-            {salon.specialties.length > 2 && (
+            {provider.specialties.length > 2 && (
               <Badge variant="outline" className="text-xs px-2 py-0.5">
-                +{salon.specialties.length - 2}
+                +{provider.specialties.length - 2}
               </Badge>
             )}
           </div>
@@ -417,25 +417,25 @@ const ExplorePage = () => {
                 size="sm" 
                 variant="ghost" 
                 className="h-8 p-0 hover:bg-transparent"
-                onClick={() => toggleLike(salon.id)}
+                onClick={() => toggleLike(provider.id)}
               >
-                <Heart className={`h-5 w-5 ${salon.isLiked ? 'text-red-500 fill-red-500' : 'text-gray-600'}`} />
+                <Heart className={`h-5 w-5 ${provider.isLiked ? 'text-red-500 fill-red-500' : 'text-gray-600'}`} />
               </Button>
               <Button 
                 size="sm" 
                 variant="ghost" 
                 className="h-8 p-0 hover:bg-transparent"
-                onClick={() => toggleSave(salon.id)}
+                onClick={() => toggleSave(provider.id)}
               >
-                <Bookmark className={`h-5 w-5 ${salon.isSaved ? 'text-purple-600 fill-purple-600' : 'text-gray-600'}`} />
+                <Bookmark className={`h-5 w-5 ${provider.isSaved ? 'text-purple-600 fill-purple-600' : 'text-gray-600'}`} />
               </Button>
-              <span className="text-sm text-gray-500">{salon.reviewCount} reviews</span>
+              <span className="text-sm text-gray-500">{provider.reviewCount} reviews</span>
             </div>
             
             <Button 
               size="sm" 
               className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-full text-xs"
-              onClick={() => handleBooking(salon)}
+              onClick={() => handleBooking(provider)}
             >
               Book
             </Button>
@@ -455,7 +455,7 @@ const ExplorePage = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               type="text"
-              placeholder="Search salons..."
+              placeholder="Search service providers..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 border-gray-300 rounded-full bg-gray-50 focus:bg-white"
@@ -519,18 +519,18 @@ const ExplorePage = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {getFilteredSalons().map((salon) => (
-            <SalonCard key={salon.id} salon={salon} />
+          {getFilteredProviders().map((provider) => (
+            <ProviderCard key={provider.id} provider={provider} />
           ))}
         </div>
 
         {/* Empty state */}
-        {getFilteredSalons().length === 0 && (
+        {getFilteredProviders().length === 0 && (
           <div className="text-center py-12">
             <div className="text-gray-400 mb-4">
               <Search className="h-12 w-12 mx-auto" />
             </div>
-            <p className="text-gray-500 text-lg mb-4">No salons found</p>
+            <p className="text-gray-500 text-lg mb-4">No service providers found</p>
             <Button 
               variant="outline" 
               onClick={() => {
@@ -551,7 +551,7 @@ const ExplorePage = () => {
           <DialogHeader>
             <DialogTitle>Book Appointment</DialogTitle>
             <DialogDescription>
-              Book your appointment at {selectedSalon?.name}
+              Book your appointment with {selectedProvider?.name}
             </DialogDescription>
           </DialogHeader>
           
@@ -563,13 +563,9 @@ const ExplorePage = () => {
                   <SelectValue placeholder="Select a service" />
                 </SelectTrigger>
                 <SelectContent>
-                  {selectedSalon?.specialties.map((specialty) => (
+                  {selectedProvider?.specialties.map((specialty) => (
                     <SelectItem key={specialty} value={specialty}>{specialty}</SelectItem>
                   ))}
-                  <SelectItem value="haircut">Haircut</SelectItem>
-                  <SelectItem value="color">Hair Color</SelectItem>
-                  <SelectItem value="styling">Styling</SelectItem>
-                  <SelectItem value="treatment">Hair Treatment</SelectItem>
                 </SelectContent>
               </Select>
             </div>

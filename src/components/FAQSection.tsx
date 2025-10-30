@@ -5,7 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { HelpCircle, Search, Users, Scissors, Calendar, CreditCard, Star, Shield } from 'lucide-react';
+import { HelpCircle, Search, Users, Calendar, CreditCard, Star, Shield, Briefcase } from 'lucide-react';
 
 const FAQSection = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,7 +34,7 @@ const FAQSection = () => {
     {
       id: 'services',
       name: 'Services',
-      icon: Scissors,
+      icon: Briefcase,
       color: 'bg-pink-100 text-pink-800'
     },
     {
@@ -57,14 +57,14 @@ const FAQSection = () => {
       id: 1,
       category: 'general',
       question: 'What is Bookang and how does it work?',
-      answer: 'Bookang is a platform that connects customers with professional hairdressers and salons. You can browse salons, view services, read reviews, and book appointments all in one place. Simply create an account, search for salons in your area, and book your preferred time slot.',
+      answer: 'Bookang is a platform that connects clients with professional service providers across various industries. You can browse businesses, view services, read reviews, and book appointments all in one place. Simply create an account, search for service providers in your area, and book your preferred time slot.',
       popular: true
     },
     {
       id: 2,
       category: 'general',
       question: 'Is Bookang available in my area?',
-      answer: 'Bookang is currently available in major cities across the country and we\'re expanding rapidly. Use our salon search feature to see available options in your location. If we\'re not in your area yet, join our waitlist to be notified when we launch there.',
+      answer: 'Bookang is currently available in major cities across South Africa and we\'re expanding rapidly. Use our search feature to see available service providers in your location. If we\'re not in your area yet, join our waitlist to be notified when we launch there.',
       popular: false
     },
     {
@@ -80,28 +80,28 @@ const FAQSection = () => {
       id: 4,
       category: 'booking',
       question: 'How do I book an appointment?',
-      answer: 'To book an appointment: 1) Log into your account, 2) Browse or search for salons, 3) Select your preferred salon and service, 4) Choose an available date and time, 5) Confirm your booking. You\'ll receive a confirmation email with all the details.',
+      answer: 'To book an appointment: 1) Log into your account, 2) Browse or search for service providers, 3) Select your preferred business and service, 4) Choose an available date and time, 5) Confirm your booking. You\'ll receive a confirmation email with all the details.',
       popular: true
     },
     {
       id: 5,
       category: 'booking',
       question: 'Can I cancel or reschedule my appointment?',
-      answer: 'Yes, you can cancel or reschedule appointments up to 24 hours before your scheduled time without any fees. To do this, go to your dashboard, find the appointment, and click "Reschedule" or "Cancel". Cancellations within 24 hours may incur a fee depending on the salon\'s policy.',
+      answer: 'Yes, you can cancel or reschedule appointments up to 24 hours before your scheduled time without any fees. To do this, go to your dashboard, find the appointment, and click "Reschedule" or "Cancel". Cancellations within 24 hours may incur a fee depending on the service provider\'s policy.',
       popular: true
     },
     {
       id: 6,
       category: 'booking',
       question: 'What happens if I\'m late for my appointment?',
-      answer: 'If you\'re running late, please contact the salon directly as soon as possible. Most salons have a 15-minute grace period, but arriving late may result in a shortened service time or rescheduling to accommodate other clients. Each salon sets their own late policy.',
+      answer: 'If you\'re running late, please contact the service provider directly as soon as possible. Most businesses have a 15-minute grace period, but arriving late may result in a shortened service time or rescheduling to accommodate other clients. Each provider sets their own late policy.',
       popular: false
     },
     {
       id: 7,
       category: 'booking',
       question: 'Can I book multiple services at once?',
-      answer: 'Absolutely! When booking, you can select multiple services from the same salon. The system will automatically calculate the total time needed and show you available slots that accommodate all your chosen services. You can also add services during your visit if time permits.',
+      answer: 'Absolutely! When booking, you can select multiple services from the same provider. The system will automatically calculate the total time needed and show you available slots that accommodate all your chosen services. You can also add services during your visit if time permits.',
       popular: false
     },
 
@@ -110,21 +110,21 @@ const FAQSection = () => {
       id: 8,
       category: 'payments',
       question: 'What payment methods do you accept?',
-      answer: 'We accept all major credit cards (Visa, MasterCard, American Express, Discover), debit cards, PayPal, Apple Pay, and Google Pay. Payment is typically processed after your service is completed, though some salons may require a deposit when booking.',
+      answer: 'We accept all major credit cards (Visa, MasterCard, American Express, Discover), debit cards, PayPal, Apple Pay, and Google Pay. Payment is typically processed after your service is completed, though some businesses may require a deposit when booking.',
       popular: true
     },
     {
       id: 9,
       category: 'payments',
       question: 'When am I charged for my appointment?',
-      answer: 'Most salons charge after your service is completed. However, some high-end salons or specialized treatments may require a deposit at booking time. You\'ll see the payment policy clearly stated before confirming your appointment.',
+      answer: 'Most businesses charge after your service is completed. However, some high-value consultations or specialized services may require a deposit at booking time. You\'ll see the payment policy clearly stated before confirming your appointment.',
       popular: false
     },
     {
       id: 10,
       category: 'payments',
       question: 'Can I get a refund if I\'m not satisfied?',
-      answer: 'Refund policies vary by salon. If you\'re unsatisfied with your service, first speak with the salon manager. If the issue isn\'t resolved, contact our customer support team within 48 hours of your appointment. We work with salons to find fair solutions for service concerns.',
+      answer: 'Refund policies vary by service provider. If you\'re unsatisfied with your service, first speak with the business manager. If the issue isn\'t resolved, contact our customer support team within 48 hours of your appointment. We work with providers to find fair solutions for service concerns.',
       popular: false
     },
 
@@ -133,21 +133,21 @@ const FAQSection = () => {
       id: 11,
       category: 'services',
       question: 'What types of services are available?',
-      answer: 'Our partner salons offer a wide range of services including haircuts, hair coloring, highlights, hair treatments, styling, perms, extensions, and specialized services like keratin treatments. Service availability varies by salon, so check individual salon pages for their complete menu.',
+      answer: 'Our partner businesses offer a wide range of professional services including consulting, legal advice, health and wellness, coaching, training, IT support, accounting, and more. Service availability varies by provider, so check individual business pages for their complete service menu.',
       popular: true
     },
     {
       id: 12,
       category: 'services',
       question: 'How do I know which service is right for me?',
-      answer: 'Many of our salons offer consultations to help determine the best services for your hair type and desired look. You can also read service descriptions, view before/after photos, and check reviews from other customers with similar hair types.',
+      answer: 'Many of our service providers offer initial consultations to help determine the best services for your needs. You can also read service descriptions, view case studies or portfolios, and check reviews from other clients with similar requirements.',
       popular: false
     },
     {
       id: 13,
       category: 'services',
-      question: 'Can I bring reference photos for my appointment?',
-      answer: 'Absolutely! Bringing reference photos is encouraged and helps ensure you and your stylist are on the same page. You can also save inspiration photos in your Bookang profile to show your stylist during the consultation.',
+      question: 'Can I bring reference materials for my appointment?',
+      answer: 'Absolutely! Bringing reference materials, documents, or examples is encouraged and helps ensure you and your service provider are aligned. You can also save notes in your Bookang profile to share during your consultation.',
       popular: false
     },
 
@@ -156,7 +156,7 @@ const FAQSection = () => {
       id: 14,
       category: 'account',
       question: 'How do I create an account?',
-      answer: 'Creating an account is easy! Click "Register" on our homepage, choose whether you\'re a customer or hairdresser, enter your email and create a password. For hairdressers, you\'ll need to provide additional professional information. Verify your email address to activate your account.',
+      answer: 'Creating an account is easy! Click "Register" on our homepage, choose whether you\'re a client or service provider, enter your email and create a password. For service providers, you\'ll need to provide additional business information. Verify your email address to activate your account.',
       popular: true
     },
     {
