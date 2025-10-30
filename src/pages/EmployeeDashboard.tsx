@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { ClientSearch } from "@/components/ClientSearch";
+import { PerformanceTab } from "@/components/PerformanceTab";
+import { FinancialTab } from "@/components/FinancialTab";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LogOut, Users, FileText, User } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LogOut, Users, FileText, User, TrendingUp, DollarSign } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function EmployeeDashboard() {
@@ -93,51 +96,55 @@ export default function EmployeeDashboard() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          {/* Sidebar Navigation */}
-          <div className="md:col-span-1">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Navigation</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => navigate("/employee")}
-                >
-                  <Users className="h-4 w-4 mr-2" />
-                  Client Profiles
-                </Button>
-                
-                {userRole === "super_user" && (
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => navigate("/employee/amendments")}
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    Amendment Requests
-                  </Button>
-                )}
-                
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start"
-                  onClick={() => navigate("/employee/profile")}
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  My Profile
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+        <Tabs defaultValue="clients" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="clients">
+              <Users className="h-4 w-4 mr-2" />
+              Clients
+            </TabsTrigger>
+            <TabsTrigger value="performance">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Performance
+            </TabsTrigger>
+            <TabsTrigger value="financial">
+              <DollarSign className="h-4 w-4 mr-2" />
+              Financial
+            </TabsTrigger>
+            {userRole === "super_user" && (
+              <TabsTrigger value="amendments">
+                <FileText className="h-4 w-4 mr-2" />
+                Amendments
+              </TabsTrigger>
+            )}
+          </TabsList>
 
-          {/* Main Content Area */}
-          <div className="md:col-span-3">
+          <TabsContent value="clients">
             <ClientSearch />
-          </div>
-        </div>
+          </TabsContent>
+
+          <TabsContent value="performance">
+            <PerformanceTab />
+          </TabsContent>
+
+          <TabsContent value="financial">
+            <FinancialTab />
+          </TabsContent>
+
+          {userRole === "super_user" && (
+            <TabsContent value="amendments">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Amendment Requests</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Button onClick={() => navigate("/employee/amendments")}>
+                    View All Amendment Requests
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+        </Tabs>
       </div>
     </div>
   );

@@ -75,6 +75,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "amendment_requests_user_id_client_fkey"
+            columns: ["user_id_client"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
         ]
       }
       blocked_times: {
@@ -115,6 +122,27 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "hairdressers"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blocked_times_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "blocked_times_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "blocked_times_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_performer_ratings"
+            referencedColumns: ["hairdresser_id"]
           },
         ]
       }
@@ -185,6 +213,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bookings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+          {
             foreignKeyName: "bookings_hairdresser_id_fkey"
             columns: ["hairdresser_id"]
             isOneToOne: false
@@ -192,11 +227,46 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bookings_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "bookings_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "bookings_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_performer_ratings"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
             foreignKeyName: "bookings_saloon_foreign"
             columns: ["saloon"]
             isOneToOne: false
             referencedRelation: "salons"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_saloon_foreign"
+            columns: ["saloon"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["salon_id"]
+          },
+          {
+            foreignKeyName: "bookings_saloon_foreign"
+            columns: ["saloon"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["salon_id"]
           },
           {
             foreignKeyName: "bookings_service_id_fkey"
@@ -261,6 +331,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "client_profiles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
         ]
       }
       consent_records: {
@@ -301,6 +378,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consent_records_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
           },
         ]
       }
@@ -374,11 +458,32 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "hairdressers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+          {
             foreignKeyName: "hairdressers_salon_id_fkey"
             columns: ["salon_id"]
             isOneToOne: false
             referencedRelation: "salons"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hairdressers_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["salon_id"]
+          },
+          {
+            foreignKeyName: "hairdressers_salon_id_fkey"
+            columns: ["salon_id"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["salon_id"]
           },
         ]
       }
@@ -427,6 +532,20 @@ export type Database = {
             referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "invoices_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["booking_id"]
+          },
+          {
+            foreignKeyName: "invoices_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["booking_id"]
+          },
         ]
       }
       notification_preferences: {
@@ -471,6 +590,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "notification_preferences_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
         ]
       }
       otp_verifications: {
@@ -511,6 +637,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "otp_verifications_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
           },
         ]
       }
@@ -643,6 +776,20 @@ export type Database = {
             referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "profiles_bookings_foreign"
+            columns: ["bookings"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["booking_id"]
+          },
+          {
+            foreignKeyName: "profiles_bookings_foreign"
+            columns: ["bookings"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["booking_id"]
+          },
         ]
       }
       salons: {
@@ -718,6 +865,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "salons_bookings_foreign"
+            columns: ["bookings"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["booking_id"]
+          },
+          {
+            foreignKeyName: "salons_bookings_foreign"
+            columns: ["bookings"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["booking_id"]
+          },
+          {
             foreignKeyName: "salons_hairdressers_foreign"
             columns: ["hairdressers"]
             isOneToOne: false
@@ -725,11 +886,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "salons_hairdressers_foreign"
+            columns: ["hairdressers"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "salons_hairdressers_foreign"
+            columns: ["hairdressers"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "salons_hairdressers_foreign"
+            columns: ["hairdressers"]
+            isOneToOne: false
+            referencedRelation: "vw_performer_ratings"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
             foreignKeyName: "salons_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salons_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
           },
         ]
       }
@@ -772,6 +961,20 @@ export type Database = {
             referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "secure_booking_tokens_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["booking_id"]
+          },
+          {
+            foreignKeyName: "secure_booking_tokens_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["booking_id"]
+          },
         ]
       }
       services: {
@@ -812,6 +1015,27 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "hairdressers"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "services_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "services_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_performer_ratings"
+            referencedColumns: ["hairdresser_id"]
           },
         ]
       }
@@ -869,11 +1093,112 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "verification_documents_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      vw_booking_status: {
+        Row: {
+          appointment_date: string | null
+          booking_id: string | null
+          client_name: string | null
+          created_at: string | null
+          hairdresser_id: string | null
+          salon_id: string | null
+          salon_name: string | null
+          service_name: string | null
+          status: string | null
+          total_price: number | null
+        }
+        Relationships: []
+      }
+      vw_commission_data: {
+        Row: {
+          appointment_date: string | null
+          booking_id: string | null
+          commission_amount: number | null
+          commission_rate_percent: number | null
+          hairdresser_email: string | null
+          hairdresser_id: string | null
+          hairdresser_name: string | null
+          month: number | null
+          month_year: string | null
+          salon_id: string | null
+          salon_name: string | null
+          service_cost: number | null
+          status: string | null
+          year: number | null
+        }
+        Relationships: []
+      }
+      vw_onboarding_status: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          email_verified: boolean | null
+          full_name: string | null
+          is_verified: boolean | null
+          onboarding_completed: boolean | null
+          onboarding_stage: string | null
+          payment_verified: boolean | null
+          phone_verified: boolean | null
+          profile_id: string | null
+          role: Database["public"]["Enums"]["user_role"] | null
+          user_id: string | null
+          verification_status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          email_verified?: boolean | null
+          full_name?: string | null
+          is_verified?: never
+          onboarding_completed?: boolean | null
+          onboarding_stage?: never
+          payment_verified?: boolean | null
+          phone_verified?: boolean | null
+          profile_id?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          user_id?: string | null
+          verification_status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          email_verified?: boolean | null
+          full_name?: string | null
+          is_verified?: never
+          onboarding_completed?: boolean | null
+          onboarding_stage?: never
+          payment_verified?: boolean | null
+          phone_verified?: boolean | null
+          profile_id?: string | null
+          role?: Database["public"]["Enums"]["user_role"] | null
+          user_id?: string | null
+          verification_status?: string | null
+        }
+        Relationships: []
+      }
+      vw_performer_ratings: {
+        Row: {
+          completion_rate: number | null
+          hairdresser_id: string | null
+          hairdresser_name: string | null
+          salon_name: string | null
+          total_bookings: number | null
+          total_cancellations: number | null
+          total_completed_bookings: number | null
+          total_no_shows: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_employee_role: {
