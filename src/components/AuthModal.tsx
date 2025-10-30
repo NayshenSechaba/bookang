@@ -128,6 +128,28 @@ const AuthModal = ({
         const userName = profile?.full_name || data.user.email?.split('@')[0] || 'User';
         const userRole = profile?.role || loginType;
         
+        // For employee login, verify they have employee role in employee_roles table
+        if (loginType === 'employee') {
+          const { data: employeeRole, error: roleError } = await supabase
+            .from('employee_roles')
+            .select('role')
+            .eq('user_id', data.user.id)
+            .maybeSingle();
+
+          if (roleError || !employeeRole) {
+            showAlert('error', 'Access Denied', 'You do not have employee access. Please contact an administrator.');
+            await supabase.auth.signOut();
+            return;
+          }
+
+          // Redirect to employee dashboard
+          showAlert('success', 'Login Successful', 'Welcome back! Redirecting to employee dashboard...');
+          setTimeout(() => {
+            window.location.href = '/employee';
+          }, 1500);
+          return;
+        }
+        
         showAlert('success', 'Login Successful', `Welcome back! Redirecting to your ${userRole} dashboard...`);
         
         setTimeout(() => {
