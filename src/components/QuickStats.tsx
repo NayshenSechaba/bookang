@@ -1,6 +1,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Calendar, Scissors, Package, TrendingUp, TrendingDown, Star } from 'lucide-react';
+import { Calendar, Scissors, TrendingUp, TrendingDown, Star } from 'lucide-react';
 import { FinancialData } from '@/types/dashboard';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,7 +15,7 @@ const QuickStats = ({ data }: QuickStatsProps) => {
   const isImprovement = performanceChange > 0;
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
       <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
@@ -53,18 +53,6 @@ const QuickStats = ({ data }: QuickStatsProps) => {
               </div>
             </div>
             <Scissors className="h-8 w-8 text-blue-200" />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100">Commission Rate</p>
-              <p className="text-2xl font-bold">{data.commissionRate}</p>
-            </div>
-            <Package className="h-8 w-8 text-blue-200" />
           </div>
         </CardContent>
       </Card>
