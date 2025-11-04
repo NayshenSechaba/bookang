@@ -1,21 +1,14 @@
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DollarSign, TrendingUp, Clock, Zap, CreditCard, Smartphone, Calendar, Users } from 'lucide-react';
-import { toast } from "@/hooks/use-toast";
+import { DollarSign, TrendingUp, Clock, Users } from 'lucide-react';
 
 interface StylistEarningsProps {
   stylistName: string;
 }
 
 const StylistEarnings = ({ stylistName }: StylistEarningsProps) => {
-  const [payoutMethod, setPayoutMethod] = useState('weekly');
-  const [payoutDestination, setPayoutDestination] = useState('bank');
-
   // Mock earnings data
   const earningsData = {
     today: {
@@ -53,23 +46,6 @@ const StylistEarnings = ({ stylistName }: StylistEarningsProps) => {
     { id: 4, type: 'payout', client: 'Weekly Payout', amount: 2847.20, tips: 0, time: '09:00', status: 'processed' },
     { id: 5, type: 'service', client: 'Lisa Chen', amount: 120, tips: 25, time: 'Yesterday', status: 'completed' }
   ];
-
-  const payoutOptions = [
-    { id: 'instant', name: 'Instant Payout', fee: '2.5%', time: 'Within 30 minutes', icon: Zap },
-    { id: 'weekly', name: 'Weekly Payout', fee: 'Free', time: 'Every Monday', icon: Calendar },
-  ];
-
-  const payoutDestinations = [
-    { id: 'bank', name: 'Bank Transfer', icon: CreditCard, details: 'Standard Bank ****1234' },
-    { id: 'mobile', name: 'Mobile Money', icon: Smartphone, details: 'MTN Mobile Money' }
-  ];
-
-  const handleInstantPayout = () => {
-    toast({
-      title: "Instant Payout Requested",
-      description: `R${earningsData.pending.amount.toFixed(2)} will be transferred to your account within 30 minutes.`,
-    });
-  };
 
   const weeklyProgress = (earningsData.week.gross / earningsData.week.target) * 100;
   const monthlyProgress = (earningsData.month.gross / earningsData.month.target) * 100;
@@ -161,80 +137,6 @@ const StylistEarnings = ({ stylistName }: StylistEarningsProps) => {
           </CardContent>
         </Card>
       </div>
-
-      {/* Payout Options */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Get Paid Faster</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            {payoutOptions.map((option) => (
-              <div
-                key={option.id}
-                className={`border rounded-lg p-4 cursor-pointer transition-all ${
-                  payoutMethod === option.id
-                    ? 'border-purple-500 bg-purple-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-                onClick={() => setPayoutMethod(option.id)}
-              >
-                <div className="flex items-center gap-3">
-                  <option.icon className="h-5 w-5 text-purple-600" />
-                  <div className="flex-1">
-                    <div className="font-medium">{option.name}</div>
-                    <div className="text-sm text-gray-600">{option.time}</div>
-                    <div className="text-sm text-purple-600 font-medium">Fee: {option.fee}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Payout Destination</label>
-              <Select value={payoutDestination} onValueChange={setPayoutDestination}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {payoutDestinations.map((dest) => (
-                    <SelectItem key={dest.id} value={dest.id}>
-                      <div className="flex items-center gap-2">
-                        <dest.icon className="h-4 w-4" />
-                        <span>{dest.name} - {dest.details}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {payoutMethod === 'instant' && (
-              <Button
-                onClick={handleInstantPayout}
-                className="w-full bg-purple-600 hover:bg-purple-700"
-              >
-                <Zap className="h-4 w-4 mr-2" />
-                Request Instant Payout - R{(earningsData.pending.amount * 0.975).toFixed(2)}
-              </Button>
-            )}
-
-            {payoutMethod === 'weekly' && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <div className="flex items-center gap-2 text-green-800">
-                  <Calendar className="h-5 w-5" />
-                  <span className="font-medium">Next Automatic Payout</span>
-                </div>
-                <p className="text-sm text-green-700 mt-1">
-                  R{earningsData.pending.amount.toFixed(2)} will be transferred to your account on {earningsData.pending.nextPayout}
-                </p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Recent Transactions */}
       <Card>
