@@ -2,12 +2,14 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, Scissors, Package, TrendingUp, TrendingDown, Star } from 'lucide-react';
 import { FinancialData } from '@/types/dashboard';
+import { useNavigate } from 'react-router-dom';
 
 interface QuickStatsProps {
   data: FinancialData;
 }
 
 const QuickStats = ({ data }: QuickStatsProps) => {
+  const navigate = useNavigate();
   // Mock performance data - in a real app this would come from props
   const performanceChange = 15.2; // percentage change from previous month
   const isImprovement = performanceChange > 0;
@@ -26,7 +28,10 @@ const QuickStats = ({ data }: QuickStatsProps) => {
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+      <Card 
+        className="bg-gradient-to-r from-blue-600 to-blue-700 text-white cursor-pointer hover:from-blue-700 hover:to-blue-800 transition-all"
+        onClick={() => navigate('/employee/ratings')}
+      >
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
