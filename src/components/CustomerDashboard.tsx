@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,20 +14,21 @@ import PaymentProcessing from './PaymentProcessing';
 import ClientWallet from './ClientWallet';
 import BookingConfirmation from './BookingConfirmation';
 import { supabase } from "@/integrations/supabase/client";
-
 interface CustomerDashboardProps {
   userName: string;
   onNavigate?: (page: string) => void;
 }
-
-const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => {
+const CustomerDashboard = ({
+  userName,
+  onNavigate
+}: CustomerDashboardProps) => {
   // Profile state
   const [profilePicture, setProfilePicture] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [showProfileUpload, setShowProfileUpload] = useState(false);
   const [showCoverUpload, setShowCoverUpload] = useState(false);
   const [username, setUsername] = useState('');
-  
+
   // Currency formatting for South African Rands
   const formatCurrency = (amount: number) => {
     return `R${amount.toFixed(2)}`;
@@ -38,14 +38,13 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const { data: user } = await supabase.auth.getUser();
+        const {
+          data: user
+        } = await supabase.auth.getUser();
         if (user.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('username, avatar_url')
-            .eq('user_id', user.user.id)
-            .single();
-          
+          const {
+            data: profile
+          } = await supabase.from('profiles').select('username, avatar_url').eq('user_id', user.user.id).single();
           if (profile) {
             setUsername(profile.username || '');
             if (profile.avatar_url) {
@@ -57,22 +56,19 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
         console.error('Failed to fetch user profile:', error);
       }
     };
-
     fetchUserProfile();
   }, []);
 
   // Name formatting function
   const formatName = (name: string) => {
     if (!name) return '';
-    
+
     // Split by space and filter out empty strings
     const parts = name.trim().split(/\s+/).filter(part => part.length > 0);
-    
+
     // Capitalize first letter of each part and make rest lowercase
-    const formattedParts = parts.map(part => 
-      part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-    );
-    
+    const formattedParts = parts.map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
+
     // Join with spaces
     return formattedParts.join(' ');
   };
@@ -83,7 +79,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
   const [pendingBooking, setPendingBooking] = useState<any>(null);
-  
+
   // Booking form state
   const [bookingData, setBookingData] = useState({
     service: '',
@@ -93,20 +89,25 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
     notes: '',
     phone: ''
   });
-  
+
   // Review form state
   const [reviewData, setReviewData] = useState({
     rating: 0,
     comment: ''
   });
-  
+
   // Alert state
   const [alertInfo, setAlertInfo] = useState<{
     show: boolean;
     type: 'success' | 'error' | 'info';
     title: string;
     message: string;
-  }>({ show: false, type: 'info', title: '', message: '' });
+  }>({
+    show: false,
+    type: 'info',
+    title: '',
+    message: ''
+  });
 
   // Test reminder state
   const [sendingReminder, setSendingReminder] = useState(false);
@@ -118,21 +119,19 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   const [availableHairdressers, setAvailableHairdressers] = useState<any[]>([]);
   const [salons, setSalons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
   const [blockedTimes, setBlockedTimes] = useState<any[]>([]);
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([
-    '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
-  ]);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>(['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM']);
 
   // Calculate distance between two coordinates (Haversine formula)
   const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
     const R = 6371; // Earth's radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLng = (lng2 - lng1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
@@ -143,24 +142,24 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: {
+            user
+          }
+        } = await supabase.auth.getUser();
         if (!user) return;
 
         // Get current user's profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('user_id', user.id)
-          .single();
-
+        const {
+          data: profile
+        } = await supabase.from('profiles').select('id').eq('user_id', user.id).single();
         if (!profile) return;
 
         // Fetch appointments
         const today = new Date().toISOString().split('T')[0];
-        
-        const { data: upcomingData } = await supabase
-          .from('bookings')
-          .select(`
+        const {
+          data: upcomingData
+        } = await supabase.from('bookings').select(`
             *,
             services(name),
             hairdressers(
@@ -168,14 +167,12 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
               profiles(full_name)
             ),
             salons!bookings_saloon_foreign(name, address)
-          `)
-          .eq('customer_id', profile.id)
-          .gte('appointment_date', today)
-          .order('appointment_date', { ascending: true });
-
-        const { data: pastData } = await supabase
-          .from('bookings')
-          .select(`
+          `).eq('customer_id', profile.id).gte('appointment_date', today).order('appointment_date', {
+          ascending: true
+        });
+        const {
+          data: pastData
+        } = await supabase.from('bookings').select(`
             *,
             services(name),
             hairdressers(
@@ -183,21 +180,19 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
               profiles(full_name)
             ),
             salons!bookings_saloon_foreign(name, address)
-          `)
-          .eq('customer_id', profile.id)
-          .lt('appointment_date', today)
-          .order('appointment_date', { ascending: false })
-          .limit(10);
+          `).eq('customer_id', profile.id).lt('appointment_date', today).order('appointment_date', {
+          ascending: false
+        }).limit(10);
 
         // Fetch salons first
-        const { data: salonsData } = await supabase
-          .from('salons')
-          .select('*');
+        const {
+          data: salonsData
+        } = await supabase.from('salons').select('*');
 
         // Fetch services with hairdresser and salon information
-        const { data: servicesData } = await supabase
-          .from('services')
-          .select(`
+        const {
+          data: servicesData
+        } = await supabase.from('services').select(`
             *,
             hairdressers!services_hairdresser_id_fkey(
               id,
@@ -209,13 +204,12 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                 longitude
               )
             )
-          `)
-          .eq('is_active', true);
+          `).eq('is_active', true);
 
         // Fetch hairdressers with their profiles and salons
-        const { data: hairdressersData } = await supabase
-          .from('hairdressers')
-          .select(`
+        const {
+          data: hairdressersData
+        } = await supabase.from('hairdressers').select(`
             *,
             profiles(full_name),
             salons!hairdressers_salon_id_fkey(
@@ -224,51 +218,29 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
               latitude,
               longitude
             )
-          `)
-          .eq('is_available', true);
+          `).eq('is_available', true);
 
         // Sort by distance if user location is available
         let sortedHairdressers = hairdressersData || [];
         let sortedServices = servicesData || [];
-        
         if (userLocation && hairdressersData) {
-          sortedHairdressers = [...hairdressersData]
-            .map(h => {
-              const salon = h.salons as any;
-              return {
-                ...h,
-                distance: salon?.latitude && salon?.longitude
-                  ? calculateDistance(
-                      userLocation.lat,
-                      userLocation.lng,
-                      salon.latitude,
-                      salon.longitude
-                    )
-                  : Infinity
-              };
-            })
-            .sort((a, b) => a.distance - b.distance);
+          sortedHairdressers = [...hairdressersData].map(h => {
+            const salon = h.salons as any;
+            return {
+              ...h,
+              distance: salon?.latitude && salon?.longitude ? calculateDistance(userLocation.lat, userLocation.lng, salon.latitude, salon.longitude) : Infinity
+            };
+          }).sort((a, b) => a.distance - b.distance);
         }
-
         if (userLocation && servicesData) {
-          sortedServices = [...servicesData]
-            .map(s => {
-              const salon = (s.hairdressers as any)?.salons;
-              return {
-                ...s,
-                distance: salon?.latitude && salon?.longitude
-                  ? calculateDistance(
-                      userLocation.lat,
-                      userLocation.lng,
-                      salon.latitude,
-                      salon.longitude
-                    )
-                  : Infinity
-              };
-            })
-            .sort((a, b) => a.distance - b.distance);
+          sortedServices = [...servicesData].map(s => {
+            const salon = (s.hairdressers as any)?.salons;
+            return {
+              ...s,
+              distance: salon?.latitude && salon?.longitude ? calculateDistance(userLocation.lat, userLocation.lng, salon.latitude, salon.longitude) : Infinity
+            };
+          }).sort((a, b) => a.distance - b.distance);
         }
-
         setUpcomingAppointments(upcomingData || []);
         setPastAppointments(pastData || []);
         setAvailableServices(sortedServices);
@@ -280,13 +252,17 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
   // Show custom alert
   const showAlert = (type: 'success' | 'error' | 'info', title: string, message: string) => {
-    setAlertInfo({ show: true, type, title, message });
+    setAlertInfo({
+      show: true,
+      type,
+      title,
+      message
+    });
   };
 
   // Convert time from 12-hour to 24-hour format
@@ -294,13 +270,11 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
     const [hourMin, period] = time.split(' ');
     let [hour, min] = hourMin.split(':');
     let hourNum = parseInt(hour);
-    
     if (period === 'PM' && hourNum !== 12) {
       hourNum += 12;
     } else if (period === 'AM' && hourNum === 12) {
       hourNum = 0;
     }
-    
     return `${hourNum.toString().padStart(2, '0')}:${min}:00`;
   };
 
@@ -311,32 +285,25 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
         setAvailableTimeSlots(['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM']);
         return;
       }
-
       try {
         // Find hairdresser ID
-        const selectedHairdresser = availableHairdressers.find(
-          h => (h.profiles?.full_name || 'Provider') === bookingData.hairdresser
-        );
-
+        const selectedHairdresser = availableHairdressers.find(h => (h.profiles?.full_name || 'Provider') === bookingData.hairdresser);
         if (!selectedHairdresser) {
           setAvailableTimeSlots(['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM']);
           return;
         }
 
         // Fetch blocked times for this hairdresser and date
-        const { data, error } = await supabase
-          .from('blocked_times')
-          .select('*')
-          .eq('hairdresser_id', selectedHairdresser.id)
-          .eq('blocked_date', bookingData.date);
-
+        const {
+          data,
+          error
+        } = await supabase.from('blocked_times').select('*').eq('hairdresser_id', selectedHairdresser.id).eq('blocked_date', bookingData.date);
         if (error) {
           console.error('Error fetching blocked times:', error);
           setBlockedTimes([]);
           setAvailableTimeSlots(['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM']);
           return;
         }
-
         setBlockedTimes(data || []);
 
         // Filter available time slots
@@ -348,12 +315,14 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
           });
           return !isBlocked;
         });
-
         setAvailableTimeSlots(filteredSlots);
 
         // Clear selected time if it's no longer available
         if (bookingData.time && !filteredSlots.includes(bookingData.time)) {
-          setBookingData(prev => ({ ...prev, time: '' }));
+          setBookingData(prev => ({
+            ...prev,
+            time: ''
+          }));
         }
       } catch (error) {
         console.error('Error fetching blocked times:', error);
@@ -361,24 +330,21 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
         setAvailableTimeSlots(['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM']);
       }
     };
-
     fetchBlockedTimes();
   }, [bookingData.hairdresser, bookingData.date, availableHairdressers]);
 
   // Handle booking form submission
   const handleBooking = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!bookingData.service || !bookingData.hairdresser || !bookingData.date || !bookingData.time) {
       showAlert('error', 'Incomplete Information', 'Please fill in all required fields to book your appointment.');
       return;
     }
-    
+
     // Validate date is not in the past
     const selectedDate = new Date(bookingData.date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
     if (selectedDate < today) {
       showAlert('error', 'Invalid Date', 'Please select a future date for your appointment.');
       return;
@@ -387,21 +353,16 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
     // Check if the selected time is blocked
     const selectedTime = convertTo24Hour(bookingData.time);
     const isBlocked = blockedTimes.some(blocked => {
-      return blocked.blocked_date === bookingData.date &&
-             selectedTime >= blocked.start_time &&
-             selectedTime < blocked.end_time;
+      return blocked.blocked_date === bookingData.date && selectedTime >= blocked.start_time && selectedTime < blocked.end_time;
     });
-
     if (isBlocked) {
       showAlert('error', 'Time Unavailable', 'This time slot is not available. Please select a different time.');
       return;
     }
-    
+
     // Create pending booking for payment
     const selectedHairdresser = availableHairdressers.find(h => h.name === bookingData.hairdresser);
-    const serviceCost = bookingData.service === 'Hair Color' ? 150 : 
-                       bookingData.service === 'Hair Treatment' ? 120 : 75;
-    
+    const serviceCost = bookingData.service === 'Hair Color' ? 150 : bookingData.service === 'Hair Treatment' ? 120 : 75;
     setPendingBooking({
       service: bookingData.service,
       stylist: bookingData.hairdresser,
@@ -412,81 +373,73 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
       notes: bookingData.notes,
       phone: bookingData.phone
     });
-    
     setShowBookingModal(false);
     setShowPaymentModal(true);
   };
 
   // Handle payment completion
   const handlePaymentComplete = async (paymentData: any) => {
-    showAlert('success', 'Booking Confirmed!', 
-      `Your appointment for ${pendingBooking.service} with ${pendingBooking.stylist} has been booked for ${pendingBooking.date} at ${pendingBooking.time}. Payment of R${paymentData.amount.toFixed(2)} processed successfully.`
-    );
-    
+    showAlert('success', 'Booking Confirmed!', `Your appointment for ${pendingBooking.service} with ${pendingBooking.stylist} has been booked for ${pendingBooking.date} at ${pendingBooking.time}. Payment of R${paymentData.amount.toFixed(2)} processed successfully.`);
+
     // Save booking to Supabase database
     try {
-      const { data: user } = await supabase.auth.getUser();
+      const {
+        data: user
+      } = await supabase.auth.getUser();
       if (!user.user) {
         throw new Error('User not authenticated');
       }
 
       // Get customer profile ID
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.user.id)
-        .single();
-
+      const {
+        data: profile
+      } = await supabase.from('profiles').select('id').eq('user_id', user.user.id).single();
       if (!profile) {
         throw new Error('Customer profile not found');
       }
 
       // Find hairdresser by name (for demo purposes, we'll use a mock lookup)
       // In a real app, you'd have hairdresser IDs from the booking form
-      const { data: hairdresser } = await supabase
-        .from('hairdressers')
-        .select('id')
-        .limit(1)
-        .single();
+      const {
+        data: hairdresser
+      } = await supabase.from('hairdressers').select('id').limit(1).single();
 
       // Find service by name (for demo purposes, we'll use a mock lookup)
       // In a real app, you'd have service IDs from the booking form
-      const { data: service } = await supabase
-        .from('services')
-        .select('id, duration_minutes')
-        .limit(1)
-        .single();
+      const {
+        data: service
+      } = await supabase.from('services').select('id, duration_minutes').limit(1).single();
 
       // Insert booking into database
-      const { data: newBooking, error: bookingError } = await supabase
-        .from('bookings')
-        .insert({
-          customer_id: profile.id,
-          hairdresser_id: hairdresser?.id || null,
-          service_id: service?.id || null,
-          appointment_date: pendingBooking.date,
-          appointment_time: pendingBooking.time,
-          duration_minutes: service?.duration_minutes || 60,
-          total_price: pendingBooking.cost,
-          status: 'pending',
-          special_requests: pendingBooking.notes || null
-        })
-        .select()
-        .single();
-
+      const {
+        data: newBooking,
+        error: bookingError
+      } = await supabase.from('bookings').insert({
+        customer_id: profile.id,
+        hairdresser_id: hairdresser?.id || null,
+        service_id: service?.id || null,
+        appointment_date: pendingBooking.date,
+        appointment_time: pendingBooking.time,
+        duration_minutes: service?.duration_minutes || 60,
+        total_price: pendingBooking.cost,
+        status: 'pending',
+        special_requests: pendingBooking.notes || null
+      }).select().single();
       if (bookingError) {
         throw bookingError;
       }
-
       console.log('Booking saved to Supabase successfully');
 
       // Send booking confirmation SMS
       if (newBooking) {
         try {
-          const { error: smsError } = await supabase.functions.invoke('send-booking-confirmation', {
-            body: { booking_id: newBooking.id }
+          const {
+            error: smsError
+          } = await supabase.functions.invoke('send-booking-confirmation', {
+            body: {
+              booking_id: newBooking.id
+            }
           });
-
           if (smsError) {
             console.error('Failed to send confirmation SMS:', smsError);
           } else {
@@ -500,7 +453,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
       console.error('Failed to save booking to Supabase:', error);
       // Don't show error to user as booking is still successful
     }
-    
+
     // Send booking data to webhook
     try {
       const webhookData = {
@@ -525,14 +478,13 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
         },
         booking_source: 'website'
       };
-
       await fetch('https://n8n.srv962284.hstgr.cloud/webhook-test/3f69f86e-0768-4251-b329-31961067d2bb', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         mode: 'no-cors',
-        body: JSON.stringify(webhookData),
+        body: JSON.stringify(webhookData)
       });
     } catch (error) {
       console.error('Failed to send booking data to n8n webhook:', error);
@@ -554,28 +506,31 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
         status: 'pending',
         notification_type: 'new_booking'
       };
-
       await fetch('https://hooks.zapier.com/hooks/catch/23327911/uhiph2z/', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         mode: 'no-cors',
-        body: JSON.stringify(notificationData),
+        body: JSON.stringify(notificationData)
       });
     } catch (error) {
       console.error('Failed to send notification to Zapier webhook:', error);
       // Don't show error to user as booking is still successful
     }
-    
-    setBookingData({ service: '', hairdresser: '', date: '', time: '', notes: '', phone: '' });
+    setBookingData({
+      service: '',
+      hairdresser: '',
+      date: '',
+      time: '',
+      notes: '',
+      phone: ''
+    });
     setPendingBooking(null);
-    
+
     // Show additional success message with View Appointments option
     setTimeout(() => {
-      showAlert('info', 'Appointment Created!', 
-        'Your appointment has been added to your schedule. You can view and manage all your appointments in the "My Appointments" section.'
-      );
+      showAlert('info', 'Appointment Created!', 'Your appointment has been added to your schedule. You can view and manage all your appointments in the "My Appointments" section.');
     }, 3000);
   };
 
@@ -584,24 +539,18 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
     try {
       setSendingReminder(true);
       showAlert('info', 'Sending Test Reminder', 'Testing the appointment reminder SMS...');
-
-      const { data, error } = await supabase.functions.invoke('send-appointment-reminders', {
-        body: {},
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('send-appointment-reminders', {
+        body: {}
       });
-
       if (error) throw error;
-
       console.log('Reminder test result:', data);
-
       if (data.success) {
         const processedCount = data.results?.length || 0;
         const successCount = data.results?.filter((r: any) => r.success).length || 0;
-        
-        showAlert(
-          'success', 
-          'Test Complete!', 
-          `Processed ${processedCount} reminder(s). Successfully sent ${successCount} SMS message(s). Check your phone!`
-        );
+        showAlert('success', 'Test Complete!', `Processed ${processedCount} reminder(s). Successfully sent ${successCount} SMS message(s). Check your phone!`);
       } else {
         showAlert('error', 'Test Failed', data.message || 'Failed to send test reminder');
       }
@@ -616,18 +565,16 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   // Handle review submission
   const handleReviewSubmission = (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (reviewData.rating === 0) {
       showAlert('error', 'Rating Required', 'Please provide a rating for your appointment.');
       return;
     }
-    
-    showAlert('success', 'Review Submitted!', 
-      'Thank you for your feedback! Your review helps other customers and supports our hairdressers.'
-    );
-    
+    showAlert('success', 'Review Submitted!', 'Thank you for your feedback! Your review helps other customers and supports our hairdressers.');
     setShowReviewModal(false);
-    setReviewData({ rating: 0, comment: '' });
+    setReviewData({
+      rating: 0,
+      comment: ''
+    });
     setSelectedAppointment(null);
   };
 
@@ -638,26 +585,18 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
   };
 
   // Render star rating component
-  const StarRating = ({ rating, onRatingChange, readonly = false }: { 
-    rating: number; 
-    onRatingChange?: (rating: number) => void; 
+  const StarRating = ({
+    rating,
+    onRatingChange,
+    readonly = false
+  }: {
+    rating: number;
+    onRatingChange?: (rating: number) => void;
     readonly?: boolean;
   }) => {
-    return (
-      <div className="flex space-x-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={`h-5 w-5 cursor-pointer transition-colors ${
-              star <= rating 
-                ? 'text-yellow-400 fill-yellow-400' 
-                : 'text-gray-300'
-            }`}
-            onClick={() => !readonly && onRatingChange && onRatingChange(star)}
-          />
-        ))}
-      </div>
-    );
+    return <div className="flex space-x-1">
+        {[1, 2, 3, 4, 5].map(star => <Star key={star} className={`h-5 w-5 cursor-pointer transition-colors ${star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} onClick={() => !readonly && onRatingChange && onRatingChange(star)} />)}
+      </div>;
   };
 
   // Handle image uploads
@@ -674,12 +613,10 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
       }
     }
   };
-
   const handleImageUrlSubmit = (type: 'profile' | 'cover') => (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const imageUrl = formData.get('imageUrl') as string;
-    
     if (imageUrl.trim()) {
       if (type === 'profile') {
         setProfilePicture(imageUrl.trim());
@@ -690,42 +627,24 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
       }
     }
   };
-
-  return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+  return <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Profile Header with Cover Image */}
         <div className="mb-8">
           <div className="relative mb-24 h-48 w-full rounded-lg overflow-hidden">
-            <img 
-              src={coverImage}
-              alt="Cover"
-              className="w-full h-full object-cover cursor-pointer"
-              onClick={() => setShowCoverUpload(true)}
-            />
+            <img src={coverImage} alt="Cover" className="w-full h-full object-cover cursor-pointer" onClick={() => setShowCoverUpload(true)} />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
             
             {/* Cover Image Upload Button */}
-            <button
-              onClick={() => setShowCoverUpload(true)}
-              className="absolute top-4 right-4 bg-white/20 backdrop-blur text-white p-2 rounded-full shadow-lg hover:bg-white/30 transition-colors"
-            >
+            <button onClick={() => setShowCoverUpload(true)} className="absolute top-4 right-4 bg-white/20 backdrop-blur text-white p-2 rounded-full shadow-lg hover:bg-white/30 transition-colors">
               <Camera className="h-4 w-4" />
             </button>
             
             {/* Profile Picture Overlay */}
             <div className="absolute top-0 left-4">
               <div className="relative">
-                <img 
-                  src={profilePicture}
-                  alt="Profile"
-                  className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-lg cursor-pointer hover-scale transition-all duration-300"
-                  onClick={() => setShowProfileUpload(true)}
-                />
-                <button
-                  onClick={() => setShowProfileUpload(true)}
-                  className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
-                >
+                <img src={profilePicture} alt="Profile" className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-lg cursor-pointer hover-scale transition-all duration-300" onClick={() => setShowProfileUpload(true)} />
+                <button onClick={() => setShowProfileUpload(true)} className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors">
                   <Camera className="h-4 w-4" />
                 </button>
               </div>
@@ -838,53 +757,23 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                   
                   <TabsContent value="booking" className="mt-6">
                     <div className="flex flex-col sm:flex-row gap-4">
-                      <Button 
-                        onClick={() => setShowBookingModal(true)}
-                        className="bg-purple-600 hover:bg-purple-700 flex-1"
-                      >
+                      <Button onClick={() => setShowBookingModal(true)} className="bg-purple-600 hover:bg-purple-700 flex-1">
                         <Calendar className="mr-2 h-4 w-4" />
                         Book New Appointment
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        className="flex-1"
-                        onClick={() => {
-                          if (onNavigate) {
-                            onNavigate('appointments');
-                            localStorage.setItem('salonconnect_current_page', 'appointments');
-                          }
-                        }}
-                      >
+                      <Button variant="outline" className="flex-1" onClick={() => {
+                      if (onNavigate) {
+                        onNavigate('appointments');
+                        localStorage.setItem('salonconnect_current_page', 'appointments');
+                      }
+                    }}>
                         <Clock className="mr-2 h-4 w-4" />
                         View All Appointments
                       </Button>
                     </div>
                     
                     {/* Test Reminder Button */}
-                    <div className="mt-4 pt-4 border-t">
-                      <p className="text-sm text-muted-foreground mb-2">Test SMS Flows:</p>
-                      <Button 
-                        onClick={handleTestReminder}
-                        disabled={sendingReminder}
-                        variant="secondary"
-                        className="w-full"
-                      >
-                        {sendingReminder ? (
-                          <>
-                            <Clock className="mr-2 h-4 w-4 animate-spin" />
-                            Sending Test Reminder...
-                          </>
-                        ) : (
-                          <>
-                            <Phone className="mr-2 h-4 w-4" />
-                            Test Appointment Reminder SMS
-                          </>
-                        )}
-                      </Button>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        This will send reminder SMS for tomorrow's appointments
-                      </p>
-                    </div>
+                    
                   </TabsContent>
                   
                   <TabsContent value="wallet" className="mt-6">
@@ -907,13 +796,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                   </TabsList>
                   
                   <TabsContent value="upcoming" className="space-y-4 mt-6">
-                    {loading ? (
-                      <div className="text-center py-8 text-gray-500">Loading appointments...</div>
-                    ) : upcomingAppointments.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">No upcoming appointments</div>
-                    ) : (
-                      upcomingAppointments.map((appointment) => (
-                        <div key={appointment.id} className="border rounded-lg p-4 bg-white">
+                    {loading ? <div className="text-center py-8 text-gray-500">Loading appointments...</div> : upcomingAppointments.length === 0 ? <div className="text-center py-8 text-gray-500">No upcoming appointments</div> : upcomingAppointments.map(appointment => <div key={appointment.id} className="border rounded-lg p-4 bg-white">
                           <div className="flex justify-between items-start mb-3">
                             <div>
                               <h3 className="font-semibold text-lg">
@@ -923,10 +806,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                                 with {appointment.hairdressers?.profiles?.full_name || 'Service Provider'}
                               </p>
                             </div>
-                            <Badge 
-                              variant={appointment.status === 'confirmed' ? 'default' : 'secondary'}
-                              className={appointment.status === 'confirmed' ? 'bg-green-100 text-green-800' : ''}
-                            >
+                            <Badge variant={appointment.status === 'confirmed' ? 'default' : 'secondary'} className={appointment.status === 'confirmed' ? 'bg-green-100 text-green-800' : ''}>
                               {appointment.status}
                             </Badge>
                           </div>
@@ -948,19 +828,11 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                               <span className="font-medium text-purple-600">{formatCurrency(Number(appointment.total_price))}</span>
                             </div>
                           </div>
-                        </div>
-                      ))
-                    )}
+                        </div>)}
                   </TabsContent>
                   
                   <TabsContent value="past" className="space-y-4 mt-6">
-                    {loading ? (
-                      <div className="text-center py-8 text-gray-500">Loading appointments...</div>
-                    ) : pastAppointments.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">No past appointments</div>
-                    ) : (
-                      pastAppointments.map((appointment) => (
-                        <div key={appointment.id} className="border rounded-lg p-4 bg-white">
+                    {loading ? <div className="text-center py-8 text-gray-500">Loading appointments...</div> : pastAppointments.length === 0 ? <div className="text-center py-8 text-gray-500">No past appointments</div> : pastAppointments.map(appointment => <div key={appointment.id} className="border rounded-lg p-4 bg-white">
                           <div className="flex justify-between items-start mb-3">
                             <div>
                               <h3 className="font-semibold text-lg">
@@ -993,18 +865,11 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                             </div>
                           </div>
                           
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => openReviewModal(appointment)}
-                            className="border-purple-200 text-purple-600 hover:bg-purple-50"
-                          >
+                          <Button size="sm" variant="outline" onClick={() => openReviewModal(appointment)} className="border-purple-200 text-purple-600 hover:bg-purple-50">
                             <Star className="mr-2 h-4 w-4" />
                             Leave Review
                           </Button>
-                        </div>
-                      ))
-                    )}
+                        </div>)}
                   </TabsContent>
                 </Tabs>
               </CardContent>
@@ -1014,8 +879,7 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Favorite Service Provider - Only show if have bookings */}
-            {pastAppointments.length > 0 && (
-              <Card>
+            {pastAppointments.length > 0 && <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Heart className="mr-2 h-5 w-5 text-pink-500" />
@@ -1038,21 +902,15 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                       {pastAppointments.length} appointment{pastAppointments.length !== 1 ? 's' : ''} completed
                     </p>
                     
-                    <Button 
-                      size="sm" 
-                      className="w-full bg-purple-600 hover:bg-purple-700"
-                      onClick={() => setShowBookingModal(true)}
-                    >
+                    <Button size="sm" className="w-full bg-purple-600 hover:bg-purple-700" onClick={() => setShowBookingModal(true)}>
                       Book New Appointment
                     </Button>
                   </div>
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
 
             {/* Show empty state if no bookings */}
-            {pastAppointments.length === 0 && upcomingAppointments.length === 0 && (
-              <Card>
+            {pastAppointments.length === 0 && upcomingAppointments.length === 0 && <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Calendar className="mr-2 h-5 w-5 text-purple-500" />
@@ -1066,15 +924,11 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                   <p className="text-gray-600 mb-4">
                     You haven't made any bookings yet
                   </p>
-                  <Button 
-                    className="w-full bg-purple-600 hover:bg-purple-700"
-                    onClick={() => setShowBookingModal(true)}
-                  >
+                  <Button className="w-full bg-purple-600 hover:bg-purple-700" onClick={() => setShowBookingModal(true)}>
                     Book Your First Appointment
                   </Button>
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
 
             {/* Quick Tips */}
             <Card>
@@ -1119,49 +973,37 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
           <form onSubmit={handleBooking} className="space-y-4 max-h-[60vh] overflow-y-auto px-1">
             <div>
               <Label htmlFor="service">Service</Label>
-              <Select 
-                value={bookingData.service} 
-                onValueChange={(value) => setBookingData(prev => ({ ...prev, service: value }))}
-              >
+              <Select value={bookingData.service} onValueChange={value => setBookingData(prev => ({
+              ...prev,
+              service: value
+            }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a service" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableServices.length === 0 ? (
-                    <SelectItem value="no-services" disabled>No services available</SelectItem>
-                  ) : (
-                    availableServices.map((service) => (
-                      <SelectItem key={service.id} value={service.name}>
+                  {availableServices.length === 0 ? <SelectItem value="no-services" disabled>No services available</SelectItem> : availableServices.map(service => <SelectItem key={service.id} value={service.name}>
                         <div className="flex items-center justify-between w-full">
                           <span>{service.name} - {formatCurrency(Number(service.price))} ({service.duration_minutes} min)</span>
-                          {service.distance && service.distance !== Infinity && (
-                            <span className="text-xs text-muted-foreground ml-2">
+                          {service.distance && service.distance !== Infinity && <span className="text-xs text-muted-foreground ml-2">
                               {service.distance.toFixed(1)} km away
-                            </span>
-                          )}
+                            </span>}
                         </div>
-                      </SelectItem>
-                    ))
-                  )}
+                      </SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             
             <div>
               <Label htmlFor="hairdresser">Service Provider</Label>
-              <Select 
-                value={bookingData.hairdresser} 
-                onValueChange={(value) => setBookingData(prev => ({ ...prev, hairdresser: value }))}
-              >
+              <Select value={bookingData.hairdresser} onValueChange={value => setBookingData(prev => ({
+              ...prev,
+              hairdresser: value
+            }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a service provider" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableHairdressers.length === 0 ? (
-                    <SelectItem value="no-hairdressers" disabled>No service providers available</SelectItem>
-                  ) : (
-                    availableHairdressers.map((hairdresser) => (
-                      <SelectItem key={hairdresser.id} value={hairdresser.profiles?.full_name || 'Provider'}>
+                  {availableHairdressers.length === 0 ? <SelectItem value="no-hairdressers" disabled>No service providers available</SelectItem> : availableHairdressers.map(hairdresser => <SelectItem key={hairdresser.id} value={hairdresser.profiles?.full_name || 'Provider'}>
                         <div className="flex items-center justify-between w-full">
                           <div className="flex flex-col">
                             <span>{hairdresser.profiles?.full_name || 'Provider'}</span>
@@ -1169,15 +1011,11 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
                               {hairdresser.salons?.name || 'Salon'}
                             </span>
                           </div>
-                          {hairdresser.distance && hairdresser.distance !== Infinity && (
-                            <span className="text-xs text-muted-foreground ml-2">
+                          {hairdresser.distance && hairdresser.distance !== Infinity && <span className="text-xs text-muted-foreground ml-2">
                               {hairdresser.distance.toFixed(1)} km
-                            </span>
-                          )}
+                            </span>}
                         </div>
-                      </SelectItem>
-                    ))
-                  )}
+                      </SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -1185,34 +1023,25 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="date">Date</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={bookingData.date}
-                  onChange={(e) => setBookingData(prev => ({ ...prev, date: e.target.value }))}
-                  min={new Date().toISOString().split('T')[0]}
-                />
+                <Input id="date" type="date" value={bookingData.date} onChange={e => setBookingData(prev => ({
+                ...prev,
+                date: e.target.value
+              }))} min={new Date().toISOString().split('T')[0]} />
               </div>
               
               <div>
                 <Label htmlFor="time">Time</Label>
-                <Select 
-                  value={bookingData.time} 
-                  onValueChange={(value) => setBookingData(prev => ({ ...prev, time: value }))}
-                >
+                <Select value={bookingData.time} onValueChange={value => setBookingData(prev => ({
+                ...prev,
+                time: value
+              }))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select time" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableTimeSlots.length === 0 ? (
-                      <SelectItem value="no-times" disabled>No times available</SelectItem>
-                    ) : (
-                      availableTimeSlots.map((time) => (
-                        <SelectItem key={time} value={time}>
+                    {availableTimeSlots.length === 0 ? <SelectItem value="no-times" disabled>No times available</SelectItem> : availableTimeSlots.map(time => <SelectItem key={time} value={time}>
                           {time}
-                        </SelectItem>
-                      ))
-                    )}
+                        </SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
@@ -1220,37 +1049,25 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
             
             <div>
               <Label htmlFor="notes">Special Requests (Optional)</Label>
-              <Textarea
-                id="notes"
-                placeholder="Any special requests or notes for your hairdresser..."
-                value={bookingData.notes}
-                onChange={(e) => setBookingData(prev => ({ ...prev, notes: e.target.value }))}
-                className="resize-none"
-                rows={3}
-              />
+              <Textarea id="notes" placeholder="Any special requests or notes for your hairdresser..." value={bookingData.notes} onChange={e => setBookingData(prev => ({
+              ...prev,
+              notes: e.target.value
+            }))} className="resize-none" rows={3} />
             </div>
             
             <div>
               <Label htmlFor="phone">Phone Number (for SMS confirmation)</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="+27123456789"
-                value={bookingData.phone}
-                onChange={(e) => setBookingData(prev => ({ ...prev, phone: e.target.value }))}
-              />
+              <Input id="phone" type="tel" placeholder="+27123456789" value={bookingData.phone} onChange={e => setBookingData(prev => ({
+              ...prev,
+              phone: e.target.value
+            }))} />
             </div>
             
             <div className="flex gap-4 pt-4">
               <Button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700">
                 Book Appointment
               </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => setShowBookingModal(false)}
-                className="flex-1"
-              >
+              <Button type="button" variant="outline" onClick={() => setShowBookingModal(false)} className="flex-1">
                 Cancel
               </Button>
             </div>
@@ -1272,35 +1089,26 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
             <div>
               <Label>Rating</Label>
               <div className="mt-2">
-                <StarRating 
-                  rating={reviewData.rating} 
-                  onRatingChange={(rating) => setReviewData(prev => ({ ...prev, rating }))} 
-                />
+                <StarRating rating={reviewData.rating} onRatingChange={rating => setReviewData(prev => ({
+                ...prev,
+                rating
+              }))} />
               </div>
             </div>
             
             <div>
               <Label htmlFor="comment">Your Review (Optional)</Label>
-              <Textarea
-                id="comment"
-                placeholder="Share your experience, what you liked, and any suggestions..."
-                value={reviewData.comment}
-                onChange={(e) => setReviewData(prev => ({ ...prev, comment: e.target.value }))}
-                className="resize-none"
-                rows={4}
-              />
+              <Textarea id="comment" placeholder="Share your experience, what you liked, and any suggestions..." value={reviewData.comment} onChange={e => setReviewData(prev => ({
+              ...prev,
+              comment: e.target.value
+            }))} className="resize-none" rows={4} />
             </div>
             
             <div className="flex gap-4 pt-4">
               <Button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700">
                 Submit Review
               </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => setShowReviewModal(false)}
-                className="flex-1"
-              >
+              <Button type="button" variant="outline" onClick={() => setShowReviewModal(false)} className="flex-1">
                 Cancel
               </Button>
             </div>
@@ -1309,44 +1117,26 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
       </Dialog>
 
       {/* Profile Picture Upload Modal */}
-      {showProfileUpload && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      {showProfileUpload && <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <h3 className="text-lg font-semibold mb-4">Update Profile Picture</h3>
             
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Upload Image File</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload('profile')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <input type="file" accept="image/*" onChange={handleImageUpload('profile')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               
               <div className="text-center text-sm text-gray-500">or</div>
               
               <form onSubmit={handleImageUrlSubmit('profile')}>
                 <label className="block text-sm font-medium mb-2">Image URL</label>
-                <input
-                  type="url"
-                  name="imageUrl"
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
-                />
+                <input type="url" name="imageUrl" placeholder="https://example.com/image.jpg" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4" />
                 <div className="flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowProfileUpload(false)}
-                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
-                  >
+                  <button type="button" onClick={() => setShowProfileUpload(false)} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  >
+                  <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                     <Upload className="mr-2 h-4 w-4 inline" />
                     Update
                   </button>
@@ -1354,48 +1144,29 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
               </form>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Cover Image Upload Modal */}
-      {showCoverUpload && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      {showCoverUpload && <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <h3 className="text-lg font-semibold mb-4">Update Cover Image</h3>
             
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Upload Image File</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload('cover')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <input type="file" accept="image/*" onChange={handleImageUpload('cover')} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               
               <div className="text-center text-sm text-gray-500">or</div>
               
               <form onSubmit={handleImageUrlSubmit('cover')}>
                 <label className="block text-sm font-medium mb-2">Image URL</label>
-                <input
-                  type="url"
-                  name="imageUrl"
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
-                />
+                <input type="url" name="imageUrl" placeholder="https://example.com/image.jpg" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4" />
                 <div className="flex justify-end space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowCoverUpload(false)}
-                    className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
-                  >
+                  <button type="button" onClick={() => setShowCoverUpload(false)} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  >
+                  <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                     <Upload className="mr-2 h-4 w-4 inline" />
                     Update
                   </button>
@@ -1403,45 +1174,26 @@ const CustomerDashboard = ({ userName, onNavigate }: CustomerDashboardProps) => 
               </form>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Payment Processing Modal */}
-      {pendingBooking && (
-        <PaymentProcessing
-          appointmentDetails={pendingBooking}
-          isOpen={showPaymentModal}
-          onClose={() => setShowPaymentModal(false)}
-          onPaymentComplete={handlePaymentComplete}
-        />
-      )}
+      {pendingBooking && <PaymentProcessing appointmentDetails={pendingBooking} isOpen={showPaymentModal} onClose={() => setShowPaymentModal(false)} onPaymentComplete={handlePaymentComplete} />}
 
       {/* Booking Confirmation */}
-      {showConfirmation && pendingBooking && (
-        <BookingConfirmation
-          bookingDetails={pendingBooking}
-          onGoHome={() => {
-            setShowConfirmation(false);
-            setPendingBooking(null);
-          }}
-          onViewBookings={() => {
-            setShowConfirmation(false);
-            setPendingBooking(null);
-            onNavigate?.('appointments');
-          }}
-        />
-      )}
+      {showConfirmation && pendingBooking && <BookingConfirmation bookingDetails={pendingBooking} onGoHome={() => {
+      setShowConfirmation(false);
+      setPendingBooking(null);
+    }} onViewBookings={() => {
+      setShowConfirmation(false);
+      setPendingBooking(null);
+      onNavigate?.('appointments');
+    }} />}
 
       {/* Custom Alert */}
-      <CustomAlert
-        isOpen={alertInfo.show}
-        onClose={() => setAlertInfo(prev => ({ ...prev, show: false }))}
-        type={alertInfo.type}
-        title={alertInfo.title}
-        message={alertInfo.message}
-      />
-    </div>
-  );
+      <CustomAlert isOpen={alertInfo.show} onClose={() => setAlertInfo(prev => ({
+      ...prev,
+      show: false
+    }))} type={alertInfo.type} title={alertInfo.title} message={alertInfo.message} />
+    </div>;
 };
-
 export default CustomerDashboard;
