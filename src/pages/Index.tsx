@@ -24,8 +24,6 @@ import bookangLogo from '@/assets/bookang-logo.png';
 
 // Make sendTestSMS available globally for console testing
 (window as any).sendTestSMS = sendTestSMS;
-
-
 const Index = () => {
   // Supabase authentication state
   const [user, setUser] = useState<User | null>(null);
@@ -36,7 +34,7 @@ const Index = () => {
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [loginType, setLoginType] = useState<'customer' | 'hairdresser' | 'employee'>('customer');
-  
+
   // Navigation state 
   const [currentPage, setCurrentPage] = useState('home');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -46,78 +44,67 @@ const Index = () => {
   // Set up Supabase auth listener
   useEffect(() => {
     // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          // Fetch user profile to get role and name
-          setTimeout(async () => {
-            try {
-              const { data: profile } = await supabase
-                .from('profiles')
-                .select('full_name, role')
-                .eq('user_id', session.user.id)
-                .single();
-              
-              if (profile) {
-                setUserRole(profile.role === 'salon_owner' ? 'employee' : profile.role);
-                setUserName(profile.full_name || session.user.email?.split('@')[0] || 'User');
-                setCurrentPage('dashboard');
-              }
-            } catch (error) {
-              console.error('Error fetching profile:', error);
-            }
-          }, 0);
-        } else {
-          setUserRole(null);
-          setUserName('');
-          setCurrentPage('home');
-        }
+    const {
+      data: {
+        subscription
       }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
       if (session?.user) {
-        // Fetch user profile
-        supabase
-          .from('profiles')
-          .select('full_name, role, business_name, business_description, contact_number, phone, address, email, payment_verified')
-          .eq('user_id', session.user.id)
-          .single()
-          .then(({ data: profile }) => {
+        // Fetch user profile to get role and name
+        setTimeout(async () => {
+          try {
+            const {
+              data: profile
+            } = await supabase.from('profiles').select('full_name, role').eq('user_id', session.user.id).single();
             if (profile) {
               setUserRole(profile.role === 'salon_owner' ? 'employee' : profile.role);
               setUserName(profile.full_name || session.user.email?.split('@')[0] || 'User');
               setCurrentPage('dashboard');
-              
-              // Check if profile is incomplete for business users
-              if (profile.role === 'hairdresser' || profile.role === 'salon_owner') {
-                const isProfileIncomplete = 
-                  !profile.business_name || 
-                  !profile.business_description || 
-                  (!profile.contact_number && !profile.phone) ||
-                  !profile.address ||
-                  !profile.email ||
-                  !profile.payment_verified;
-                
-                if (isProfileIncomplete) {
-                  setShowProfileCompletionModal(true);
-                }
-              }
             }
-          });
+          } catch (error) {
+            console.error('Error fetching profile:', error);
+          }
+        }, 0);
+      } else {
+        setUserRole(null);
+        setUserName('');
+        setCurrentPage('home');
       }
     });
 
+    // Check for existing session
+    supabase.auth.getSession().then(({
+      data: {
+        session
+      }
+    }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        // Fetch user profile
+        supabase.from('profiles').select('full_name, role, business_name, business_description, contact_number, phone, address, email, payment_verified').eq('user_id', session.user.id).single().then(({
+          data: profile
+        }) => {
+          if (profile) {
+            setUserRole(profile.role === 'salon_owner' ? 'employee' : profile.role);
+            setUserName(profile.full_name || session.user.email?.split('@')[0] || 'User');
+            setCurrentPage('dashboard');
+
+            // Check if profile is incomplete for business users
+            if (profile.role === 'hairdresser' || profile.role === 'salon_owner') {
+              const isProfileIncomplete = !profile.business_name || !profile.business_description || !profile.contact_number && !profile.phone || !profile.address || !profile.email || !profile.payment_verified;
+              if (isProfileIncomplete) {
+                setShowProfileCompletionModal(true);
+              }
+            }
+          }
+        });
+      }
+    });
     return () => subscription.unsubscribe();
   }, []);
-
 
   // Handle successful authentication
   const handleAuthSuccess = (role: 'customer' | 'hairdresser' | 'employee', name: string) => {
@@ -152,21 +139,37 @@ const Index = () => {
 
   // Navigation items for authenticated users
   const getNavItems = () => {
-    const baseItems = [
-      { id: 'home', label: 'Home', icon: Users },
-      { id: 'explore', label: 'Explore', icon: MapPin },
-      { id: 'faq', label: 'FAQ', icon: HelpCircle },
-      { id: 'contact', label: 'Contact', icon: Phone },
-    ];
-
+    const baseItems = [{
+      id: 'home',
+      label: 'Home',
+      icon: Users
+    }, {
+      id: 'explore',
+      label: 'Explore',
+      icon: MapPin
+    }, {
+      id: 'faq',
+      label: 'FAQ',
+      icon: HelpCircle
+    }, {
+      id: 'contact',
+      label: 'Contact',
+      icon: Phone
+    }];
     if (user) {
-      baseItems.splice(1, 0, { id: 'dashboard', label: 'Dashboard', icon: Calendar });
-      baseItems.splice(2, 0, { id: 'appointments', label: 'My Appointments', icon: Clock });
+      baseItems.splice(1, 0, {
+        id: 'dashboard',
+        label: 'Dashboard',
+        icon: Calendar
+      });
+      baseItems.splice(2, 0, {
+        id: 'appointments',
+        label: 'My Appointments',
+        icon: Clock
+      });
     }
-
     return baseItems;
   };
-
 
   // Handle SME onboarding
   const handleSMEOnboardingComplete = () => {
@@ -177,14 +180,8 @@ const Index = () => {
   // Render current page content
   const renderCurrentPage = () => {
     if (showSMEOnboarding) {
-      return (
-        <SMEOnboarding 
-          onComplete={handleSMEOnboardingComplete}
-          onBack={() => setShowSMEOnboarding(false)}
-        />
-      );
+      return <SMEOnboarding onComplete={handleSMEOnboardingComplete} onBack={() => setShowSMEOnboarding(false)} />;
     }
-
     switch (currentPage) {
       case 'dashboard':
         if (!user) return renderHomePage();
@@ -209,8 +206,7 @@ const Index = () => {
   };
 
   // Home page content
-  const renderHomePage = () => (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50">
+  const renderHomePage = () => <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50">
       {/* Hero Section */}
       <section className="relative py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
@@ -233,51 +229,25 @@ const Index = () => {
 
           {/* Authentication Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button 
-              size="lg" 
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-3"
-              onClick={() => openAuthModal('login', 'customer')}
-            >
+            <Button size="lg" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-3" onClick={() => openAuthModal('login', 'customer')}>
               Book Services
             </Button>
             
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="w-full sm:w-auto border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3"
-              onClick={() => setShowSMEOnboarding(true)}
-            >
+            <Button size="lg" variant="outline" className="w-full sm:w-auto border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3" onClick={() => setShowSMEOnboarding(true)}>
               <Store className="mr-2 h-4 w-4" />
               List Your Business
             </Button>
             
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="w-full sm:w-auto border-gray-600 text-gray-700 hover:bg-gray-50 px-8 py-3"
-              onClick={() => openAuthModal('login')}
-            >
+            <Button size="lg" variant="outline" className="w-full sm:w-auto border-gray-600 text-gray-700 hover:bg-gray-50 px-8 py-3" onClick={() => openAuthModal('login')}>
               Login
             </Button>
             
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="w-full sm:w-auto border-green-600 text-green-700 hover:bg-green-50 px-8 py-3"
-              onClick={() => openAuthModal('login', 'hairdresser')}
-            >
+            <Button size="lg" variant="outline" className="w-full sm:w-auto border-green-600 text-green-700 hover:bg-green-50 px-8 py-3" onClick={() => openAuthModal('login', 'hairdresser')}>
               <Store className="mr-2 h-4 w-4" />
               Service Provider Login
             </Button>
             
-            <Button 
-              size="lg" 
-              variant="secondary" 
-              className="w-full sm:w-auto bg-pink-100 text-pink-700 hover:bg-pink-200 px-8 py-3"
-              onClick={() => openAuthModal('register')}
-            >
-              Start Your Free Trial
-            </Button>
+            
           </div>
         </div>
       </section>
@@ -290,8 +260,7 @@ const Index = () => {
           </h2>
           
           <div className="grid md:grid-cols-3 gap-8">
-            <Card className="text-center border-blue-100 hover:shadow-lg transition-shadow cursor-pointer" 
-                  onClick={() => user ? setCurrentPage('dashboard') : openAuthModal('login', 'customer')}>
+            <Card className="text-center border-blue-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => user ? setCurrentPage('dashboard') : openAuthModal('login', 'customer')}>
               <CardHeader>
                 <Calendar className="h-12 w-12 text-blue-600 mx-auto mb-4" />
                 <CardTitle className="text-blue-900">24/7 Online Booking</CardTitle>
@@ -300,28 +269,24 @@ const Index = () => {
                 <CardDescription className="text-gray-600 mb-4">
                   Secure 24/7 online booking, allowing clients to schedule any service from legal consultations to coaching sessions.
                 </CardDescription>
-                <Button 
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (user) {
-                      setCurrentPage('dashboard');
-                      localStorage.setItem('salonconnect_current_page', 'dashboard');
-                    } else {
-                      openAuthModal('login', 'customer');
-                    }
-                  }}
-                >
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={e => {
+                e.stopPropagation();
+                if (user) {
+                  setCurrentPage('dashboard');
+                  localStorage.setItem('salonconnect_current_page', 'dashboard');
+                } else {
+                  openAuthModal('login', 'customer');
+                }
+              }}>
                   Start Booking
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="text-center border-pink-100 hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => {
-                    setCurrentPage('explore');
-                    localStorage.setItem('salonconnect_current_page', 'explore');
-                  }}>
+            <Card className="text-center border-pink-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => {
+            setCurrentPage('explore');
+            localStorage.setItem('salonconnect_current_page', 'explore');
+          }}>
               <CardHeader>
                 <Star className="h-12 w-12 text-pink-600 mx-auto mb-4" />
                 <CardTitle className="text-pink-900">Quality Services</CardTitle>
@@ -330,22 +295,17 @@ const Index = () => {
                 <CardDescription className="text-gray-600 mb-4">
                   Connect with verified, professional service providers with excellent reviews and ratings.
                 </CardDescription>
-                <Button 
-                  variant="outline"
-                  className="w-full border-pink-600 text-pink-600 hover:bg-pink-50"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCurrentPage('explore');
-                    localStorage.setItem('salonconnect_current_page', 'explore');
-                  }}
-                >
+                <Button variant="outline" className="w-full border-pink-600 text-pink-600 hover:bg-pink-50" onClick={e => {
+                e.stopPropagation();
+                setCurrentPage('explore');
+                localStorage.setItem('salonconnect_current_page', 'explore');
+              }}>
                   Browse Services
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="text-center border-green-100 hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => openAuthModal('register', 'hairdresser')}>
+            <Card className="text-center border-green-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => openAuthModal('register', 'hairdresser')}>
               <CardHeader>
                 <Store className="h-12 w-12 text-green-600 mx-auto mb-4" />
                 <CardTitle className="text-green-900">List Your Business</CardTitle>
@@ -354,14 +314,10 @@ const Index = () => {
                 <CardDescription className="text-gray-600 mb-4">
                   Join our platform as a service provider and grow your business with online bookings.
                 </CardDescription>
-                <Button 
-                  variant="outline"
-                  className="w-full border-green-600 text-green-600 hover:bg-green-50"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openAuthModal('register', 'hairdresser');
-                  }}
-                >
+                <Button variant="outline" className="w-full border-green-600 text-green-600 hover:bg-green-50" onClick={e => {
+                e.stopPropagation();
+                openAuthModal('register', 'hairdresser');
+              }}>
                   Join as Business
                 </Button>
               </CardContent>
@@ -377,41 +333,23 @@ const Index = () => {
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Quick Access</h2>
           
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Button
-              variant="outline"
-              className="h-20 flex-col gap-2 bg-white hover:bg-blue-50 border-blue-200"
-              onClick={() => setCurrentPage('explore')}
-            >
+            <Button variant="outline" className="h-20 flex-col gap-2 bg-white hover:bg-blue-50 border-blue-200" onClick={() => setCurrentPage('explore')}>
               <MapPin className="h-6 w-6 text-blue-600" />
               Explore Service Providers
             </Button>
             
             
-            <Button
-              variant="outline"
-              className="h-20 flex-col gap-2 bg-white hover:bg-indigo-50 border-indigo-200"
-              onClick={() => setCurrentPage('faq')}
-            >
+            <Button variant="outline" className="h-20 flex-col gap-2 bg-white hover:bg-indigo-50 border-indigo-200" onClick={() => setCurrentPage('faq')}>
               <HelpCircle className="h-6 w-6 text-indigo-600" />
               FAQ
             </Button>
             
-            <Button
-              variant="outline"
-              className="h-20 flex-col gap-2 bg-white hover:bg-green-50 border-green-200"
-              onClick={() => setCurrentPage('contact')}
-            >
-              <Phone className="h-6 w-6 text-green-600" />
-              Contact Us
-            </Button>
+            
           </div>
         </div>
       </section>
-    </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-background">
+    </div>;
+  return <div className="min-h-screen bg-background">
       {/* Navigation Header */}
       <nav className="bg-primary shadow-sm border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4">
@@ -423,34 +361,19 @@ const Index = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
-              {getNavItems().map((item) => (
-                 <Button
-                   key={item.id}
-                   variant={currentPage === item.id ? "secondary" : "ghost"}
-                   className={currentPage === item.id ? "bg-accent text-accent-foreground hover:bg-accent/90" : "text-primary-foreground hover:bg-primary/90"}
-                   onClick={() => {
-                     setCurrentPage(item.id);
-                     localStorage.setItem('salonconnect_current_page', item.id);
-                   }}
-                 >
+              {getNavItems().map(item => <Button key={item.id} variant={currentPage === item.id ? "secondary" : "ghost"} className={currentPage === item.id ? "bg-accent text-accent-foreground hover:bg-accent/90" : "text-primary-foreground hover:bg-primary/90"} onClick={() => {
+              setCurrentPage(item.id);
+              localStorage.setItem('salonconnect_current_page', item.id);
+            }}>
                   <item.icon className="mr-2 h-4 w-4" />
                   {item.label}
-                </Button>
-              ))}
+                </Button>)}
               
-              {!user && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
-                  onClick={() => openAuthModal('login')}
-                >
+              {!user && <Button variant="outline" size="sm" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" onClick={() => openAuthModal('login')}>
                   Login
-                </Button>
-              )}
+                </Button>}
               
-              {user && (
-                <div className="flex items-center space-x-3 pl-4 border-l border-primary-foreground/20">
+              {user && <div className="flex items-center space-x-3 pl-4 border-l border-primary-foreground/20">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/90">
@@ -476,17 +399,11 @@ const Index = () => {
                   <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/90">
                     <Bell className="h-5 w-5" />
                   </Button>
-                </div>
-              )}
+                </div>}
             </div>
 
             {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="md:hidden text-primary-foreground hover:bg-primary/90"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
+            <Button variant="ghost" size="sm" className="md:hidden text-primary-foreground hover:bg-primary/90" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
               <div className="space-y-1">
                 <div className="w-5 h-0.5 bg-primary-foreground"></div>
                 <div className="w-5 h-0.5 bg-primary-foreground"></div>
@@ -496,59 +413,36 @@ const Index = () => {
           </div>
 
           {/* Mobile Navigation */}
-          {isMobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-primary-foreground/20">
+          {isMobileMenuOpen && <div className="md:hidden py-4 border-t border-primary-foreground/20">
               <div className="flex flex-col space-y-2">
-                {getNavItems().map((item) => (
-                  <Button
-                    key={item.id}
-                    variant={currentPage === item.id ? "secondary" : "ghost"}
-                    className={`justify-start ${currentPage === item.id ? "bg-accent text-accent-foreground" : "text-primary-foreground"}`}
-                     onClick={() => {
-                       setCurrentPage(item.id);
-                       localStorage.setItem('salonconnect_current_page', item.id);
-                       setIsMobileMenuOpen(false);
-                     }}
-                  >
+                {getNavItems().map(item => <Button key={item.id} variant={currentPage === item.id ? "secondary" : "ghost"} className={`justify-start ${currentPage === item.id ? "bg-accent text-accent-foreground" : "text-primary-foreground"}`} onClick={() => {
+              setCurrentPage(item.id);
+              localStorage.setItem('salonconnect_current_page', item.id);
+              setIsMobileMenuOpen(false);
+            }}>
                     <item.icon className="mr-2 h-4 w-4" />
                     {item.label}
-                  </Button>
-                ))}
+                  </Button>)}
                 
-                {!user && (
-                  <div className="pt-4 border-t border-primary-foreground/20">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
-                      onClick={() => {
-                        openAuthModal('login');
-                        setIsMobileMenuOpen(false);
-                      }}
-                    >
+                {!user && <div className="pt-4 border-t border-primary-foreground/20">
+                    <Button variant="outline" size="sm" className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" onClick={() => {
+                openAuthModal('login');
+                setIsMobileMenuOpen(false);
+              }}>
                       Login
                     </Button>
-                  </div>
-                )}
+                  </div>}
                 
-                {user && (
-                  <div className="pt-4 border-t border-primary-foreground/20">
+                {user && <div className="pt-4 border-t border-primary-foreground/20">
                     <p className="text-sm text-primary-foreground px-3 mb-2">
                       Welcome, <span className="font-medium text-accent">{userName}</span>
                     </p>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handleLogout} 
-                      className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
-                    >
+                    <Button variant="outline" size="sm" onClick={handleLogout} className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
                       Logout
                     </Button>
-                  </div>
-                )}
+                  </div>}
               </div>
-            </div>
-          )}
+            </div>}
         </div>
       </nav>
 
@@ -558,38 +452,22 @@ const Index = () => {
       </main>
 
       {/* Authentication Modals */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        mode={authMode}
-        loginType={loginType}
-        onAuthSuccess={handleAuthSuccess}
-        onSwitchMode={(newMode) => {
-          if (newMode === 'register') {
-            setShowAuthModal(false);
-            setShowRegistrationModal(true);
-          } else {
-            setAuthMode(newMode);
-          }
-        }}
-      />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} mode={authMode} loginType={loginType} onAuthSuccess={handleAuthSuccess} onSwitchMode={newMode => {
+      if (newMode === 'register') {
+        setShowAuthModal(false);
+        setShowRegistrationModal(true);
+      } else {
+        setAuthMode(newMode);
+      }
+    }} />
 
-      <EnhancedRegistrationModal
-        isOpen={showRegistrationModal}
-        onClose={() => setShowRegistrationModal(false)}
-        onAuthSuccess={handleAuthSuccess}
-        onSwitchToLogin={() => {
-          setShowRegistrationModal(false);
-          setAuthMode('login');
-          setShowAuthModal(true);
-        }}
-        defaultRole={loginType}
-      />
+      <EnhancedRegistrationModal isOpen={showRegistrationModal} onClose={() => setShowRegistrationModal(false)} onAuthSuccess={handleAuthSuccess} onSwitchToLogin={() => {
+      setShowRegistrationModal(false);
+      setAuthMode('login');
+      setShowAuthModal(true);
+    }} defaultRole={loginType} />
 
-      <ProfileCompletionModal
-        isOpen={showProfileCompletionModal}
-        onClose={() => setShowProfileCompletionModal(false)}
-      />
+      <ProfileCompletionModal isOpen={showProfileCompletionModal} onClose={() => setShowProfileCompletionModal(false)} />
 
       {/* Footer */}
       <footer className="bg-primary text-primary-foreground py-12 px-4">
@@ -637,8 +515,8 @@ const Index = () => {
                   <span>admin@bookang.co.za</span>
                 </div>
                 <div className="flex items-center space-x-2 text-primary-foreground/80 text-sm">
-                  <Phone className="h-4 w-4" />
-                  <span>+1 (555) 123-4567</span>
+                  
+                  
                 </div>
               </div>
             </div>
@@ -648,20 +526,13 @@ const Index = () => {
             <p className="text-primary-foreground/80 text-sm mb-4 sm:mb-0">&copy; 2024 Bookang. All rights reserved.</p>
             
             {/* Employee Login Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-accent text-accent hover:bg-accent hover:text-accent-foreground"
-              onClick={() => openAuthModal('login', 'employee')}
-            >
+            <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground" onClick={() => openAuthModal('login', 'employee')}>
               <UserCheck className="mr-2 h-4 w-4" />
               Employee Login
             </Button>
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
