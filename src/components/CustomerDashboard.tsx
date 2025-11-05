@@ -109,6 +109,9 @@ const CustomerDashboard = ({
     message: ''
   });
 
+  // Active tab state for appointments
+  const [activeAppointmentsTab, setActiveAppointmentsTab] = useState('upcoming');
+
   // Test reminder state
   const [sendingReminder, setSendingReminder] = useState(false);
 
@@ -678,7 +681,12 @@ const CustomerDashboard = ({
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-pink-500 to-pink-600 text-white">
+          <Card className="bg-gradient-to-r from-pink-500 to-pink-600 text-white cursor-pointer hover:from-pink-600 hover:to-pink-700 transition-all" onClick={() => {
+            setActiveAppointmentsTab('past');
+            setTimeout(() => {
+              document.getElementById('appointments-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 50);
+          }}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -791,7 +799,7 @@ const CustomerDashboard = ({
                 <CardTitle>Your Appointments</CardTitle>
               </CardHeader>
               <CardContent>
-                <Tabs defaultValue="upcoming" className="w-full">
+                <Tabs value={activeAppointmentsTab} onValueChange={setActiveAppointmentsTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
                     <TabsTrigger value="past">Past</TabsTrigger>
