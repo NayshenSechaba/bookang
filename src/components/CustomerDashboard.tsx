@@ -698,7 +698,9 @@ const CustomerDashboard = ({
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white">
+          <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white cursor-pointer hover:from-yellow-600 hover:to-yellow-700 transition-all" onClick={() => {
+            document.getElementById('appointments-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
