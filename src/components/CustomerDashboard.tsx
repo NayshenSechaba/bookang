@@ -668,8 +668,11 @@ const CustomerDashboard = ({
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
           <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white cursor-pointer hover:from-purple-600 hover:to-purple-700 transition-all" onClick={() => {
-            document.getElementById('appointments-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }}>
+          document.getElementById('appointments-section')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -682,11 +685,14 @@ const CustomerDashboard = ({
           </Card>
 
           <Card className="bg-gradient-to-r from-pink-500 to-pink-600 text-white cursor-pointer hover:from-pink-600 hover:to-pink-700 transition-all" onClick={() => {
-            setActiveAppointmentsTab('past');
-            setTimeout(() => {
-              document.getElementById('appointments-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 50);
-          }}>
+          setActiveAppointmentsTab('past');
+          setTimeout(() => {
+            document.getElementById('appointments-section')?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }, 50);
+        }}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -699,8 +705,11 @@ const CustomerDashboard = ({
           </Card>
 
           <Card className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white cursor-pointer hover:from-yellow-600 hover:to-yellow-700 transition-all" onClick={() => {
-            document.getElementById('appointments-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }}>
+          document.getElementById('appointments-section')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -712,17 +721,7 @@ const CustomerDashboard = ({
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-green-100">Upcoming</p>
-                  <p className="text-2xl font-bold">{upcomingAppointments.length}</p>
-                </div>
-                <Clock className="h-8 w-8 text-green-200" />
-              </div>
-            </CardContent>
-          </Card>
+          
 
           <Card className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white">
             <CardContent className="p-6">
