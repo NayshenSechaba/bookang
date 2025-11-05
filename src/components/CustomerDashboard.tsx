@@ -664,7 +664,9 @@ const CustomerDashboard = ({
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
-          <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+          <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white cursor-pointer hover:from-purple-600 hover:to-purple-700 transition-all" onClick={() => {
+            document.getElementById('appointments-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -784,7 +786,7 @@ const CustomerDashboard = ({
             </Card>
 
             {/* Appointments Tabs */}
-            <Card>
+            <Card id="appointments-section">
               <CardHeader>
                 <CardTitle>Your Appointments</CardTitle>
               </CardHeader>
