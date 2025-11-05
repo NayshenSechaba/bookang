@@ -114,6 +114,7 @@ const CustomerDashboard = ({
 
   // Test reminder state
   const [sendingReminder, setSendingReminder] = useState(false);
+  const [showProvidersModal, setShowProvidersModal] = useState(false);
 
   // Real data from database
   const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([]);
@@ -735,7 +736,7 @@ const CustomerDashboard = ({
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
+          <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white cursor-pointer hover:from-emerald-600 hover:to-emerald-700 transition-all" onClick={() => setShowProvidersModal(true)}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -1199,6 +1200,72 @@ const CustomerDashboard = ({
       setPendingBooking(null);
       onNavigate?.('appointments');
     }} />}
+
+      {/* Service Providers Modal */}
+      <Dialog open={showProvidersModal} onOpenChange={setShowProvidersModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Your Service Providers</DialogTitle>
+            <DialogDescription>
+              Service providers you've booked with previously
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+            {pastAppointments.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <User className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                <p>No service providers yet</p>
+                <p className="text-sm mt-2">Book your first appointment to get started</p>
+              </div>
+            ) : (
+              Array.from(new Map(
+                pastAppointments
+                  .filter(apt => apt.hairdressers?.profiles?.full_name)
+                  .map(apt => [
+                    apt.hairdresser_id,
+                    {
+                      id: apt.hairdresser_id,
+                      name: apt.hairdressers?.profiles?.full_name,
+                      salon: apt.salons?.name,
+                      bookings: pastAppointments.filter(
+                        a => a.hairdresser_id === apt.hairdresser_id
+                      ).length
+                    }
+                  ])
+              ).values()).map(provider => (
+                <div key={provider.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
+                        <User className="h-6 w-6 text-emerald-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{provider.name}</h3>
+                        <p className="text-sm text-gray-600">{provider.salon || 'Salon'}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {provider.bookings} appointment{provider.bookings !== 1 ? 's' : ''}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-emerald-200 text-emerald-600 hover:bg-emerald-50"
+                      onClick={() => {
+                        setShowProvidersModal(false);
+                        setShowBookingModal(true);
+                      }}
+                    >
+                      Book Again
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Custom Alert */}
       <CustomAlert isOpen={alertInfo.show} onClose={() => setAlertInfo(prev => ({
