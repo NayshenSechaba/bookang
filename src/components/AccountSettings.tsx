@@ -52,6 +52,7 @@ const AccountSettings = ({ userName }: AccountSettingsProps) => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
+  const [bannerUrl, setBannerUrl] = useState('');
   const [preferredLanguage, setPreferredLanguage] = useState('en');
   
   // Location Information
@@ -92,6 +93,7 @@ const AccountSettings = ({ userName }: AccountSettingsProps) => {
         setUsername(profile.username || '');
         setPhone(profile.phone || '');
         setAvatarUrl(profile.avatar_url || '');
+        setBannerUrl(profile.banner_url || '');
         setPreferredLanguage(profile.preferred_language || 'en');
         setAddress(profile.address || '');
         setCity(profile.city || '');
@@ -169,6 +171,70 @@ const AccountSettings = ({ userName }: AccountSettingsProps) => {
       toast({
         title: "Error",
         description: "Failed to upload profile picture",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 5MB for banner)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Error",
+        description: "Banner image must be less than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Error",
+        description: "Only image files are allowed",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const filePath = `banner-${userId}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('profile-avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-avatars')
+        .getPublicUrl(filePath);
+
+      setBannerUrl(publicUrl);
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ banner_url: publicUrl })
+        .eq('id', profileId);
+
+      if (updateError) throw updateError;
+
+      toast({
+        title: "Success",
+        description: "Banner image updated successfully",
+      });
+    } catch (error) {
+      console.error('Error uploading banner:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload banner image",
         variant: "destructive",
       });
     } finally {
@@ -352,6 +418,39 @@ const AccountSettings = ({ userName }: AccountSettingsProps) => {
               <CardDescription>Update your personal details and profile picture</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Banner Image */}
+              <div className="space-y-2">
+                <Label>Banner Image</Label>
+                {bannerUrl && (
+                  <div className="relative w-full h-32 rounded-lg overflow-hidden bg-gradient-to-r from-purple-100 to-pink-100">
+                    <img 
+                      src={bannerUrl}
+                      alt="Profile banner"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <Label htmlFor="banner" className="cursor-pointer">
+                  <div className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-accent w-fit">
+                    {uploading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Upload className="w-4 h-4" />
+                    )}
+                    <span>Upload Banner</span>
+                  </div>
+                </Label>
+                <Input
+                  id="banner"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleBannerUpload}
+                  disabled={uploading}
+                />
+                <p className="text-xs text-muted-foreground">Max 5MB, JPG or PNG. Recommended: 1500x500px</p>
+              </div>
+
               {/* Profile Picture */}
               <div className="flex items-center gap-4">
                 <Avatar className="w-20 h-20">

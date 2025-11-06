@@ -653,6 +653,7 @@ export type Database = {
           airtable_created_time: string | null
           airtable_record_id: string | null
           avatar_url: string | null
+          banner_url: string | null
           bookings: string | null
           business_description: string | null
           business_name: string | null
@@ -693,6 +694,7 @@ export type Database = {
           airtable_created_time?: string | null
           airtable_record_id?: string | null
           avatar_url?: string | null
+          banner_url?: string | null
           bookings?: string | null
           business_description?: string | null
           business_name?: string | null
@@ -733,6 +735,7 @@ export type Database = {
           airtable_created_time?: string | null
           airtable_record_id?: string | null
           avatar_url?: string | null
+          banner_url?: string | null
           bookings?: string | null
           business_description?: string | null
           business_name?: string | null
