@@ -350,6 +350,11 @@ const Index = () => {
       </section>
     </div>;
   return <div className="min-h-screen bg-background">
+      {/* Application Name */}
+      <div className="bg-primary text-primary-foreground text-center py-2 font-semibold text-lg">
+        Bookang
+      </div>
+      
       {/* Navigation Header */}
       <nav className="bg-primary shadow-sm border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4">
