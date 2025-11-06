@@ -717,7 +717,7 @@ const CustomerDashboard = ({
                   <p className="text-yellow-100">Total Bookings</p>
                   <p className="text-2xl font-bold">{upcomingAppointments.length + pastAppointments.length}</p>
                 </div>
-                <Calendar className="h-8 w-8 text-yellow-200" />
+                
               </div>
             </CardContent>
           </Card>
@@ -731,7 +731,7 @@ const CustomerDashboard = ({
                   <p className="text-indigo-100">Available Services</p>
                   <p className="text-2xl font-bold">{availableServices.length}</p>
                 </div>
-                <Scissors className="h-8 w-8 text-indigo-200" />
+                
               </div>
             </CardContent>
           </Card>
@@ -743,7 +743,7 @@ const CustomerDashboard = ({
                   <p className="text-emerald-100">Service Providers</p>
                   <p className="text-2xl font-bold">{availableHairdressers.length}</p>
                 </div>
-                <User className="h-8 w-8 text-emerald-200" />
+                
               </div>
             </CardContent>
           </Card>
@@ -1212,29 +1212,16 @@ const CustomerDashboard = ({
           </DialogHeader>
           
           <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-            {pastAppointments.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
+            {pastAppointments.length === 0 ? <div className="text-center py-8 text-gray-500">
                 <User className="h-12 w-12 mx-auto mb-3 text-gray-400" />
                 <p>No service providers yet</p>
                 <p className="text-sm mt-2">Book your first appointment to get started</p>
-              </div>
-            ) : (
-              Array.from(new Map(
-                pastAppointments
-                  .filter(apt => apt.hairdressers?.profiles?.full_name)
-                  .map(apt => [
-                    apt.hairdresser_id,
-                    {
-                      id: apt.hairdresser_id,
-                      name: apt.hairdressers?.profiles?.full_name,
-                      salon: apt.salons?.name,
-                      bookings: pastAppointments.filter(
-                        a => a.hairdresser_id === apt.hairdresser_id
-                      ).length
-                    }
-                  ])
-              ).values()).map(provider => (
-                <div key={provider.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+              </div> : Array.from(new Map(pastAppointments.filter(apt => apt.hairdressers?.profiles?.full_name).map(apt => [apt.hairdresser_id, {
+            id: apt.hairdresser_id,
+            name: apt.hairdressers?.profiles?.full_name,
+            salon: apt.salons?.name,
+            bookings: pastAppointments.filter(a => a.hairdresser_id === apt.hairdresser_id).length
+          }])).values()).map(provider => <div key={provider.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
@@ -1248,21 +1235,14 @@ const CustomerDashboard = ({
                         </p>
                       </div>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-emerald-200 text-emerald-600 hover:bg-emerald-50"
-                      onClick={() => {
-                        setShowProvidersModal(false);
-                        setShowBookingModal(true);
-                      }}
-                    >
+                    <Button size="sm" variant="outline" className="border-emerald-200 text-emerald-600 hover:bg-emerald-50" onClick={() => {
+                setShowProvidersModal(false);
+                setShowBookingModal(true);
+              }}>
                       Book Again
                     </Button>
                   </div>
-                </div>
-              ))
-            )}
+                </div>)}
           </div>
         </DialogContent>
       </Dialog>
