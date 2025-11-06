@@ -55,6 +55,9 @@ const CalendarBooking = () => {
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('17:00');
   const [blockReason, setBlockReason] = useState('');
+  
+  // Real bookings state
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
   // Fetch hairdresser ID
   useEffect(() => {
@@ -84,10 +87,11 @@ const CalendarBooking = () => {
     fetchHairdresserId();
   }, []);
 
-  // Fetch blocked times
+  // Fetch blocked times and bookings
   useEffect(() => {
     if (!hairdresserId) return;
     fetchBlockedTimes();
+    fetchBookings();
   }, [hairdresserId]);
 
   const fetchBlockedTimes = async () => {
@@ -163,65 +167,69 @@ const CalendarBooking = () => {
     fetchBlockedTimes();
   };
 
+  const fetchBookings = async () => {
+    if (!hairdresserId) return;
+
+    const { data, error } = await supabase
+      .from('bookings')
+      .select(`
+        id,
+        appointment_date,
+        appointment_time,
+        duration_minutes,
+        total_price,
+        status,
+        customer_id,
+        services (
+          name
+        ),
+        profiles!bookings_customer_id_fkey (
+          full_name
+        )
+      `)
+      .eq('hairdresser_id', hairdresserId)
+      .in('status', ['pending', 'confirmed'])
+      .order('appointment_date', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching bookings:', error);
+      return;
+    }
+
+    // Transform data to match the Booking interface
+    const transformedBookings: Booking[] = (data || []).map((booking: any) => {
+      const date = new Date(booking.appointment_date);
+      const [hours, minutes] = booking.appointment_time.split(':');
+      const hour = parseInt(hours);
+      const isPM = hour >= 12;
+      const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+      const timeString = `${displayHour}:${minutes} ${isPM ? 'PM' : 'AM'}`;
+
+      return {
+        id: booking.id,
+        customerName: booking.profiles?.full_name || 'Unknown Customer',
+        service: booking.services?.name || 'Service',
+        time: timeString,
+        duration: booking.duration_minutes || 60,
+        status: booking.status as 'confirmed' | 'pending' | 'cancelled',
+        cost: `R${booking.total_price?.toFixed(2) || '0.00'}`,
+        date: date,
+        customerInfo: {
+          preferences: [],
+          lastService: '',
+          lastVisit: '',
+          totalVisits: 0,
+        }
+      };
+    });
+
+    setBookings(transformedBookings);
+  };
+
   const getBlockedTimesForDate = (date: Date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     return blockedTimes.filter(bt => bt.blocked_date === dateStr);
   };
-
-  // Mock booking data with customer information
-  const bookings: Booking[] = [
-    {
-      id: 1,
-      customerName: 'Emily Johnson',
-      service: 'Haircut & Styling',
-      time: '10:00 AM',
-      duration: 90,
-      status: 'confirmed',
-      cost: 'R1,125',
-      date: new Date(2024, 6, 15), // July 15, 2024
-      customerInfo: {
-        preferences: ['Natural look', 'Medium layers', 'Heat protection'],
-        lastService: 'Hair Color & Highlights',
-        lastVisit: '2024-05-12',
-        totalVisits: 8,
-        notes: 'Sensitive scalp - use gentle products'
-      }
-    },
-    {
-      id: 2,
-      customerName: 'Sarah Williams',
-      service: 'Hair Color & Highlights',
-      time: '2:00 PM',
-      duration: 120,
-      status: 'pending',
-      cost: 'R2,250',
-      date: new Date(2024, 6, 15), // July 15, 2024
-      customerInfo: {
-        preferences: ['Bold colors', 'Trendy styles', 'Professional look'],
-        lastService: 'Haircut & Blow-dry',
-        lastVisit: '2024-06-18',
-        totalVisits: 12,
-        notes: 'Works in corporate - prefers sophisticated styles'
-      }
-    },
-    {
-      id: 3,
-      customerName: 'Jessica Brown',
-      service: 'Hair Treatment',
-      time: '4:30 PM',
-      duration: 60,
-      status: 'confirmed',
-      cost: 'R1,800',
-      date: new Date(2024, 6, 16), // July 16, 2024
-      customerInfo: {
-        preferences: ['Organic products', 'Deep conditioning', 'Curl enhancement'],
-        lastService: 'Keratin Treatment',
-        lastVisit: '2024-04-22',
-        totalVisits: 5,
-        notes: 'Curly hair - loves natural texture treatments'
-      }
-    }
-  ];
 
   // Generate hours for horizontal timeline (9 AM to 6 PM)
   const generateHours = () => {
@@ -258,17 +266,26 @@ const CalendarBooking = () => {
   const generateTimeSlots = (date: Date): TimeSlot[] => {
     const slots: TimeSlot[] = [];
     const dayBookings = bookings.filter(booking => isSameDay(booking.date, date));
+    const dayBlocks = getBlockedTimesForDate(date);
     
     for (let hour = 9; hour <= 17; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         const displayTime = format(new Date(2024, 0, 1, hour, minute), 'h:mm a');
         
+        // Check if this time is booked
         const booking = dayBookings.find(b => b.time === displayTime);
+        
+        // Check if this time is blocked
+        const isBlocked = dayBlocks.some(block => {
+          const blockStart = block.start_time;
+          const blockEnd = block.end_time;
+          return timeString >= blockStart && timeString < blockEnd;
+        });
         
         slots.push({
           time: displayTime,
-          available: !booking,
+          available: !booking && !isBlocked,
           booking
         });
       }
