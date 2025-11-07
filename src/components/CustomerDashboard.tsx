@@ -660,9 +660,7 @@ const CustomerDashboard = ({
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               {username || formatName(userName)}
             </h1>
-            <p className="text-gray-600">
-              Manage your appointments and discover new styling opportunities.
-            </p>
+            <p className="text-gray-600">Manage your appointments </p>
           </div>
         </div>
 
