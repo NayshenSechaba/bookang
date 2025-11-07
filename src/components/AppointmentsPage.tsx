@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Calendar, Clock, Star, MapPin, Phone, Mail, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Calendar, Clock, Star, MapPin, Phone, Mail, CheckCircle, XCircle, AlertCircle, MoreVertical } from 'lucide-react';
 
 interface AppointmentsPageProps {
   userName: string;
@@ -198,18 +199,55 @@ const AppointmentsPage = ({ userName }: AppointmentsPageProps) => {
     setShowDetailsModal(false);
   };
 
-  const renderAppointmentCard = (appointment: any) => (
+  const renderAppointmentCard = (appointment: any, showActions = false) => (
     <Card 
       key={appointment.id} 
-      className="border-blue-100 hover:shadow-lg transition-shadow cursor-pointer"
-      onClick={() => openAppointmentDetails(appointment)}
+      className="border-blue-100 hover:shadow-lg transition-shadow"
     >
       <CardHeader className="flex flex-row items-center space-y-0 pb-4">
-        <div className="flex-1">
+        <div className="flex-1 cursor-pointer" onClick={() => openAppointmentDetails(appointment)}>
           <CardTitle className="text-lg">{appointment.service}</CardTitle>
           <CardDescription>{appointment.salon} - {appointment.hairdresser}</CardDescription>
         </div>
-        {getStatusBadge(appointment.status)}
+        <div className="flex items-center gap-2">
+          {getStatusBadge(appointment.status)}
+          {showActions && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={(e) => {
+                  e.stopPropagation();
+                  openAppointmentDetails(appointment);
+                }}>
+                  View Details
+                </DropdownMenuItem>
+                {appointment.canReschedule && (
+                  <DropdownMenuItem onClick={(e) => {
+                    e.stopPropagation();
+                    handleRescheduleAppointment(appointment.id);
+                  }}>
+                    Reschedule
+                  </DropdownMenuItem>
+                )}
+                {appointment.canCancel && (
+                  <DropdownMenuItem 
+                    className="text-destructive focus:text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCancelAppointment(appointment.id);
+                    }}
+                  >
+                    Cancel Appointment
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="flex items-center text-sm text-gray-600 mb-2">
@@ -256,7 +294,7 @@ const AppointmentsPage = ({ userName }: AppointmentsPageProps) => {
           <TabsContent value="upcoming" className="space-y-6">
             {upcomingAppointments.length > 0 ? (
               <div className="grid gap-6">
-                {upcomingAppointments.map(renderAppointmentCard)}
+                {upcomingAppointments.map(apt => renderAppointmentCard(apt, true))}
               </div>
             ) : (
               <Card className="text-center py-12">
@@ -275,7 +313,7 @@ const AppointmentsPage = ({ userName }: AppointmentsPageProps) => {
           <TabsContent value="past" className="space-y-6">
             {pastAppointments.length > 0 ? (
               <div className="grid gap-6">
-                {pastAppointments.map(renderAppointmentCard)}
+                {pastAppointments.map(apt => renderAppointmentCard(apt, false))}
               </div>
             ) : (
               <Card className="text-center py-12">
@@ -291,7 +329,7 @@ const AppointmentsPage = ({ userName }: AppointmentsPageProps) => {
           <TabsContent value="cancelled" className="space-y-6">
             {cancelledAppointments.length > 0 ? (
               <div className="grid gap-6">
-                {cancelledAppointments.map(renderAppointmentCard)}
+                {cancelledAppointments.map(apt => renderAppointmentCard(apt, false))}
               </div>
             ) : (
               <Card className="text-center py-12">
