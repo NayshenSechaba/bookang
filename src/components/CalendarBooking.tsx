@@ -57,6 +57,10 @@ const CalendarBooking = () => {
   const [endTime, setEndTime] = useState('17:00');
   const [blockReason, setBlockReason] = useState('');
   
+  // Quick action menu state
+  const [showQuickActionMenu, setShowQuickActionMenu] = useState(false);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{ date: Date; hour: number } | null>(null);
+  
   // Real bookings state
   const [bookings, setBookings] = useState<Booking[]>([]);
 
@@ -268,9 +272,10 @@ const CalendarBooking = () => {
   };
 
   // Quick block time slot
-  const handleQuickBlockTime = async (date: Date, hour: number) => {
-    if (!hairdresserId) return;
+  const handleQuickBlockTime = async () => {
+    if (!hairdresserId || !selectedTimeSlot) return;
     
+    const { date, hour } = selectedTimeSlot;
     const endHour = hour + 1;
     setLoading(true);
 
@@ -281,7 +286,7 @@ const CalendarBooking = () => {
         blocked_date: format(date, 'yyyy-MM-dd'),
         start_time: `${hour.toString().padStart(2, '0')}:00`,
         end_time: `${endHour.toString().padStart(2, '0')}:00`,
-        reason: 'Quick blocked',
+        reason: blockReason || 'Quick blocked',
       });
 
     setLoading(false);
@@ -293,7 +298,16 @@ const CalendarBooking = () => {
     }
 
     toast.success('Time slot blocked');
+    setShowQuickActionMenu(false);
+    setSelectedTimeSlot(null);
+    setBlockReason('');
     fetchBlockedTimes();
+  };
+
+  // Open quick action menu for available slot
+  const openQuickActionMenu = (date: Date, hour: number) => {
+    setSelectedTimeSlot({ date, hour });
+    setShowQuickActionMenu(true);
   };
 
   // Navigate days in hourly view
@@ -644,10 +658,10 @@ const CalendarBooking = () => {
                       }`}
                       onClick={() => {
                         if (!booking && !isBlocked) {
-                          handleQuickBlockTime(hourlyViewDate, hour.hour);
+                          openQuickActionMenu(hourlyViewDate, hour.hour);
                         }
                       }}
-                      title={!booking && !isBlocked ? 'Click to block this time' : ''}
+                      title={!booking && !isBlocked ? 'Click to manage this time slot' : ''}
                     >
                       {isBlocked ? (
                         <div className="h-full p-1 flex flex-col items-center justify-center">
@@ -682,7 +696,7 @@ const CalendarBooking = () => {
                         <div className="h-full flex flex-col items-center justify-center text-xs text-gray-400 hover:text-gray-600">
                           <Plus className="h-3 w-3 mb-1" />
                           <span>Available</span>
-                          <span className="text-[10px]">Click to block</span>
+                          <span className="text-[10px]">Click to manage</span>
                         </div>
                       )}
                     </div>
@@ -706,7 +720,7 @@ const CalendarBooking = () => {
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-3 h-3 bg-green-50 border border-green-200 rounded"></div>
-                  <span>Available (Click to block)</span>
+                  <span>Available (Click to manage)</span>
                 </div>
               </div>
             </div>
@@ -1008,6 +1022,60 @@ const CalendarBooking = () => {
               {loading ? 'Blocking...' : 'Block Time'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Quick Action Menu Dialog */}
+      <Dialog open={showQuickActionMenu} onOpenChange={setShowQuickActionMenu}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Manage Time Slot</DialogTitle>
+            <DialogDescription>
+              {selectedTimeSlot && (
+                <>
+                  Choose action for {format(selectedTimeSlot.date, 'MMMM d, yyyy')} at{' '}
+                  {format(new Date(2024, 0, 1, selectedTimeSlot.hour, 0), 'h:mm a')}
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="quick-reason">Reason for blocking (Optional)</Label>
+              <Textarea
+                id="quick-reason"
+                placeholder="e.g., Lunch break, Personal appointment, etc."
+                value={blockReason}
+                onChange={(e) => setBlockReason(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <Button 
+                onClick={handleQuickBlockTime} 
+                disabled={loading}
+                className="w-full"
+                variant="destructive"
+              >
+                <CalendarX className="mr-2 h-4 w-4" />
+                {loading ? 'Blocking...' : 'Block This Time'}
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowQuickActionMenu(false);
+                  setSelectedTimeSlot(null);
+                  setBlockReason('');
+                }}
+                className="w-full"
+              >
+                Keep Available
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
