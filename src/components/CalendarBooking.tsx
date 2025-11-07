@@ -37,6 +37,7 @@ interface TimeSlot {
   time: string;
   available: boolean;
   booking?: Booking;
+  isBlocked?: boolean;
 }
 
 const CalendarBooking = () => {
@@ -286,7 +287,8 @@ const CalendarBooking = () => {
         slots.push({
           time: displayTime,
           available: !booking && !isBlocked,
-          booking
+          booking,
+          isBlocked
         });
       }
     }
@@ -827,7 +829,9 @@ const CalendarBooking = () => {
               <div 
                 key={index}
                 className={`p-3 rounded-lg border ${
-                  slot.available 
+                  slot.isBlocked
+                    ? 'bg-destructive/10 border-destructive/30'
+                    : slot.available 
                     ? 'bg-green-50 border-green-200' 
                     : slot.booking?.status === 'confirmed'
                     ? 'bg-blue-50 border-blue-200'
@@ -836,7 +840,12 @@ const CalendarBooking = () => {
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="font-medium text-sm">{slot.time}</span>
-                  {slot.available ? (
+                  {slot.isBlocked ? (
+                    <Badge variant="outline" className="text-xs bg-destructive/20 text-destructive border-destructive/30">
+                      <CalendarX className="h-3 w-3 mr-1" />
+                      Blocked
+                    </Badge>
+                  ) : slot.available ? (
                     <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
                       Available
                     </Badge>
