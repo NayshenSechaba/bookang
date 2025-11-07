@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Star, MapPin, Search, Heart, Bookmark, MoreHorizontal, Navigation, X, Calendar, Clock } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 // Define types for better TypeScript support
 interface ServiceProviderCoordinates {
@@ -17,7 +19,7 @@ interface ServiceProviderCoordinates {
 }
 
 interface ServiceProvider {
-  id: number;
+  id: string;
   name: string;
   rating: number;
   reviewCount: number;
@@ -32,14 +34,17 @@ interface ServiceProvider {
   coordinates: ServiceProviderCoordinates;
   isNew?: boolean;
   calculatedDistance?: number;
+  businessType?: string;
+  description?: string;
 }
 
 const ExplorePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedLocation, setSelectedLocation] = useState('all');
-  const [likedItems, setLikedItems] = useState<Set<number>>(new Set());
-  const [savedItems, setSavedItems] = useState<Set<number>>(new Set());
+  const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
+  const [savedItems, setSavedItems] = useState<Set<string>>(new Set());
+  const [providers, setProviders] = useState<ServiceProvider[]>([]);
   
   // Booking modal state
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -70,179 +75,49 @@ const ExplorePage = () => {
     { id: 'fourways', label: 'Fourways' },
   ];
 
-  // Mock data for service providers with South African locations
-  const allProviders: ServiceProvider[] = [
-    {
-      id: 1,
-      name: 'Premier Business Consultants',
-      rating: 4.9,
-      reviewCount: 127,
-      location: 'Sandton',
-      specialties: ['Strategy', 'Financial Planning'],
-      priceRange: 'Premium',
-      image: '/placeholder.svg',
-      distance: '0.8 km',
-      isLiked: false,
-      isSaved: false,
-      category: 'popular',
-      coordinates: { lat: -26.1076, lng: 28.0567 }
-    },
-    {
-      id: 2,
-      name: 'Wellness Clinic Soweto',
-      rating: 4.8,
-      reviewCount: 98,
-      location: 'Soweto',
-      specialties: ['Health', 'Physiotherapy'],
-      priceRange: 'Mid-Range',
-      image: '/placeholder.svg',
-      distance: '1.9 km',
-      isLiked: true,
-      isSaved: false,
-      category: 'popular',
-      coordinates: { lat: -26.2678, lng: 27.8585 }
-    },
-    {
-      id: 3,
-      name: 'Executive Coaching Hub',
-      rating: 4.7,
-      reviewCount: 85,
-      location: 'Rosebank',
-      specialties: ['Leadership', 'Career Development'],
-      priceRange: 'Luxury',
-      image: '/placeholder.svg',
-      distance: '3.4 km',
-      isLiked: false,
-      isSaved: true,
-      category: 'popular',
-      coordinates: { lat: -26.1464, lng: 28.0414 }
-    },
-    {
-      id: 4,
-      name: 'Legal Services Alex',
-      rating: 4.6,
-      reviewCount: 23,
-      location: 'Alexandra',
-      specialties: ['Legal Advice', 'Contract Review'],
-      priceRange: 'Mid-Range',
-      image: '/placeholder.svg',
-      distance: '2.9 km',
-      isLiked: false,
-      isSaved: false,
-      category: 'new',
-      isNew: true,
-      coordinates: { lat: -26.1021, lng: 28.0949 }
-    },
-    {
-      id: 5,
-      name: 'Tech Support Solutions',
-      rating: 4.5,
-      reviewCount: 15,
-      location: 'Johannesburg CBD',
-      specialties: ['IT Consulting', 'Network Setup'],
-      priceRange: 'Budget',
-      image: '/placeholder.svg',
-      distance: '3.7 km',
-      isLiked: true,
-      isSaved: false,
-      category: 'new',
-      isNew: true,
-      coordinates: { lat: -26.2041, lng: 28.0473 }
-    },
-    {
-      id: 6,
-      name: 'Accounting Firm Midrand',
-      rating: 4.3,
-      reviewCount: 67,
-      location: 'Midrand',
-      specialties: ['Tax', 'Bookkeeping'],
-      priceRange: 'Budget',
-      image: '/placeholder.svg',
-      distance: '0.3 km',
-      isLiked: false,
-      isSaved: false,
-      category: 'nearby',
-      coordinates: { lat: -25.9896, lng: 28.1285 }
-    },
-    {
-      id: 7,
-      name: 'Marketing Agency Randburg',
-      rating: 4.5,
-      reviewCount: 54,
-      location: 'Randburg',
-      specialties: ['Digital Marketing', 'Branding'],
-      priceRange: 'Mid-Range',
-      image: '/placeholder.svg',
-      distance: '0.5 km',
-      isLiked: false,
-      isSaved: true,
-      category: 'nearby',
-      coordinates: { lat: -26.0943, lng: 27.9819 }
-    },
-    {
-      id: 8,
-      name: 'Quick Fix Home Services',
-      rating: 4.2,
-      reviewCount: 89,
-      location: 'Diepsloot',
-      specialties: ['Repairs', 'Maintenance'],
-      priceRange: 'Budget',
-      image: '/placeholder.svg',
-      distance: '0.6 km',
-      isLiked: true,
-      isSaved: false,
-      category: 'nearby',
-      coordinates: { lat: -25.9321, lng: 28.0122 }
-    },
-    {
-      id: 9,
-      name: 'Yeoville Therapy Centre',
-      rating: 4.4,
-      reviewCount: 72,
-      location: 'Yeoville',
-      specialties: ['Counseling', 'Mental Health'],
-      priceRange: 'Mid-Range',
-      image: '/placeholder.svg',
-      distance: '1.2 km',
-      isLiked: false,
-      isSaved: false,
-      category: 'popular',
-      coordinates: { lat: -26.1789, lng: 28.0683 }
-    },
-    {
-      id: 10,
-      name: 'Tembisa Education Hub',
-      rating: 4.6,
-      reviewCount: 91,
-      location: 'Tembisa',
-      specialties: ['Tutoring', 'Training'],
-      priceRange: 'Budget',
-      image: '/placeholder.svg',
-      distance: '2.1 km',
-      isLiked: false,
-      isSaved: false,
-      category: 'new',
-      isNew: true,
-      coordinates: { lat: -25.9966, lng: 28.2269 }
-    }
-  ];
-
-  // Initialize liked and saved items from provider data
+  // Fetch business profiles from database
   useEffect(() => {
-    const initialLiked = new Set<number>();
-    const initialSaved = new Set<number>();
-    
-    allProviders.forEach(provider => {
-      if (provider.isLiked) initialLiked.add(provider.id);
-      if (provider.isSaved) initialSaved.add(provider.id);
-    });
-    
-    setLikedItems(initialLiked);
-    setSavedItems(initialSaved);
+    const fetchProviders = async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'hairdresser')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching providers:', error);
+        return;
+      }
+
+      if (data) {
+        const mappedProviders: ServiceProvider[] = data.map((profile, index) => ({
+          id: profile.id,
+          name: profile.business_name || profile.full_name || 'Business',
+          rating: 4.5 + Math.random() * 0.5, // Mock rating for now
+          reviewCount: Math.floor(Math.random() * 100) + 10,
+          location: profile.city || profile.province || 'Location',
+          specialties: profile.business_type ? [profile.business_type] : ['Services'],
+          priceRange: 'Mid-Range',
+          image: profile.avatar_url || '/placeholder.svg',
+          distance: `${(Math.random() * 5).toFixed(1)} km`,
+          isLiked: false,
+          isSaved: false,
+          category: index < 3 ? 'popular' : index < 6 ? 'nearby' : 'all',
+          coordinates: { lat: -26.2041, lng: 28.0473 }, // Default coordinates
+          isNew: !profile.onboarding_completed,
+          businessType: profile.business_type,
+          description: profile.business_description
+        }));
+
+        setProviders(mappedProviders);
+      }
+    };
+
+    fetchProviders();
   }, []);
 
   // Handle like/unlike
-  const toggleLike = (providerId: number) => {
+  const toggleLike = (providerId: string) => {
     const newLikedItems = new Set(likedItems);
     if (newLikedItems.has(providerId)) {
       newLikedItems.delete(providerId);
@@ -288,7 +163,7 @@ const ExplorePage = () => {
     setShowBookingModal(false);
     setSelectedProvider(null);
   };
-  const toggleSave = (providerId: number) => {
+  const toggleSave = (providerId: string) => {
     const newSavedItems = new Set(savedItems);
     if (newSavedItems.has(providerId)) {
       newSavedItems.delete(providerId);
@@ -309,7 +184,7 @@ const ExplorePage = () => {
 
   // Filter and sort providers
   const getFilteredProviders = (): ServiceProvider[] => {
-    let filtered = allProviders.map(provider => ({
+    let filtered = providers.map(provider => ({
       ...provider,
       isLiked: likedItems.has(provider.id),
       isSaved: savedItems.has(provider.id)
@@ -345,12 +220,20 @@ const ExplorePage = () => {
     <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="relative">
         {/* Image */}
-        <div className="aspect-square bg-gradient-to-br from-purple-100 to-pink-100 relative overflow-hidden">
-          <img 
-            src={provider.image} 
-            alt={provider.name}
-            className="w-full h-full object-cover"
-          />
+        <div 
+          className="aspect-square bg-gradient-to-br from-purple-100 to-pink-100 relative overflow-hidden cursor-pointer"
+          onClick={() => handleBooking(provider)}
+        >
+          <Avatar className="w-full h-full rounded-none">
+            <AvatarImage 
+              src={provider.image} 
+              alt={provider.name}
+              className="w-full h-full object-cover"
+            />
+            <AvatarFallback className="w-full h-full rounded-none bg-gradient-to-br from-purple-100 to-pink-100 text-4xl">
+              {provider.name.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
           
           {/* Overlay badges */}
           <div className="absolute top-3 left-3 flex flex-col gap-1">
