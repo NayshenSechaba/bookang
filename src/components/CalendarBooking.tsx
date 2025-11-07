@@ -256,6 +256,46 @@ const CalendarBooking = () => {
     });
   };
 
+  // Check if hour is blocked
+  const isHourBlocked = (date: Date, hour: number) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    const timeStr = `${hour.toString().padStart(2, '0')}:00`;
+    return blockedTimes.some(block => {
+      return block.blocked_date === dateStr && 
+             timeStr >= block.start_time && 
+             timeStr < block.end_time;
+    });
+  };
+
+  // Quick block time slot
+  const handleQuickBlockTime = async (date: Date, hour: number) => {
+    if (!hairdresserId) return;
+    
+    const endHour = hour + 1;
+    setLoading(true);
+
+    const { error } = await supabase
+      .from('blocked_times')
+      .insert({
+        hairdresser_id: hairdresserId,
+        blocked_date: format(date, 'yyyy-MM-dd'),
+        start_time: `${hour.toString().padStart(2, '0')}:00`,
+        end_time: `${endHour.toString().padStart(2, '0')}:00`,
+        reason: 'Quick blocked',
+      });
+
+    setLoading(false);
+
+    if (error) {
+      console.error('Error blocking time:', error);
+      toast.error('Failed to block time slot');
+      return;
+    }
+
+    toast.success('Time slot blocked');
+    fetchBlockedTimes();
+  };
+
   // Navigate days in hourly view
   const navigateDay = (direction: 'prev' | 'next') => {
     setHourlyViewDate(prev => 
@@ -586,32 +626,63 @@ const CalendarBooking = () => {
                 </div>
                 {generateHours().map((hour) => {
                   const booking = getBookingForHour(hourlyViewDate, hour.hour);
+                  const isBlocked = isHourBlocked(hourlyViewDate, hour.hour);
+                  const isConfirmed = booking?.status === 'confirmed';
+                  const isPending = booking?.status === 'pending';
+                  
                   return (
                     <div 
                       key={hour.hour} 
                       className={`flex-1 min-w-24 p-1 border-r min-h-16 ${
-                        booking 
-                          ? booking.status === 'confirmed' 
-                            ? 'bg-blue-100 border-blue-200' 
-                            : 'bg-yellow-100 border-yellow-200'
-                          : 'bg-green-50 hover:bg-green-100 cursor-pointer'
+                        isBlocked
+                          ? 'bg-destructive/10 border-destructive/30'
+                          : isConfirmed
+                          ? 'bg-blue-100 border-blue-200'
+                          : isPending
+                          ? 'bg-yellow-100 border-yellow-200'
+                          : 'bg-green-50 hover:bg-green-100 cursor-pointer transition-colors'
                       }`}
+                      onClick={() => {
+                        if (!booking && !isBlocked) {
+                          handleQuickBlockTime(hourlyViewDate, hour.hour);
+                        }
+                      }}
+                      title={!booking && !isBlocked ? 'Click to block this time' : ''}
                     >
-                      {booking ? (
+                      {isBlocked ? (
+                        <div className="h-full p-1 flex flex-col items-center justify-center">
+                          <CalendarX className="h-4 w-4 text-destructive mb-1" />
+                          <span className="text-xs font-medium text-destructive">Blocked</span>
+                        </div>
+                      ) : booking ? (
                         <div className="h-full p-1">
                           <div className={`p-2 rounded text-xs h-full ${
-                            booking.status === 'confirmed' 
+                            isConfirmed
                               ? 'bg-blue-200 text-blue-800' 
                               : 'bg-yellow-200 text-yellow-800'
                           }`}>
+                            <div className="flex items-center gap-1 mb-1">
+                              {isPending && (
+                                <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 bg-yellow-300 text-yellow-900 border-yellow-400">
+                                  Pending
+                                </Badge>
+                              )}
+                              {isConfirmed && (
+                                <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 bg-blue-300 text-blue-900 border-blue-400">
+                                  Confirmed
+                                </Badge>
+                              )}
+                            </div>
                             <div className="font-medium truncate">{booking.customerName}</div>
                             <div className="text-xs truncate">{booking.service}</div>
                             <div className="text-xs">{booking.cost}</div>
                           </div>
                         </div>
                       ) : (
-                        <div className="h-full flex items-center justify-center text-xs text-gray-400">
-                          Available
+                        <div className="h-full flex flex-col items-center justify-center text-xs text-gray-400 hover:text-gray-600">
+                          <Plus className="h-3 w-3 mb-1" />
+                          <span>Available</span>
+                          <span className="text-[10px]">Click to block</span>
                         </div>
                       )}
                     </div>
@@ -623,15 +694,19 @@ const CalendarBooking = () => {
               <div className="flex items-center gap-4 p-4 bg-gray-50 text-xs">
                 <div className="flex items-center gap-1">
                   <div className="w-3 h-3 bg-blue-200 rounded"></div>
-                  <span>Confirmed</span>
+                  <span>Confirmed Booking</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-3 h-3 bg-yellow-200 rounded"></div>
-                  <span>Pending</span>
+                  <span>Pending Booking</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-3 h-3 bg-destructive/20 border border-destructive/40 rounded"></div>
+                  <span>Blocked Time</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-3 h-3 bg-green-50 border border-green-200 rounded"></div>
-                  <span>Available</span>
+                  <span>Available (Click to block)</span>
                 </div>
               </div>
             </div>
