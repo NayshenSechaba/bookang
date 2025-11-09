@@ -722,17 +722,7 @@ const CustomerDashboard = ({
 
           
 
-          <Card className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-indigo-100">Available Services</p>
-                  <p className="text-2xl font-bold">{availableServices.length}</p>
-                </div>
-                
-              </div>
-            </CardContent>
-          </Card>
+          
 
           <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white cursor-pointer hover:from-emerald-600 hover:to-emerald-700 transition-all" onClick={() => setShowProvidersModal(true)}>
             <CardContent className="p-6">
