@@ -343,7 +343,7 @@ const Index = () => {
     </div>;
   return <div className="min-h-screen bg-background">
       {/* Application Name */}
-      <div className="bg-primary text-primary-foreground text-center py-2 font-semibold text-lg">
+      <div className="bg-primary text-primary-foreground text-center py-3 font-semibold text-xl">
         Bookang
       </div>
       
