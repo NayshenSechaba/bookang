@@ -353,7 +353,7 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <img src={bookangLogo} alt="Bookang - Your smart booking platform" className="h-10" />
+              <img src={bookangLogo} alt="Bookang - Your smart booking platform" className="h-40" />
             </div>
 
             {/* Desktop Navigation */}
