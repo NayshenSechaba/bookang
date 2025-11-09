@@ -214,7 +214,7 @@ const Index = () => {
             
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight"> Booked in Seconds. Managed with Ease.  
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight"> Booked in Seconds. Managed with Ease.   
 
 Scale Your Professional Service Business.<span className="text-blue-600">Bookang</span>: Automate Your Bookings. 
             <br />
