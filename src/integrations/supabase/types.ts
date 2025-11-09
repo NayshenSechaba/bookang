@@ -327,14 +327,14 @@ export type Database = {
           {
             foreignKeyName: "client_profiles_profile_id_fkey"
             columns: ["profile_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "client_profiles_profile_id_fkey"
             columns: ["profile_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "vw_onboarding_status"
             referencedColumns: ["profile_id"]
           },
