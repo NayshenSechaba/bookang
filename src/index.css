@@ -29,6 +29,9 @@ All colors MUST be HSL.
 
     --accent: 37 90% 51%; /* Yellow #F39C12 */
     --accent-foreground: 210 29% 24%;
+    
+    --royal-blue: 225 73% 57%; /* Royal Blue #4169E1 */
+    --royal-blue-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -77,6 +80,9 @@ All colors MUST be HSL.
 
     --accent: 37 90% 51%;
     --accent-foreground: 210 29% 24%;
+    
+    --royal-blue: 225 73% 57%; /* Royal Blue #4169E1 */
+    --royal-blue-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;

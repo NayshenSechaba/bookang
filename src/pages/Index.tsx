@@ -360,7 +360,7 @@ const Index = () => {
               setCurrentPage(item.id);
               localStorage.setItem('salonconnect_current_page', item.id);
             }}>
-                  <item.icon className="mr-2 h-4 w-4" />
+                  <item.icon className="mr-2 h-4 w-4 text-royal-blue" />
                   {item.label}
                 </Button>)}
               
@@ -372,27 +372,27 @@ const Index = () => {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/90">
-                        <UserIcon className="h-5 w-5" />
+                        <UserIcon className="h-5 w-5 text-royal-blue" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56 bg-background z-[100]">
                       <DropdownMenuItem onClick={() => setCurrentPage('settings')}>
-                        <Settings className="mr-2 h-4 w-4" />
+                        <Settings className="mr-2 h-4 w-4 text-royal-blue" />
                         Account Settings
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setCurrentPage('contact')}>
-                        <Phone className="mr-2 h-4 w-4" />
+                        <Phone className="mr-2 h-4 w-4 text-royal-blue" />
                         Contact
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-                        <LogOut className="mr-2 h-4 w-4" />
+                        <LogOut className="mr-2 h-4 w-4 text-royal-blue" />
                         Logout
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/90">
-                    <Bell className="h-5 w-5" />
+                    <Bell className="h-5 w-5 text-royal-blue" />
                   </Button>
                 </div>}
             </div>
@@ -415,7 +415,7 @@ const Index = () => {
               localStorage.setItem('salonconnect_current_page', item.id);
               setIsMobileMenuOpen(false);
             }}>
-                    <item.icon className="mr-2 h-4 w-4" />
+                    <item.icon className="mr-2 h-4 w-4 text-royal-blue" />
                     {item.label}
                   </Button>)}
                 
@@ -506,7 +506,7 @@ const Index = () => {
               <h3 className="font-semibold mb-4">Contact</h3>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2 text-primary-foreground/80 text-sm">
-                  <Mail className="h-4 w-4" />
+                  <Mail className="h-4 w-4 text-royal-blue" />
                   <span>admin@bookang.co.za</span>
                 </div>
                 <div className="flex items-center space-x-2 text-primary-foreground/80 text-sm">
@@ -522,7 +522,7 @@ const Index = () => {
             
             {/* Employee Login Button */}
             <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground" onClick={() => openAuthModal('login', 'employee')}>
-              <UserCheck className="mr-2 h-4 w-4" />
+              <UserCheck className="mr-2 h-4 w-4 text-royal-blue" />
               Employee Login
             </Button>
           </div>
