@@ -211,13 +211,16 @@ const Index = () => {
       <section className="relative py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <div className="mb-8">
-            
+            <Badge variant="secondary" className="mb-4 text-blue-700 bg-blue-100">
+              <Calendar className="mr-2 h-4 w-4" />
+              Professional Services Booking Platform
+            </Badge>
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">Booked in Seconds. Managed with Ease.
-Scale Your Professional Service Business.<span className="text-blue-600">Bookang</span>: Automate Your Bookings. 
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            <span className="text-blue-600">Bookang</span>: Automate Your Bookings. 
             <br />
-            
+            <span className="text-2xl md:text-4xl text-gray-700">Scale Your Professional Service Business.</span>
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">The all-in-one client management and booking platform.</p>
@@ -346,7 +349,7 @@ Scale Your Professional Service Business.<span className="text-blue-600">Bookang
     </div>;
   return <div className="min-h-screen bg-background">
       {/* Application Name */}
-      <div className="bg-primary text-primary-foreground text-center py-2 font-semibold text-lg rounded-none">
+      <div className="bg-primary text-primary-foreground text-center py-2 font-semibold text-lg">
         Bookang
       </div>
       
