@@ -211,14 +211,13 @@ const Index = () => {
       <section className="relative py-20 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <div className="mb-8">
-            <Badge variant="secondary" className="mb-4 text-blue-700 bg-blue-100">
-              <Calendar className="mr-2 h-4 w-4" />
-              Professional Services Booking Platform
-            </Badge>
+            
           </div>
           
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            <span className="text-blue-600">Bookang</span>: Automate Your Bookings. 
+
+ Booked in Seconds. Managed with Ease.
+          <span className="text-blue-600">Bookang</span>: Automate Your Bookings. 
             <br />
             <span className="text-2xl md:text-4xl text-gray-700">Scale Your Professional Service Business.</span>
           </h1>
@@ -253,9 +252,7 @@ const Index = () => {
       {/* Features Section with CTA Buttons */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Why Choose Bookang?
-          </h2>
+          
           
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="text-center border-blue-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => user ? setCurrentPage('dashboard') : openAuthModal('login', 'customer')}>
