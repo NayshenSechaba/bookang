@@ -757,7 +757,7 @@ const CustomerDashboard = ({
                   
                   <TabsContent value="booking" className="mt-6">
                     <div className="flex flex-col sm:flex-row gap-4">
-                      <Button onClick={() => setShowBookingModal(true)} className="bg-purple-600 hover:bg-purple-700 flex-1">
+                      <Button onClick={() => setShowBookingModal(true)} className="flex-1 bg-[#030389]">
                         <Calendar className="mr-2 h-4 w-4" />
                         Book New Appointment
                       </Button>
