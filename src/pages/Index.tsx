@@ -223,9 +223,7 @@ const Index = () => {
             <span className="text-2xl md:text-4xl text-gray-700">Scale Your Professional Service Business.</span>
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            The all-in-one client management and booking platform for consultants, clinics, coaches, and every South African SME.
-          </p>
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">The all-in-one client management and booking platform.</p>
 
           {/* Authentication Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
