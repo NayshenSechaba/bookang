@@ -320,7 +320,7 @@ const Index = () => {
       </section>
 
       {/* Quick Access Section */}
-      <section className="py-16 px-4 bg-gradient-to-r from-blue-100 to-pink-100 bg-neutral-50">
+      <section className="py-16 px-4 bg-neutral-50">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-8">Quick Access</h2>
           
