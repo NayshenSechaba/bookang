@@ -66,6 +66,13 @@ Deno.serve(async (req) => {
       console.error('Error fetching customer profile:', profileError)
       throw new Error('Customer profile not found')
     }
+    
+    // Use phone from profile, fallback to booking phone if profile phone is blank
+    let customerPhone = customerProfile.phone
+    if (!customerPhone || customerPhone.trim() === '') {
+      console.log('Profile phone is blank, using booking phone as fallback')
+      customerPhone = booking.customer_phone
+    }
 
     // Fetch hairdresser details if hairdresser_id exists
     let hairdresserName = 'Your stylist'
@@ -105,12 +112,10 @@ Deno.serve(async (req) => {
       }
     }
 
-    const customerPhone = customerProfile.phone
-    
-    if (!customerPhone) {
+    if (!customerPhone || customerPhone.trim() === '') {
       console.log('No phone number found for customer in booking:', booking_id)
       return new Response(
-        JSON.stringify({ success: false, message: 'Customer phone number not found' }),
+        JSON.stringify({ success: false, message: 'Customer phone number not found in profile or booking' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       )
     }

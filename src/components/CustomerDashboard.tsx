@@ -427,7 +427,8 @@ const CustomerDashboard = ({
         duration_minutes: service?.duration_minutes || 60,
         total_price: pendingBooking.cost,
         status: 'pending',
-        special_requests: pendingBooking.notes || null
+        special_requests: pendingBooking.notes || null,
+        customer_phone: pendingBooking.phone || null
       }).select().single();
       if (bookingError) {
         throw bookingError;
