@@ -389,9 +389,7 @@ const Index = () => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/90">
-                    <Bell className="h-5 w-5 text-royal-blue" />
-                  </Button>
+                  
                 </div>}
             </div>
 
