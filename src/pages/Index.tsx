@@ -370,27 +370,7 @@ const Index = () => {
                   Login
                 </Button>}
               
-              {user && <div className="flex items-center space-x-3 pl-4 border-l border-primary-foreground/20">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary/90">
-                        <UserIcon className="h-5 w-5 text-royal-blue" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 bg-background z-[100]">
-                      <DropdownMenuItem onClick={() => setCurrentPage('settings')}>
-                        <Settings className="mr-2 h-4 w-4 text-royal-blue" />
-                        Account Settings
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-                        <LogOut className="mr-2 h-4 w-4 text-royal-blue" />
-                        Logout
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  
-                </div>}
+              {user}
             </div>
 
             {/* Mobile Menu Button */}
