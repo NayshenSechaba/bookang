@@ -369,8 +369,6 @@ const Index = () => {
               {!user && <Button variant="outline" size="sm" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" onClick={() => openAuthModal('login')}>
                   Login
                 </Button>}
-              
-              {user}
             </div>
 
             {/* Mobile Menu Button */}
