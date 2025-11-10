@@ -148,9 +148,9 @@ const Index = () => {
       label: 'Explore',
       icon: MapPin
     }, {
-      id: 'faq',
-      label: 'FAQ',
-      icon: HelpCircle
+      id: 'settings',
+      label: 'Account settings',
+      icon: Settings
     }, {
       id: 'contact',
       label: 'Contact',
@@ -330,9 +330,9 @@ const Index = () => {
             </Button>
             
             
-            <Button variant="outline" className="h-20 flex-col gap-2 bg-white hover:bg-indigo-50 border-indigo-200" onClick={() => setCurrentPage('faq')}>
-              <HelpCircle className="h-6 w-6 text-indigo-600" />
-              FAQ
+            <Button variant="outline" className="h-20 flex-col gap-2 bg-white hover:bg-indigo-50 border-indigo-200" onClick={() => setCurrentPage('settings')}>
+              <Settings className="h-6 w-6 text-indigo-600" />
+              Account settings
             </Button>
             
             
@@ -491,8 +491,8 @@ const Index = () => {
             <div>
               <h3 className="font-semibold mb-4">Support</h3>
               <div className="space-y-2">
-                <p className="text-primary-foreground/80 hover:text-accent cursor-pointer text-sm" onClick={() => setCurrentPage('faq')}>
-                  FAQ
+                <p className="text-primary-foreground/80 hover:text-accent cursor-pointer text-sm" onClick={() => setCurrentPage('settings')}>
+                  Account settings
                 </p>
                 <p className="text-primary-foreground/80 hover:text-accent cursor-pointer text-sm" onClick={() => setCurrentPage('contact')}>
                   Contact Us
