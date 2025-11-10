@@ -361,6 +361,11 @@ const Index = () => {
                   {item.label}
                 </Button>)}
               
+              {user && <Button variant="outline" size="sm" className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </Button>}
+              
               {!user && <Button variant="outline" size="sm" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" onClick={() => openAuthModal('login')}>
                   Login
                 </Button>}
