@@ -13,7 +13,6 @@ import EmployeeDashboard from '@/components/EmployeeDashboard';
 import AppointmentsPage from '@/components/AppointmentsPage';
 import ExplorePage from '@/components/ExplorePage';
 import FAQSection from '@/components/FAQSection';
-import ContactSection from '@/components/ContactSection';
 import SMEOnboarding from '@/components/SMEOnboarding';
 import ProfileCompletionModal from '@/components/ProfileCompletionModal';
 import AccountSettings from '@/components/AccountSettings';
@@ -151,10 +150,6 @@ const Index = () => {
       id: 'settings',
       label: 'Account settings',
       icon: Settings
-    }, {
-      id: 'contact',
-      label: 'Contact',
-      icon: Phone
     }];
     if (user) {
       baseItems.splice(1, 0, {
@@ -198,8 +193,6 @@ const Index = () => {
         return <ExplorePage />;
       case 'faq':
         return <FAQSection />;
-      case 'contact':
-        return <ContactSection />;
       default:
         return renderHomePage();
     }
@@ -379,10 +372,6 @@ const Index = () => {
                         <Settings className="mr-2 h-4 w-4 text-royal-blue" />
                         Account Settings
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => setCurrentPage('contact')}>
-                        <Phone className="mr-2 h-4 w-4 text-royal-blue" />
-                        Contact
-                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                         <LogOut className="mr-2 h-4 w-4 text-royal-blue" />
@@ -493,9 +482,6 @@ const Index = () => {
               <div className="space-y-2">
                 <p className="text-primary-foreground/80 hover:text-accent cursor-pointer text-sm" onClick={() => setCurrentPage('settings')}>
                   Account settings
-                </p>
-                <p className="text-primary-foreground/80 hover:text-accent cursor-pointer text-sm" onClick={() => setCurrentPage('contact')}>
-                  Contact Us
                 </p>
                 <p className="text-primary-foreground/80 hover:text-accent cursor-pointer text-sm">Help Center</p>
               </div>
