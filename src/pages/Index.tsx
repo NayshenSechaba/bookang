@@ -328,6 +328,11 @@ const Index = () => {
               Account settings
             </Button>
             
+            <Button variant="outline" className="h-20 flex-col gap-2 bg-white hover:bg-red-50 border-red-200" onClick={handleLogout}>
+              <LogOut className="h-6 w-6 text-red-600" />
+              Logout
+            </Button>
+            
             
           </div>
         </div>
