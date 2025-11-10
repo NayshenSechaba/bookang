@@ -34,6 +34,7 @@ const AuthModal = ({
     password: '',
     confirmPassword: '',
     role: 'customer' as 'customer' | 'hairdresser' | 'employee',
+    phoneNumber: '',
     hairdresserName: '',
     // Additional hairdresser fields
     address: '',
@@ -188,6 +189,17 @@ const AuthModal = ({
       return;
     }
     
+    // Validate phone number for all users
+    if (!formData.phoneNumber && formData.role !== 'hairdresser') {
+      showAlert('error', 'Missing Phone Number', 'Please enter your phone number for booking confirmations.');
+      return;
+    }
+    
+    if (formData.phoneNumber && !isValidPhone(formData.phoneNumber)) {
+      showAlert('error', 'Invalid Phone', 'Please enter a valid phone number.');
+      return;
+    }
+    
     // Additional validation for hairdressers
     if (formData.role === 'hairdresser') {
       if (!formData.hairdresserName.trim()) {
@@ -231,6 +243,8 @@ const AuthModal = ({
           data: {
             full_name: formData.role === 'hairdresser' ? formData.hairdresserName : formData.email.split('@')[0],
             role: formData.role,
+            phone: formData.role === 'hairdresser' ? formData.telephoneNumber : formData.phoneNumber,
+            address: formData.role === 'hairdresser' ? formData.address : null,
           }
         }
       });
@@ -261,6 +275,7 @@ const AuthModal = ({
       password: '',
       confirmPassword: '',
       role: 'customer',
+      phoneNumber: '',
       hairdresserName: '',
       address: '',
       telephoneNumber: '',
@@ -469,6 +484,21 @@ const AuthModal = ({
                         <SelectItem value="employee">Employee</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="phone">Phone Number *</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+27 or 0XX XXX XXXX"
+                      value={formData.phoneNumber}
+                      onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                      className="mt-1"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      For booking confirmations via SMS
+                    </p>
                   </div>
                   
                   {formData.role === 'hairdresser' && (
