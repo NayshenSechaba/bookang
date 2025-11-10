@@ -155,6 +155,7 @@ export type Database = {
           cancellation_reason: string | null
           created_at: string | null
           customer_id: string
+          customer_phone: string | null
           duration_minutes: number
           hairdresser_id: string | null
           id: string
@@ -174,6 +175,7 @@ export type Database = {
           cancellation_reason?: string | null
           created_at?: string | null
           customer_id: string
+          customer_phone?: string | null
           duration_minutes: number
           hairdresser_id?: string | null
           id?: string
@@ -193,6 +195,7 @@ export type Database = {
           cancellation_reason?: string | null
           created_at?: string | null
           customer_id?: string
+          customer_phone?: string | null
           duration_minutes?: number
           hairdresser_id?: string | null
           id?: string
