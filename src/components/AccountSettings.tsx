@@ -611,7 +611,7 @@ const AccountSettings = ({ userName }: AccountSettingsProps) => {
 
               {/* Country */}
               <div className="space-y-2">
-                <Label htmlFor="country">Country Code</Label>
+                <Label htmlFor="country">Postal Code</Label>
                 <Input
                   id="country"
                   value={country}
