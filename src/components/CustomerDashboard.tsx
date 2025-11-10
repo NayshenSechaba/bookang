@@ -44,11 +44,18 @@ const CustomerDashboard = ({
         if (user.user) {
           const {
             data: profile
-          } = await supabase.from('profiles').select('username, avatar_url').eq('user_id', user.user.id).single();
+          } = await supabase.from('profiles').select('username, avatar_url, phone').eq('user_id', user.user.id).single();
           if (profile) {
             setUsername(profile.username || '');
             if (profile.avatar_url) {
               setProfilePicture(profile.avatar_url);
+            }
+            // Pre-populate phone number from profile
+            if (profile.phone) {
+              setBookingData(prev => ({
+                ...prev,
+                phone: profile.phone
+              }));
             }
           }
         }
@@ -344,6 +351,12 @@ const CustomerDashboard = ({
       showAlert('error', 'Incomplete Information', 'Please fill in all required fields to book your appointment.');
       return;
     }
+    
+    // Validate phone number
+    if (!bookingData.phone || bookingData.phone.trim() === '') {
+      showAlert('error', 'Phone Required', 'Phone number is required for SMS booking confirmation.');
+      return;
+    }
 
     // Validate date is not in the past
     const selectedDate = new Date(bookingData.date);
@@ -397,9 +410,17 @@ const CustomerDashboard = ({
       // Get customer profile ID
       const {
         data: profile
-      } = await supabase.from('profiles').select('id').eq('user_id', user.user.id).single();
+      } = await supabase.from('profiles').select('id, phone').eq('user_id', user.user.id).single();
       if (!profile) {
         throw new Error('Customer profile not found');
+      }
+      
+      // Update profile with phone if not already set
+      if (pendingBooking.phone && (!profile.phone || profile.phone.trim() === '')) {
+        await supabase
+          .from('profiles')
+          .update({ phone: pendingBooking.phone })
+          .eq('user_id', user.user.id);
       }
 
       // Find hairdresser by name (for demo purposes, we'll use a mock lookup)
@@ -1057,11 +1078,21 @@ const CustomerDashboard = ({
             </div>
             
             <div>
-              <Label htmlFor="phone">Phone Number (for SMS confirmation)</Label>
-              <Input id="phone" type="tel" placeholder="+27123456789" value={bookingData.phone} onChange={e => setBookingData(prev => ({
-              ...prev,
-              phone: e.target.value
-            }))} />
+              <Label htmlFor="phone">Phone Number (for SMS confirmation) *</Label>
+              <Input 
+                id="phone" 
+                type="tel" 
+                placeholder="+27 or 0XX XXX XXXX" 
+                value={bookingData.phone} 
+                onChange={e => setBookingData(prev => ({
+                  ...prev,
+                  phone: e.target.value
+                }))} 
+                required
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Required for booking confirmation SMS
+              </p>
             </div>
             
             <div className="flex gap-4 pt-4">
