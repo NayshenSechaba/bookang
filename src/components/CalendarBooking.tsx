@@ -97,6 +97,44 @@ const CalendarBooking = () => {
     if (!hairdresserId) return;
     fetchBlockedTimes();
     fetchBookings();
+
+    // Set up real-time subscriptions
+    const bookingsChannel = supabase
+      .channel('bookings-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookings',
+          filter: `hairdresser_id=eq.${hairdresserId}`
+        },
+        () => {
+          fetchBookings();
+        }
+      )
+      .subscribe();
+
+    const blockedTimesChannel = supabase
+      .channel('blocked-times-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'blocked_times',
+          filter: `hairdresser_id=eq.${hairdresserId}`
+        },
+        () => {
+          fetchBlockedTimes();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(bookingsChannel);
+      supabase.removeChannel(blockedTimesChannel);
+    };
   }, [hairdresserId]);
 
   const fetchBlockedTimes = async () => {
@@ -391,21 +429,42 @@ const CalendarBooking = () => {
   const selectedDateBlocks = getBlockedTimesForDate(selectedDate);
 
   // Custom day content to show booking indicators
+  const hasBothBookingsAndBlocks = (date: Date) => {
+    return hasBookings(date) && hasBlockedTimes(date);
+  };
+
+  const hasOnlyBookings = (date: Date) => {
+    return hasBookings(date) && !hasBlockedTimes(date);
+  };
+
+  const hasOnlyBlocks = (date: Date) => {
+    return !hasBookings(date) && hasBlockedTimes(date);
+  };
+
   const modifiers = {
-    hasBookings: (date: Date) => hasBookings(date),
-    hasBlockedTimes: (date: Date) => hasBlockedTimes(date)
+    hasOnlyBookings: (date: Date) => hasOnlyBookings(date),
+    hasOnlyBlocks: (date: Date) => hasOnlyBlocks(date),
+    hasBothBookingsAndBlocks: (date: Date) => hasBothBookingsAndBlocks(date)
   };
 
   const modifiersStyles = {
-    hasBookings: {
+    hasOnlyBookings: {
       backgroundColor: '#3b82f6',
       color: 'white',
-      fontWeight: 'bold'
+      fontWeight: 'bold',
+      borderRadius: '0.375rem'
     },
-    hasBlockedTimes: {
+    hasOnlyBlocks: {
       backgroundColor: '#ef4444',
       color: 'white',
-      fontWeight: 'bold'
+      fontWeight: 'bold',
+      borderRadius: '0.375rem'
+    },
+    hasBothBookingsAndBlocks: {
+      background: 'linear-gradient(135deg, #3b82f6 50%, #ef4444 50%)',
+      color: 'white',
+      fontWeight: 'bold',
+      borderRadius: '0.375rem'
     }
   };
 
@@ -440,18 +499,25 @@ const CalendarBooking = () => {
                 className={cn("rounded-md border pointer-events-auto")}
               />
               
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded"></div>
-                  <span>Has bookings</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-destructive rounded"></div>
-                  <span>Blocked times</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 border border-border rounded"></div>
-                  <span>Available</span>
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground">Calendar Legend:</p>
+                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                    <span>Bookings</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 bg-destructive rounded"></div>
+                    <span>Blocked</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded" style={{ background: 'linear-gradient(135deg, #3b82f6 50%, #ef4444 50%)' }}></div>
+                    <span>Both</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 border-2 border-border rounded"></div>
+                    <span>Available</span>
+                  </div>
                 </div>
               </div>
             </div>
