@@ -166,10 +166,10 @@ const DashboardHeader = ({ userName, profilePicture, coverImage, onUpdateProfile
                 <img 
                   src={profilePicture}
                   alt="Profile"
-                  className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-lg"
+                  className="w-32 h-32 rounded-full object-cover border-2 border-white shadow-lg"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-purple-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-xl">
+                <div className="w-32 h-32 rounded-full bg-purple-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-bold text-3xl">
                   {userName?.charAt(0)?.toUpperCase() || 'U'}
                 </div>
               )}
