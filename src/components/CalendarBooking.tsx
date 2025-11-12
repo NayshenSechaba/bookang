@@ -210,6 +210,45 @@ const CalendarBooking = () => {
     fetchBlockedTimes();
   };
 
+  // Service type color mapping
+  const getServiceTypeColor = (serviceName: string): string => {
+    const lowerService = serviceName.toLowerCase();
+    
+    if (lowerService.includes('cut') || lowerService.includes('trim')) {
+      return '#8b5cf6'; // Purple for cuts
+    } else if (lowerService.includes('color') || lowerService.includes('dye') || lowerService.includes('highlight')) {
+      return '#ec4899'; // Pink for coloring
+    } else if (lowerService.includes('braid') || lowerService.includes('twist') || lowerService.includes('loc')) {
+      return '#f59e0b'; // Amber for braiding
+    } else if (lowerService.includes('wash') || lowerService.includes('treatment') || lowerService.includes('condition')) {
+      return '#10b981'; // Green for treatments
+    } else if (lowerService.includes('style') || lowerService.includes('blow')) {
+      return '#3b82f6'; // Blue for styling
+    } else if (lowerService.includes('extension') || lowerService.includes('weave')) {
+      return '#6366f1'; // Indigo for extensions
+    }
+    return '#6b7280'; // Gray for other services
+  };
+
+  const getServiceTypeName = (serviceName: string): string => {
+    const lowerService = serviceName.toLowerCase();
+    
+    if (lowerService.includes('cut') || lowerService.includes('trim')) {
+      return 'Haircut';
+    } else if (lowerService.includes('color') || lowerService.includes('dye') || lowerService.includes('highlight')) {
+      return 'Coloring';
+    } else if (lowerService.includes('braid') || lowerService.includes('twist') || lowerService.includes('loc')) {
+      return 'Braiding';
+    } else if (lowerService.includes('wash') || lowerService.includes('treatment') || lowerService.includes('condition')) {
+      return 'Treatment';
+    } else if (lowerService.includes('style') || lowerService.includes('blow')) {
+      return 'Styling';
+    } else if (lowerService.includes('extension') || lowerService.includes('weave')) {
+      return 'Extensions';
+    }
+    return 'Other';
+  };
+
   const fetchBookings = async () => {
     if (!hairdresserId) return;
 
@@ -428,6 +467,36 @@ const CalendarBooking = () => {
 
   const selectedDateBlocks = getBlockedTimesForDate(selectedDate);
 
+  // Get service types for a specific date
+  const getServiceTypesForDate = (date: Date): string[] => {
+    const dayBookings = bookings.filter(booking => isSameDay(booking.date, date));
+    const serviceTypes = new Set(dayBookings.map(b => getServiceTypeName(b.service)));
+    return Array.from(serviceTypes);
+  };
+
+  // Get gradient for multiple service types
+  const getServiceGradient = (date: Date): string => {
+    const dayBookings = bookings.filter(booking => isSameDay(booking.date, date));
+    if (dayBookings.length === 0) return '';
+    
+    const colors = [...new Set(dayBookings.map(b => getServiceTypeColor(b.service)))];
+    
+    if (colors.length === 1) {
+      return colors[0];
+    } else if (colors.length === 2) {
+      return `linear-gradient(135deg, ${colors[0]} 50%, ${colors[1]} 50%)`;
+    } else if (colors.length === 3) {
+      return `linear-gradient(135deg, ${colors[0]} 33%, ${colors[1]} 33%, ${colors[1]} 66%, ${colors[2]} 66%)`;
+    } else {
+      // For 4+ colors, create a more complex gradient
+      const step = 100 / colors.length;
+      const gradientStops = colors.map((color, i) => 
+        `${color} ${i * step}%, ${color} ${(i + 1) * step}%`
+      ).join(', ');
+      return `linear-gradient(135deg, ${gradientStops})`;
+    }
+  };
+
   // Custom day content to show booking indicators
   const hasBothBookingsAndBlocks = (date: Date) => {
     return hasBookings(date) && hasBlockedTimes(date);
@@ -441,6 +510,7 @@ const CalendarBooking = () => {
     return !hasBookings(date) && hasBlockedTimes(date);
   };
 
+  // Create dynamic modifiers and styles based on service types
   const modifiers = {
     hasOnlyBookings: (date: Date) => hasOnlyBookings(date),
     hasOnlyBlocks: (date: Date) => hasOnlyBlocks(date),
@@ -449,7 +519,7 @@ const CalendarBooking = () => {
 
   const modifiersStyles = {
     hasOnlyBookings: {
-      backgroundColor: '#3b82f6',
+      background: '',
       color: 'white',
       fontWeight: 'bold',
       borderRadius: '0.375rem'
@@ -461,11 +531,32 @@ const CalendarBooking = () => {
       borderRadius: '0.375rem'
     },
     hasBothBookingsAndBlocks: {
-      background: 'linear-gradient(135deg, #3b82f6 50%, #ef4444 50%)',
+      background: '',
       color: 'white',
       fontWeight: 'bold',
-      borderRadius: '0.375rem'
+      borderRadius: '0.375rem',
+      position: 'relative' as const,
     }
+  };
+
+  // Apply dynamic service colors to calendar days
+  const getDayStyle = (date: Date) => {
+    if (hasOnlyBookings(date)) {
+      return { background: getServiceGradient(date) };
+    } else if (hasBothBookingsAndBlocks(date)) {
+      const serviceGradient = getServiceGradient(date);
+      // Combine service colors with blocked indicator
+      return {
+        background: `linear-gradient(to bottom right, ${serviceGradient} 0%, ${serviceGradient} 70%, #ef4444 70%, #ef4444 100%)`
+      };
+    }
+    return {};
+  };
+
+  // Get all unique service types from all bookings for legend
+  const getAllServiceTypes = () => {
+    const serviceTypes = new Set(bookings.map(b => getServiceTypeName(b.service)));
+    return Array.from(serviceTypes).sort();
   };
 
   return (
@@ -497,22 +588,70 @@ const CalendarBooking = () => {
                 modifiers={modifiers}
                 modifiersStyles={modifiersStyles}
                 className={cn("rounded-md border pointer-events-auto")}
+                components={{
+                  DayContent: ({ date }) => {
+                    const dayStyle = getDayStyle(date);
+                    const hasStyle = Object.keys(dayStyle).length > 0;
+                    
+                    return (
+                      <span
+                        className={cn(
+                          "relative z-10",
+                          hasStyle && "text-white font-bold"
+                        )}
+                        style={hasStyle ? {
+                          background: dayStyle.background,
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '0.375rem',
+                          display: 'inline-block',
+                          minWidth: '2rem',
+                          textAlign: 'center'
+                        } : undefined}
+                      >
+                        {date.getDate()}
+                      </span>
+                    );
+                  }
+                }}
               />
               
               <div className="space-y-2">
-                <p className="text-xs font-medium text-muted-foreground">Calendar Legend:</p>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                <p className="text-xs font-medium text-muted-foreground">Service Types:</p>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1.5">
-                    <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                    <span>Bookings</span>
+                    <div className="w-4 h-4 rounded" style={{ backgroundColor: '#8b5cf6' }}></div>
+                    <span>Haircut</span>
                   </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded" style={{ backgroundColor: '#ec4899' }}></div>
+                    <span>Coloring</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded" style={{ backgroundColor: '#f59e0b' }}></div>
+                    <span>Braiding</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded" style={{ backgroundColor: '#10b981' }}></div>
+                    <span>Treatment</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded" style={{ backgroundColor: '#3b82f6' }}></div>
+                    <span>Styling</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded" style={{ backgroundColor: '#6366f1' }}></div>
+                    <span>Extensions</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-4 h-4 rounded" style={{ backgroundColor: '#6b7280' }}></div>
+                    <span>Other</span>
+                  </div>
+                </div>
+                <p className="text-xs font-medium text-muted-foreground mt-3">Status:</p>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1.5">
                     <div className="w-4 h-4 bg-destructive rounded"></div>
                     <span>Blocked</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-4 h-4 rounded" style={{ background: 'linear-gradient(135deg, #3b82f6 50%, #ef4444 50%)' }}></div>
-                    <span>Both</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <div className="w-4 h-4 border-2 border-border rounded"></div>
