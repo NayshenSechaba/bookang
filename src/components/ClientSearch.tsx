@@ -143,8 +143,8 @@ export const ClientSearch = () => {
       // Collect all profile IDs for document count
       const allProfileIds = [
         ...(clientData?.map(c => c.profile_id) || []),
-        ...(hairdresserData?.map(h => h.profiles?.user_id).filter(Boolean) || []),
-        ...(salonData?.map(s => s.profiles?.user_id).filter(Boolean) || [])
+        ...(hairdresserData?.map(h => h.profile_id).filter(Boolean) || []),
+        ...(salonData?.map(s => s.owner_id).filter(Boolean) || [])
       ];
 
       const { data: docsData } = await supabase
