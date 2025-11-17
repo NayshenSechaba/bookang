@@ -589,19 +589,76 @@ const CustomerDashboard = ({
   };
 
   // Handle review submission
-  const handleReviewSubmission = (e: React.FormEvent) => {
+  const handleReviewSubmission = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (reviewData.rating === 0) {
       showAlert('error', 'Rating Required', 'Please provide a rating for your appointment.');
       return;
     }
-    showAlert('success', 'Review Submitted!', 'Thank you for your feedback! Your review helps other customers and supports our hairdressers.');
-    setShowReviewModal(false);
-    setReviewData({
-      rating: 0,
-      comment: ''
-    });
-    setSelectedAppointment(null);
+
+    if (!selectedAppointment) {
+      showAlert('error', 'Error', 'No appointment selected');
+      return;
+    }
+
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Get customer profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.user.id)
+        .single();
+
+      if (!profile) {
+        throw new Error('Customer profile not found');
+      }
+
+      // Validate comment length
+      if (reviewData.comment && reviewData.comment.length > 1000) {
+        showAlert('error', 'Review Too Long', 'Please keep your review under 1000 characters.');
+        return;
+      }
+
+      // Check if review already exists
+      const { data: existingReview } = await supabase
+        .from('reviews')
+        .select('id')
+        .eq('booking_id', selectedAppointment.id)
+        .maybeSingle();
+
+      if (existingReview) {
+        showAlert('error', 'Already Reviewed', "You've already reviewed this appointment.");
+        return;
+      }
+
+      // Insert review
+      const { error } = await supabase.from('reviews').insert({
+        booking_id: selectedAppointment.id,
+        customer_id: profile.id,
+        hairdresser_id: selectedAppointment.hairdresser_id,
+        rating: reviewData.rating,
+        comment: reviewData.comment.trim() || null,
+      });
+
+      if (error) throw error;
+
+      showAlert('success', 'Review Submitted!', 'Thank you for your feedback! Your review helps other customers and supports businesses.');
+      setShowReviewModal(false);
+      setReviewData({
+        rating: 0,
+        comment: ''
+      });
+      setSelectedAppointment(null);
+    } catch (error: any) {
+      console.error('Error submitting review:', error);
+      showAlert('error', 'Error', 'Failed to submit review. Please try again.');
+    }
   };
 
   // Open review modal for specific appointment
@@ -887,7 +944,7 @@ const CustomerDashboard = ({
                             </div>
                           </div>
                           
-                          <Button size="sm" variant="outline" onClick={() => openReviewModal(appointment)} className="border-purple-200 text-purple-600 hover:bg-purple-50">
+                          <Button size="sm" variant="outline" onClick={() => openReviewModal(appointment)} className="border-purple-200 text-purple-600 hover:bg-purple-50" disabled={appointment.status !== 'completed'}>
                             <Star className="mr-2 h-4 w-4" />
                             Leave Review
                           </Button>
@@ -1133,7 +1190,10 @@ const CustomerDashboard = ({
               <Textarea id="comment" placeholder="Share your experience, what you liked, and any suggestions..." value={reviewData.comment} onChange={e => setReviewData(prev => ({
               ...prev,
               comment: e.target.value
-            }))} className="resize-none" rows={4} />
+            }))} className="resize-none" rows={4} maxLength={1000} />
+              <p className="text-xs text-muted-foreground text-right mt-1">
+                {reviewData.comment.length}/1000 characters
+              </p>
             </div>
             
             <div className="flex gap-4 pt-4">
