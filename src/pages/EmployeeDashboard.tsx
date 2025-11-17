@@ -4,11 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { ClientSearch } from "@/components/ClientSearch";
 import { PerformanceTab } from "@/components/PerformanceTab";
 import { FinancialTab } from "@/components/FinancialTab";
+import { RankingsTab } from "@/components/RankingsTab";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Users, FileText, User, TrendingUp, DollarSign, Bell } from "lucide-react";
+import { LogOut, Users, FileText, User, TrendingUp, DollarSign, Bell, Award } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function EmployeeDashboard() {
@@ -156,10 +157,14 @@ export default function EmployeeDashboard() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="clients" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="clients">
               <Users className="h-4 w-4 mr-2" />
               Clients
+            </TabsTrigger>
+            <TabsTrigger value="rankings">
+              <Award className="h-4 w-4 mr-2" />
+              Rankings
             </TabsTrigger>
             <TabsTrigger value="performance">
               <TrendingUp className="h-4 w-4 mr-2" />
@@ -179,6 +184,14 @@ export default function EmployeeDashboard() {
 
           <TabsContent value="clients">
             <ClientSearch />
+          </TabsContent>
+
+          <TabsContent value="rankings">
+            <RankingsTab />
+          </TabsContent>
+
+          <TabsContent value="rankings">
+            <RankingsTab />
           </TabsContent>
 
           <TabsContent value="performance">
