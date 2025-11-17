@@ -157,7 +157,7 @@ const CalendarBooking = () => {
 
   const handleAddBlockedTime = async () => {
     if (!hairdresserId) {
-      toast.error('Hairdresser profile not found');
+      toast.error('Business profile not found');
       return;
     }
 

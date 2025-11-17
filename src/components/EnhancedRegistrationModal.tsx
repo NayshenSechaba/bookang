@@ -472,7 +472,7 @@ const EnhancedRegistrationModal: React.FC<EnhancedRegistrationModalProps> = ({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="customer">Customer - Book appointments</SelectItem>
-                        <SelectItem value="hairdresser">Hairdresser - Provide services</SelectItem>
+                        <SelectItem value="hairdresser">Business - Provide services</SelectItem>
                         <SelectItem value="employee">Employee - Team member</SelectItem>
                       </SelectContent>
                     </Select>
