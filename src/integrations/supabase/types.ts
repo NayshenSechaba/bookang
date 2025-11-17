@@ -79,6 +79,13 @@ export type Database = {
             foreignKeyName: "amendment_requests_user_id_client_fkey"
             columns: ["user_id_client"]
             isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "amendment_requests_user_id_client_fkey"
+            columns: ["user_id_client"]
+            isOneToOne: false
             referencedRelation: "vw_onboarding_status"
             referencedColumns: ["profile_id"]
           },
@@ -128,6 +135,13 @@ export type Database = {
             columns: ["hairdresser_id"]
             isOneToOne: false
             referencedRelation: "vw_booking_status"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "blocked_times_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_business_rankings"
             referencedColumns: ["hairdresser_id"]
           },
           {
@@ -219,6 +233,13 @@ export type Database = {
             foreignKeyName: "bookings_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "bookings_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
             referencedRelation: "vw_onboarding_status"
             referencedColumns: ["profile_id"]
           },
@@ -234,6 +255,13 @@ export type Database = {
             columns: ["hairdresser_id"]
             isOneToOne: false
             referencedRelation: "vw_booking_status"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "bookings_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_business_rankings"
             referencedColumns: ["hairdresser_id"]
           },
           {
@@ -338,6 +366,13 @@ export type Database = {
             foreignKeyName: "client_profiles_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: true
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "client_profiles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
             referencedRelation: "vw_onboarding_status"
             referencedColumns: ["profile_id"]
           },
@@ -381,6 +416,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consent_records_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
           },
           {
             foreignKeyName: "consent_records_profile_id_fkey"
@@ -459,6 +501,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hairdressers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
           },
           {
             foreignKeyName: "hairdressers_profile_id_fkey"
@@ -597,6 +646,13 @@ export type Database = {
             foreignKeyName: "notification_preferences_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: true
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "notification_preferences_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
             referencedRelation: "vw_onboarding_status"
             referencedColumns: ["profile_id"]
           },
@@ -640,6 +696,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "otp_verifications_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
           },
           {
             foreignKeyName: "otp_verifications_profile_id_fkey"
@@ -798,6 +861,120 @@ export type Database = {
           },
         ]
       }
+      reviews: {
+        Row: {
+          booking_id: string
+          comment: string | null
+          created_at: string | null
+          customer_id: string
+          flagged: boolean | null
+          hairdresser_id: string
+          id: string
+          rating: number
+          updated_at: string | null
+        }
+        Insert: {
+          booking_id: string
+          comment?: string | null
+          created_at?: string | null
+          customer_id: string
+          flagged?: boolean | null
+          hairdresser_id: string
+          id?: string
+          rating: number
+          updated_at?: string | null
+        }
+        Update: {
+          booking_id?: string
+          comment?: string | null
+          created_at?: string | null
+          customer_id?: string
+          flagged?: boolean | null
+          hairdresser_id?: string
+          id?: string
+          rating?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["booking_id"]
+          },
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["booking_id"]
+          },
+          {
+            foreignKeyName: "reviews_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "reviews_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "reviews_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "hairdressers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "reviews_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_business_rankings"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "reviews_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "reviews_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
+            referencedRelation: "vw_performer_ratings"
+            referencedColumns: ["hairdresser_id"]
+          },
+        ]
+      }
       salons: {
         Row: {
           address: string | null
@@ -902,6 +1079,13 @@ export type Database = {
             foreignKeyName: "salons_hairdressers_foreign"
             columns: ["hairdressers"]
             isOneToOne: false
+            referencedRelation: "vw_business_rankings"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "salons_hairdressers_foreign"
+            columns: ["hairdressers"]
+            isOneToOne: false
             referencedRelation: "vw_commission_data"
             referencedColumns: ["hairdresser_id"]
           },
@@ -918,6 +1102,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "salons_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
           },
           {
             foreignKeyName: "salons_owner_id_fkey"
@@ -1033,6 +1224,13 @@ export type Database = {
             foreignKeyName: "services_hairdresser_id_fkey"
             columns: ["hairdresser_id"]
             isOneToOne: false
+            referencedRelation: "vw_business_rankings"
+            referencedColumns: ["hairdresser_id"]
+          },
+          {
+            foreignKeyName: "services_hairdresser_id_fkey"
+            columns: ["hairdresser_id"]
+            isOneToOne: false
             referencedRelation: "vw_commission_data"
             referencedColumns: ["hairdresser_id"]
           },
@@ -1115,6 +1313,13 @@ export type Database = {
             foreignKeyName: "verification_documents_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "verification_documents_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
             referencedRelation: "vw_onboarding_status"
             referencedColumns: ["profile_id"]
           },
@@ -1137,6 +1342,21 @@ export type Database = {
         }
         Relationships: []
       }
+      vw_business_rankings: {
+        Row: {
+          average_rating: number | null
+          business_name: string | null
+          five_star_count: number | null
+          flagged_reviews: number | null
+          hairdresser_id: string | null
+          last_review_date: string | null
+          one_star_count: number | null
+          review_response_rate: number | null
+          total_completed_bookings: number | null
+          total_reviews: number | null
+        }
+        Relationships: []
+      }
       vw_commission_data: {
         Row: {
           appointment_date: string | null
@@ -1153,6 +1373,24 @@ export type Database = {
           service_cost: number | null
           status: string | null
           year: number | null
+        }
+        Relationships: []
+      }
+      vw_customer_rankings: {
+        Row: {
+          average_rating_given: number | null
+          cancelled_bookings: number | null
+          completed_bookings: number | null
+          completion_rate: number | null
+          customer_id: string | null
+          customer_name: string | null
+          email: string | null
+          flagged_reviews_given: number | null
+          last_review_date: string | null
+          low_ratings_given: number | null
+          no_show_count: number | null
+          total_bookings: number | null
+          total_reviews_given: number | null
         }
         Relationships: []
       }
