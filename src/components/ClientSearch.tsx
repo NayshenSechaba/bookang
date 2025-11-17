@@ -250,7 +250,7 @@ export const ClientSearch = () => {
         <div className="mb-4 relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name, email, business, city, or type (customer/hairdresser/business)..."
+            placeholder="Search by name, email, business, city, or type (customer/business)..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9"
@@ -296,7 +296,7 @@ export const ClientSearch = () => {
                         }
                         className="capitalize"
                       >
-                        {client.source_type}
+                        {client.source_type === 'hairdresser' ? 'Business' : client.source_type}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-medium">{client.full_name}</TableCell>
@@ -304,7 +304,7 @@ export const ClientSearch = () => {
                     <TableCell>{client.phone || "—"}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className="capitalize">
-                        {client.role || "customer"}
+                        {client.role === 'hairdresser' ? 'Business' : (client.role || "customer")}
                       </Badge>
                     </TableCell>
                     <TableCell>

@@ -203,7 +203,7 @@ const AuthModal = ({
     // Additional validation for hairdressers
     if (formData.role === 'hairdresser') {
       if (!formData.hairdresserName.trim()) {
-        showAlert('error', 'Missing Information', 'Please enter your professional name as a hairdresser.');
+        showAlert('error', 'Missing Information', 'Please enter your professional name as a business.');
         return;
       }
       
@@ -480,7 +480,7 @@ const AuthModal = ({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="customer">Customer</SelectItem>
-                        <SelectItem value="hairdresser">Hairdresser</SelectItem>
+                        <SelectItem value="hairdresser">Business</SelectItem>
                         <SelectItem value="employee">Employee</SelectItem>
                       </SelectContent>
                     </Select>
@@ -505,15 +505,15 @@ const AuthModal = ({
                     <div className="space-y-4 p-4 bg-blue-50 rounded-lg border">
                       <h3 className="font-semibold text-blue-900 flex items-center">
                         <Scissors className="mr-2 h-4 w-4" />
-                        Professional Information
+                        Business Information
                       </h3>
                       
                       <div>
-                        <Label htmlFor="hairdresser-name">Professional Name *</Label>
+                        <Label htmlFor="hairdresser-name">Business Name *</Label>
                         <Input
                           id="hairdresser-name"
                           type="text"
-                          placeholder="Enter your professional name"
+                          placeholder="Enter your business name"
                           value={formData.hairdresserName}
                           onChange={(e) => handleInputChange('hairdresserName', e.target.value)}
                           className="mt-1"

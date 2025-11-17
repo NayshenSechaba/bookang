@@ -204,10 +204,10 @@ ${index + 1}. ${item.date}
         <CardContent>
           <div className="grid md:grid-cols-4 gap-4 mb-4">
             <div className="space-y-2">
-              <Label>Hairdresser</Label>
+              <Label>Business</Label>
               <Select value={selectedHairdresser} onValueChange={setSelectedHairdresser}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select hairdresser" />
+                  <SelectValue placeholder="Select business" />
                 </SelectTrigger>
                 <SelectContent>
                   {hairdressers.map((h) => (
@@ -274,7 +274,7 @@ ${index + 1}. ${item.date}
           <CardContent className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h3 className="font-semibold mb-2">Hairdresser Details</h3>
+                <h3 className="font-semibold mb-2">Business Details</h3>
                 <p className="text-sm">
                   <strong>Name:</strong> {invoice.hairdresser.name}
                 </p>

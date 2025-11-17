@@ -310,7 +310,7 @@ const EmployeeDashboard = ({ userName }: EmployeeDashboardProps) => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Hairdresser</TableHead>
+                      <TableHead>Business</TableHead>
                       <TableHead>Amount</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Due Date</TableHead>
@@ -390,7 +390,7 @@ const EmployeeDashboard = ({ userName }: EmployeeDashboardProps) => {
           <TabsContent value="profiles">
             <Card>
               <CardHeader>
-                <CardTitle>Hairdresser Profile Management</CardTitle>
+                <CardTitle>Business Profile Management</CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
