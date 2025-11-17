@@ -539,6 +539,64 @@ export type Database = {
           },
         ]
       }
+      inbox_messages: {
+        Row: {
+          body: string
+          created_at: string | null
+          id: string
+          is_archived: boolean | null
+          is_read: boolean | null
+          message_type: string
+          subject: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_read?: boolean | null
+          message_type: string
+          subject: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_read?: boolean | null
+          message_type?: string
+          subject?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbox_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbox_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "inbox_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       invoices: {
         Row: {
           amount: number
@@ -600,6 +658,36 @@ export type Database = {
           },
         ]
       }
+      message_templates: {
+        Row: {
+          body_template: string
+          created_at: string | null
+          id: string
+          notification_type: Database["public"]["Enums"]["notification_type"]
+          subject: string
+          template_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          body_template: string
+          created_at?: string | null
+          id?: string
+          notification_type: Database["public"]["Enums"]["notification_type"]
+          subject: string
+          template_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          body_template?: string
+          created_at?: string | null
+          id?: string
+          notification_type?: Database["public"]["Enums"]["notification_type"]
+          subject?: string
+          template_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           created_at: string | null
@@ -653,6 +741,112 @@ export type Database = {
             foreignKeyName: "notification_preferences_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: true
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          booking_id: string | null
+          booking_reference: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message_body: string
+          notification_type: Database["public"]["Enums"]["notification_type"]
+          recipient_id: string
+          sender_id: string | null
+          subject: string
+          user_type: string
+        }
+        Insert: {
+          booking_id?: string | null
+          booking_reference?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_body: string
+          notification_type: Database["public"]["Enums"]["notification_type"]
+          recipient_id: string
+          sender_id?: string | null
+          subject: string
+          user_type: string
+        }
+        Update: {
+          booking_id?: string | null
+          booking_reference?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_body?: string
+          notification_type?: Database["public"]["Enums"]["notification_type"]
+          recipient_id?: string
+          sender_id?: string | null
+          subject?: string
+          user_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "vw_booking_status"
+            referencedColumns: ["booking_id"]
+          },
+          {
+            foreignKeyName: "notifications_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "vw_commission_data"
+            referencedColumns: ["booking_id"]
+          },
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
             referencedRelation: "vw_onboarding_status"
             referencedColumns: ["profile_id"]
           },
@@ -1480,6 +1674,13 @@ export type Database = {
         | "salon_owner"
         | "admin"
       employee_role: "employee" | "super_user"
+      notification_type:
+        | "booking_confirmation"
+        | "cancellation_alert"
+        | "review_request"
+        | "new_review"
+        | "booking_modification"
+        | "system_alert"
       user_role: "customer" | "hairdresser" | "salon_owner"
       verification_status: "pending" | "verified" | "rejected" | "outstanding"
     }
@@ -1611,6 +1812,14 @@ export const Constants = {
     Enums: {
       app_role: ["customer", "hairdresser", "employee", "salon_owner", "admin"],
       employee_role: ["employee", "super_user"],
+      notification_type: [
+        "booking_confirmation",
+        "cancellation_alert",
+        "review_request",
+        "new_review",
+        "booking_modification",
+        "system_alert",
+      ],
       user_role: ["customer", "hairdresser", "salon_owner"],
       verification_status: ["pending", "verified", "rejected", "outstanding"],
     },

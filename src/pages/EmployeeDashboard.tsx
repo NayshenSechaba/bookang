@@ -5,11 +5,14 @@ import { ClientSearch } from "@/components/ClientSearch";
 import { PerformanceTab } from "@/components/PerformanceTab";
 import { FinancialTab } from "@/components/FinancialTab";
 import { RankingsTab } from "@/components/RankingsTab";
+import { NotificationCenter } from "@/components/NotificationCenter";
+import { InboxView } from "@/components/InboxView";
+import { SendNotificationForm } from "@/components/SendNotificationForm";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Users, FileText, User, TrendingUp, DollarSign, Bell, Award } from "lucide-react";
+import { LogOut, Users, FileText, User, TrendingUp, DollarSign, Bell, Award, Mail, Send, FileEdit } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function EmployeeDashboard() {
@@ -157,7 +160,7 @@ export default function EmployeeDashboard() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <Tabs defaultValue="clients" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="clients">
               <Users className="h-4 w-4 mr-2" />
               Clients
@@ -174,10 +177,23 @@ export default function EmployeeDashboard() {
               <DollarSign className="h-4 w-4 mr-2" />
               Financial
             </TabsTrigger>
+            <TabsTrigger value="inbox">
+              <Mail className="h-4 w-4 mr-2" />
+              Inbox
+            </TabsTrigger>
+            <TabsTrigger value="notifications">
+              <Send className="h-4 w-4 mr-2" />
+              Notifications
+            </TabsTrigger>
             {userRole === "super_user" && (
               <TabsTrigger value="amendments">
                 <FileText className="h-4 w-4 mr-2" />
                 Amendments
+                {pendingDocsCount > 0 && (
+                  <Badge variant="destructive" className="ml-1 text-xs">
+                    {pendingDocsCount}
+                  </Badge>
+                )}
               </TabsTrigger>
             )}
           </TabsList>
@@ -202,15 +218,35 @@ export default function EmployeeDashboard() {
             <FinancialTab />
           </TabsContent>
 
+          <TabsContent value="inbox">
+            <InboxView />
+          </TabsContent>
+
+          <TabsContent value="notifications">
+            <SendNotificationForm />
+          </TabsContent>
+
           {userRole === "super_user" && (
             <TabsContent value="amendments">
               <Card>
                 <CardHeader>
-                  <CardTitle>Amendment Requests</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileEdit className="h-5 w-5" />
+                    Amendment Requests
+                    {pendingDocsCount > 0 && (
+                      <Badge variant="destructive">{pendingDocsCount}</Badge>
+                    )}
+                  </CardTitle>
+                  <CardDescription>
+                    Review and approve client profile amendment requests
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Button onClick={() => navigate("/employee/amendments")}>
-                    View All Amendment Requests
+                  <Button
+                    onClick={() => navigate("/employee/amendments")}
+                    className="w-full"
+                  >
+                    View Amendment Requests
                   </Button>
                 </CardContent>
               </Card>
