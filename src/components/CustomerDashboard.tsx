@@ -13,6 +13,8 @@ import CustomAlert from '@/components/CustomAlert';
 import PaymentProcessing from './PaymentProcessing';
 import ClientWallet from './ClientWallet';
 import BookingConfirmation from './BookingConfirmation';
+import { NotificationCenter } from './NotificationCenter';
+import { InboxView } from './InboxView';
 import { supabase } from "@/integrations/supabase/client";
 interface CustomerDashboardProps {
   userName: string;
@@ -819,6 +821,9 @@ const CustomerDashboard = ({
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
+            {/* Inbox Section */}
+            <InboxView />
+            
             {/* Quick Actions */}
             <Card>
               <CardHeader>
