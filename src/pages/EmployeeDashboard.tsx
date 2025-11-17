@@ -5,20 +5,61 @@ import { ClientSearch } from "@/components/ClientSearch";
 import { PerformanceTab } from "@/components/PerformanceTab";
 import { FinancialTab } from "@/components/FinancialTab";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LogOut, Users, FileText, User, TrendingUp, DollarSign } from "lucide-react";
+import { LogOut, Users, FileText, User, TrendingUp, DollarSign, Bell } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function EmployeeDashboard() {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [pendingDocsCount, setPendingDocsCount] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     checkEmployeeAccess();
   }, []);
+
+  useEffect(() => {
+    if (userRole === "super_user") {
+      fetchPendingDocsCount();
+      
+      // Set up real-time subscription
+      const channel = supabase
+        .channel('verification-docs-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'verification_documents'
+          },
+          () => {
+            fetchPendingDocsCount();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [userRole]);
+
+  const fetchPendingDocsCount = async () => {
+    try {
+      const { count } = await supabase
+        .from("verification_documents")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+      
+      setPendingDocsCount(count || 0);
+    } catch (error) {
+      console.error("Error fetching pending docs count:", error);
+    }
+  };
 
   const checkEmployeeAccess = async () => {
     try {
@@ -81,6 +122,24 @@ export default function EmployeeDashboard() {
             <h1 className="text-2xl font-bold">Employee Dashboard</h1>
           </div>
           <div className="flex items-center gap-4">
+            {userRole === "super_user" && pendingDocsCount > 0 && (
+              <div className="relative">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="relative"
+                  onClick={() => navigate("/employee")}
+                >
+                  <Bell className="h-4 w-4" />
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                  >
+                    {pendingDocsCount}
+                  </Badge>
+                </Button>
+              </div>
+            )}
             {userRole === "super_user" && (
               <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
                 Super User
