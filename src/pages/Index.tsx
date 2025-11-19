@@ -358,7 +358,7 @@ const Index = () => {
               setCurrentPage(item.id);
               localStorage.setItem('salonconnect_current_page', item.id);
             }}>
-                  <item.icon className="mr-2 h-4 w-4 text-primary-foreground" />
+                  <item.icon className={`mr-2 h-4 w-4 ${currentPage === item.id ? "text-accent-foreground" : "text-primary-foreground"}`} />
                   {item.label}
                 </Button>)}
               
