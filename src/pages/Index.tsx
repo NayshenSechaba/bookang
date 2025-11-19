@@ -16,6 +16,7 @@ import FAQSection from '@/components/FAQSection';
 import SMEOnboarding from '@/components/SMEOnboarding';
 import ProfileCompletionModal from '@/components/ProfileCompletionModal';
 import AccountSettings from '@/components/AccountSettings';
+import { NotificationCenter } from '@/components/NotificationCenter';
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from '@supabase/supabase-js';
 import { sendTestSMS } from '@/utils/sendTestSMS';
@@ -361,6 +362,8 @@ const Index = () => {
                   {item.label}
                 </Button>)}
               
+              {user && <NotificationCenter />}
+              
               {user && <Button variant="outline" size="sm" className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white" onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
@@ -403,9 +406,12 @@ const Index = () => {
                   </div>}
                 
                 {user && <div className="pt-4 border-t border-primary-foreground/20">
-                    <p className="text-sm text-primary-foreground px-3 mb-2">
-                      Welcome, <span className="font-medium text-accent">{userName}</span>
-                    </p>
+                    <div className="flex items-center justify-between px-3 mb-3">
+                      <p className="text-sm text-primary-foreground">
+                        Welcome, <span className="font-medium text-accent">{userName}</span>
+                      </p>
+                      <NotificationCenter />
+                    </div>
                     <Button variant="outline" size="sm" onClick={handleLogout} className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
                       Logout
                     </Button>
