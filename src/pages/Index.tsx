@@ -362,11 +362,11 @@ const Index = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
-              {getNavItems().map(item => <Button key={item.id} variant={currentPage === item.id ? "secondary" : "ghost"} className={currentPage === item.id ? "bg-accent text-accent-foreground hover:bg-accent/90" : "text-primary-foreground hover:bg-primary/90"} onClick={() => {
+              {getNavItems().map(item => <Button key={item.id} variant="ghost" className="text-primary-foreground hover:bg-primary/10" onClick={() => {
               setCurrentPage(item.id);
               localStorage.setItem('salonconnect_current_page', item.id);
             }}>
-                  <item.icon className={`mr-2 h-4 w-4 ${currentPage === item.id ? "text-accent-foreground" : "text-primary-foreground"}`} />
+                  <item.icon className="mr-2 h-4 w-4 text-primary-foreground" />
                   {item.label}
                 </Button>)}
               
