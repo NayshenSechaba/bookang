@@ -23,7 +23,11 @@ interface Notification {
   booking_reference: string | null;
 }
 
-export function NotificationCenter() {
+interface NotificationCenterProps {
+  onNavigateToInbox?: () => void;
+}
+
+export function NotificationCenter({ onNavigateToInbox }: NotificationCenterProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -211,7 +215,14 @@ export function NotificationCenter() {
                   className={`p-4 hover:bg-accent cursor-pointer transition-colors ${
                     !notification.is_read ? "bg-accent/50" : ""
                   }`}
-                  onClick={() => !notification.is_read && markAsRead(notification.id)}
+                  onClick={() => {
+                    if (!notification.is_read) {
+                      markAsRead(notification.id);
+                    }
+                    if (onNavigateToInbox) {
+                      onNavigateToInbox();
+                    }
+                  }}
                 >
                   <div className="flex items-start gap-3">
                     <span className="text-2xl">

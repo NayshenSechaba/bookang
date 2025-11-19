@@ -16,6 +16,7 @@ import FAQSection from '@/components/FAQSection';
 import SMEOnboarding from '@/components/SMEOnboarding';
 import ProfileCompletionModal from '@/components/ProfileCompletionModal';
 import AccountSettings from '@/components/AccountSettings';
+import { InboxView } from '@/components/InboxView';
 import { NotificationCenter } from '@/components/NotificationCenter';
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from '@supabase/supabase-js';
@@ -163,6 +164,11 @@ const Index = () => {
         label: 'My Appointments',
         icon: Clock
       });
+      baseItems.splice(3, 0, {
+        id: 'inbox',
+        label: 'Inbox',
+        icon: Mail
+      });
     }
     return baseItems;
   };
@@ -190,6 +196,8 @@ const Index = () => {
         return user ? <AccountSettings userName={userName} /> : renderHomePage();
       case 'appointments':
         return <AppointmentsPage userName={userName} />;
+      case 'inbox':
+        return user ? <InboxView /> : renderHomePage();
       case 'explore':
         return <ExplorePage />;
       case 'faq':
@@ -362,7 +370,7 @@ const Index = () => {
                   {item.label}
                 </Button>)}
               
-              {user && <NotificationCenter />}
+              {user && <NotificationCenter onNavigateToInbox={() => setCurrentPage('inbox')} />}
               
               {user && <Button variant="outline" size="sm" className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white" onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
@@ -410,7 +418,10 @@ const Index = () => {
                       <p className="text-sm text-primary-foreground">
                         Welcome, <span className="font-medium text-accent">{userName}</span>
                       </p>
-                      <NotificationCenter />
+                      <NotificationCenter onNavigateToInbox={() => {
+                        setCurrentPage('inbox');
+                        setIsMobileMenuOpen(false);
+                      }} />
                     </div>
                     <Button variant="outline" size="sm" onClick={handleLogout} className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
                       Logout
