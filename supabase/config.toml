@@ -15,6 +15,9 @@ verify_jwt = true
 [functions.send-email]
 verify_jwt = true
 
+[functions.send-notification-email]
+verify_jwt = true
+
 [functions.send-test-sms]
 verify_jwt = true
 

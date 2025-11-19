@@ -107,10 +107,36 @@ export function SendNotificationForm() {
 
       if (notificationError) throw notificationError;
 
-      toast({
-        title: "Success",
-        description: `${notificationType === "booking_confirmation" ? "Confirmation" : "Cancellation"} notification sent successfully`,
-      });
+      // Send email notification
+      try {
+        const { error: emailError } = await supabase.functions.invoke('send-notification-email', {
+          body: {
+            booking_id: booking.id,
+            notification_type: notificationType,
+          },
+        });
+
+        if (emailError) {
+          console.error('Email send error:', emailError);
+          toast({
+            title: "Warning",
+            description: "Notification created but email failed to send",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Success",
+            description: `${notificationType === "booking_confirmation" ? "Confirmation" : "Cancellation"} notification and email sent successfully`,
+          });
+        }
+      } catch (emailErr) {
+        console.error('Email invocation error:', emailErr);
+        toast({
+          title: "Warning",
+          description: "Notification created but email failed to send",
+          variant: "destructive",
+        });
+      }
 
       setBookingReference("");
     } catch (error: any) {
