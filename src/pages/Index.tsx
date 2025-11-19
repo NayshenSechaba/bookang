@@ -358,7 +358,7 @@ const Index = () => {
               setCurrentPage(item.id);
               localStorage.setItem('salonconnect_current_page', item.id);
             }}>
-                  <item.icon className="mr-2 h-4 w-4 text-royal-blue" />
+                  <item.icon className="mr-2 h-4 w-4 text-primary-foreground" />
                   {item.label}
                 </Button>)}
               
@@ -392,7 +392,7 @@ const Index = () => {
               localStorage.setItem('salonconnect_current_page', item.id);
               setIsMobileMenuOpen(false);
             }}>
-                    <item.icon className="mr-2 h-4 w-4 text-royal-blue" />
+                    <item.icon className="mr-2 h-4 w-4 text-primary-foreground" />
                     {item.label}
                   </Button>)}
                 
