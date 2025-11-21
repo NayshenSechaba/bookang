@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Clock, Star, Heart, User, Scissors, MapPin, Phone, Camera, Upload, Wallet } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import CustomAlert from '@/components/CustomAlert';
 import PaymentProcessing from './PaymentProcessing';
 import ClientWallet from './ClientWallet';
@@ -779,11 +780,19 @@ const CustomerDashboard = ({
           </div>
           
           {/* Welcome Header */}
-          <div className="ml-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {username || formatName(userName)}
-            </h1>
-            <p className="text-gray-600">Manage your appointments </p>
+          <div className="ml-8 flex items-center gap-4">
+            <Avatar className="h-16 w-16 border-2 border-blue/20">
+              <AvatarImage src={profilePicture} alt={username || formatName(userName)} />
+              <AvatarFallback className="bg-blue text-blue-foreground text-lg">
+                {(username || formatName(userName)).charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-1">
+                {username || formatName(userName)}
+              </h1>
+              <p className="text-gray-600">Manage your appointments </p>
+            </div>
           </div>
         </div>
 
