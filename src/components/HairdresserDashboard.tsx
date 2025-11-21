@@ -588,7 +588,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
   const verificationConfig = getVerificationStatusConfig();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-muted via-background to-blue-muted p-6">
       <div className="max-w-7xl mx-auto">
         <DashboardHeader
           userName={userName}
@@ -606,7 +606,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
           <Button
             variant="outline"
             onClick={() => setShowSocialMediaEdit(true)}
-            className="flex items-center gap-2 border-blue-200 text-blue-600 hover:bg-blue-50"
+            className="flex items-center gap-2 border-blue/20 text-blue hover:bg-blue-muted"
           >
             <Settings className="h-4 w-4" />
             Edit Social Media Links
@@ -615,7 +615,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
           <Button
             variant="outline"
             onClick={() => setShowBusinessSettings(true)}
-            className="flex items-center gap-2 border-blue-200 text-blue-600 hover:bg-blue-50"
+            className="flex items-center gap-2 border-blue/20 text-blue hover:bg-blue-muted"
           >
             <Settings className="h-4 w-4" />
             Business Settings
