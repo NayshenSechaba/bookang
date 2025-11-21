@@ -215,6 +215,7 @@ const DashboardHeader = ({ userName, profilePicture, coverImage, onUpdateProfile
         <div className="ml-6">
           <EditableHeader 
             userName={userName}
+            profilePicture={profilePicture}
             onUserNameChange={onUserNameChange}
           />
           <p className="text-gray-600">
