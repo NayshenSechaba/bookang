@@ -233,11 +233,11 @@ const Index = () => {
               List Your Business
             </Button>
             
-            <Button size="lg" variant="outline" className="w-full sm:w-auto border-gray-600 text-gray-700 hover:bg-gray-50 px-8 py-3" onClick={() => openAuthModal('login')}>
+            <Button size="lg" variant="outline" className="w-full sm:w-auto border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3" onClick={() => openAuthModal('login')}>
               Login
             </Button>
             
-            <Button size="lg" variant="outline" className="w-full sm:w-auto border-green-600 text-green-700 hover:bg-green-50 px-8 py-3" onClick={() => openAuthModal('login', 'hairdresser')}>
+            <Button size="lg" variant="outline" className="w-full sm:w-auto border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3" onClick={() => openAuthModal('login', 'hairdresser')}>
               <Store className="mr-2 h-4 w-4" />
               Service Provider Login
             </Button>
@@ -276,19 +276,19 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="text-center border-pink-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => {
+            <Card className="text-center border-blue-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => {
             setCurrentPage('explore');
             localStorage.setItem('salonconnect_current_page', 'explore');
           }}>
               <CardHeader>
-                <Star className="h-12 w-12 text-pink-600 mx-auto mb-4" />
-                <CardTitle className="text-pink-900">Quality Services</CardTitle>
+                <Star className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <CardTitle className="text-blue-900">Quality Services</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-gray-600 mb-4">
                   Connect with verified, professional service providers with excellent reviews and ratings.
                 </CardDescription>
-                <Button variant="outline" className="w-full border-pink-600 text-pink-600 hover:bg-pink-50" onClick={e => {
+                <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50" onClick={e => {
                 e.stopPropagation();
                 setCurrentPage('explore');
                 localStorage.setItem('salonconnect_current_page', 'explore');
@@ -298,16 +298,16 @@ const Index = () => {
               </CardContent>
             </Card>
 
-            <Card className="text-center border-green-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => openAuthModal('register', 'hairdresser')}>
+            <Card className="text-center border-blue-100 hover:shadow-lg transition-shadow cursor-pointer" onClick={() => openAuthModal('register', 'hairdresser')}>
               <CardHeader>
-                <Store className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                <CardTitle className="text-green-900">List Your Business</CardTitle>
+                <Store className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <CardTitle className="text-blue-900">List Your Business</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-gray-600 mb-4">
                   Join our platform as a service provider and grow your business with online bookings.
                 </CardDescription>
-                <Button variant="outline" className="w-full border-green-600 text-green-600 hover:bg-green-50" onClick={e => {
+                <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50" onClick={e => {
                 e.stopPropagation();
                 openAuthModal('register', 'hairdresser');
               }}>
