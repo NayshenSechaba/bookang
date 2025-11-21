@@ -42,7 +42,8 @@ const EditableHeader = ({
       </div>;
   }
   return <div className="flex items-center gap-2 group">
-      <h1 className="text-3xl font-bold text-gray-900 mb-2">Sechaba Magatikele!{userName || 'Hair Stylist'}!
+      <h1 className="text-3xl font-bold text-foreground mb-2">
+        {userName || 'Hair Stylist'}
       </h1>
       <Button onClick={() => setIsEditing(true)} size="sm" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity">
         <Edit2 className="h-4 w-4" />
