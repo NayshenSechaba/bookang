@@ -46,11 +46,14 @@ const CustomerDashboard = ({
         if (user.user) {
           const {
             data: profile
-          } = await supabase.from('profiles').select('username, avatar_url, phone').eq('user_id', user.user.id).single();
+          } = await supabase.from('profiles').select('username, avatar_url, banner_url, phone').eq('user_id', user.user.id).single();
           if (profile) {
             setUsername(profile.username || '');
             if (profile.avatar_url) {
               setProfilePicture(profile.avatar_url);
+            }
+            if (profile.banner_url) {
+              setCoverImage(profile.banner_url);
             }
             // Pre-populate phone number from profile
             if (profile.phone) {
@@ -685,16 +688,55 @@ const CustomerDashboard = ({
   };
 
   // Handle image uploads
-  const handleImageUpload = (type: 'profile' | 'cover') => (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (type: 'profile' | 'cover') => async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      if (type === 'profile') {
-        setProfilePicture(imageUrl);
-        setShowProfileUpload(false);
-      } else {
-        setCoverImage(imageUrl);
-        setShowCoverUpload(false);
+      try {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          console.error('Please select an image file.');
+          return;
+        }
+
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error("User not authenticated");
+        }
+
+        // Upload to Supabase Storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${type}-${user.id}-${Date.now()}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('profile-avatars')
+          .upload(fileName, file, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('profile-avatars')
+          .getPublicUrl(fileName);
+
+        // Update profile in database
+        const updateField = type === 'profile' ? 'avatar_url' : 'banner_url';
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ [updateField]: publicUrl })
+          .eq('user_id', user.id);
+
+        if (updateError) throw updateError;
+
+        // Update local state
+        if (type === 'profile') {
+          setProfilePicture(publicUrl);
+          setShowProfileUpload(false);
+        } else {
+          setCoverImage(publicUrl);
+          setShowCoverUpload(false);
+        }
+      } catch (error) {
+        console.error(`Error uploading ${type} image:`, error);
       }
     }
   };

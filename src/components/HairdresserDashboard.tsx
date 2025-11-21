@@ -26,6 +26,7 @@ interface HairdresserDashboardProps {
 const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboardProps) => {
   // All state variables and handlers
   const [profilePicture, setProfilePicture] = useState('/placeholder.svg');
+  const [coverImage, setCoverImage] = useState<string>('');
   const [userName, setUserName] = useState(initialUserName);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [paystackStatus, setPaystackStatus] = useState<string>('Not Started');
@@ -41,7 +42,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
         if (user.user) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('id, onboarding_completed, paystack_status, verification_status')
+            .select('id, onboarding_completed, paystack_status, verification_status, avatar_url, banner_url, full_name')
             .eq('user_id', user.user.id)
             .single();
           
@@ -54,6 +55,9 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
             setProfileId(profile.id);
             setPaystackStatus(profile.paystack_status || 'Not Started');
             setVerificationStatus(profile.verification_status || 'not_started');
+            if (profile.avatar_url) setProfilePicture(profile.avatar_url);
+            if (profile.banner_url) setCoverImage(profile.banner_url);
+            if (profile.full_name) setUserName(profile.full_name);
           }
 
           // Fetch services from database
@@ -280,13 +284,32 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
     }
   ]);
 
-  const handleUpdateProfilePicture = () => {
-    console.log('Update profile picture');
+  const handleUpdateProfilePicture = (newImageUrl: string) => {
+    setProfilePicture(newImageUrl);
   };
 
-  const handleUserNameChange = (newName: string) => {
+  const handleUpdateCoverImage = (newImageUrl: string) => {
+    setCoverImage(newImageUrl);
+  };
+
+  const handleUserNameChange = async (newName: string) => {
     setUserName(newName);
-    console.log('User name updated to:', newName);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ full_name: newName })
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error('Error updating user name:', error);
+      }
+    } catch (error) {
+      console.error('Error in handleUserNameChange:', error);
+    }
   };
 
   const handleServiceAdd = async (newService: Service) => {
@@ -552,7 +575,9 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
         <DashboardHeader
           userName={userName}
           profilePicture={profilePicture}
+          coverImage={coverImage}
           onUpdateProfilePicture={handleUpdateProfilePicture}
+          onUpdateCoverImage={handleUpdateCoverImage}
           onUserNameChange={handleUserNameChange}
         />
 
