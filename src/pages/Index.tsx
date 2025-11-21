@@ -208,7 +208,7 @@ const Index = () => {
   };
 
   // Home page content
-  const renderHomePage = () => <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50">
+  const renderHomePage = () => <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-25 to-white">
       {/* Hero Section */}
       <section className="relative py-20 px-4 bg-neutral-50">
         <div className="max-w-6xl mx-auto text-center">
@@ -332,13 +332,13 @@ const Index = () => {
             </Button>
             
             
-            <Button variant="outline" className="h-20 flex-col gap-2 bg-white hover:bg-indigo-50 border-indigo-200" onClick={() => setCurrentPage('settings')}>
-              <Settings className="h-6 w-6 text-indigo-600" />
+            <Button variant="outline" className="h-20 flex-col gap-2 bg-white hover:bg-blue-50 border-blue-200" onClick={() => setCurrentPage('settings')}>
+              <Settings className="h-6 w-6 text-blue-600" />
               Account settings
             </Button>
             
-            <Button variant="outline" className="h-20 flex-col gap-2 bg-white hover:bg-red-50 border-red-200" onClick={handleLogout}>
-              <LogOut className="h-6 w-6 text-red-600" />
+            <Button variant="outline" className="h-20 flex-col gap-2 bg-white hover:bg-blue-50 border-blue-200" onClick={handleLogout}>
+              <LogOut className="h-6 w-6 text-blue-600" />
               Logout
             </Button>
             
@@ -372,7 +372,7 @@ const Index = () => {
               
               {user && <NotificationCenter onNavigateToInbox={() => setCurrentPage('inbox')} />}
               
-              {user && <Button variant="outline" size="sm" className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white" onClick={handleLogout}>
+              {user && <Button variant="outline" size="sm" className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white" onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </Button>}
@@ -509,8 +509,8 @@ const Index = () => {
             <p className="text-primary-foreground/80 text-sm mb-4 sm:mb-0">&copy; 2024 Bookang. All rights reserved.</p>
             
             {/* Employee Login Button */}
-            <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground" onClick={() => openAuthModal('login', 'employee')}>
-              <UserCheck className="mr-2 h-4 w-4 text-royal-blue" />
+            <Button variant="outline" size="sm" className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white" onClick={() => openAuthModal('login', 'employee')}>
+              <UserCheck className="mr-2 h-4 w-4" />
               Employee Login
             </Button>
           </div>
