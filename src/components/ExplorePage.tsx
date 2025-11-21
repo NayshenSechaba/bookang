@@ -337,7 +337,7 @@ const ExplorePage = () => {
             
             <Button 
               size="sm" 
-              className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-full text-xs"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded-full text-xs"
               onClick={() => openProviderDetails(provider)}
             >
               View Details
@@ -395,7 +395,7 @@ const ExplorePage = () => {
                 onClick={() => setSelectedCategory(category.id)}
                 className={`rounded-full px-4 py-2 text-sm whitespace-nowrap ${
                   selectedCategory === category.id 
-                    ? 'bg-purple-600 text-white' 
+                    ? 'bg-blue-600 text-white' 
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
@@ -518,7 +518,7 @@ const ExplorePage = () => {
 
                 {/* Book Button */}
                 <Button
-                  className="w-full bg-purple-600 hover:bg-purple-700"
+                  className="w-full bg-blue-600 hover:bg-blue-700"
                   onClick={handleBookFromDetails}
                 >
                   <Calendar className="h-4 w-4 mr-2" />
@@ -614,7 +614,7 @@ const ExplorePage = () => {
             </div>
 
             <div className="flex space-x-2 pt-4">
-              <Button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700">
+              <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
                 <Calendar className="mr-2 h-4 w-4" />
                 Book Appointment
               </Button>

@@ -111,24 +111,6 @@ const EditableHeader = ({
   if (isEditing) {
     return (
       <div className="flex items-center gap-3">
-        <div className="relative group/avatar">
-          <Avatar className="h-36 w-36 cursor-pointer" onClick={handleAvatarClick}>
-            <AvatarImage src={profilePicture} alt={userName || 'User'} />
-            <AvatarFallback className="bg-primary text-primary-foreground text-5xl">
-              {(userName || 'User').charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center cursor-pointer" onClick={handleAvatarClick}>
-            <Camera className="h-8 w-8 text-white" />
-          </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-          />
-        </div>
         <Input 
           value={editValue} 
           onChange={e => setEditValue(e.target.value)} 
@@ -148,24 +130,6 @@ const EditableHeader = ({
   }
   return (
     <div className="flex items-center gap-3 group">
-      <div className="relative group/avatar">
-        <Avatar className="h-36 w-36 cursor-pointer" onClick={handleAvatarClick}>
-          <AvatarImage src={profilePicture} alt={userName || 'User'} />
-          <AvatarFallback className="bg-primary text-primary-foreground text-5xl">
-            {(userName || 'User').charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center cursor-pointer" onClick={handleAvatarClick}>
-          <Camera className="h-8 w-8 text-white" />
-        </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="hidden"
-        />
-      </div>
       <h1 className="text-3xl font-bold text-foreground">
         {userName || 'Hair Stylist'}
       </h1>

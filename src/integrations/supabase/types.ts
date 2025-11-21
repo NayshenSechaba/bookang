@@ -915,8 +915,15 @@ export type Database = {
           avatar_url: string | null
           banner_url: string | null
           bookings: string | null
+          business_address: string | null
+          business_city: string | null
           business_description: string | null
+          business_email: string | null
+          business_hours: Json | null
           business_name: string | null
+          business_phone: string | null
+          business_postal_code: string | null
+          business_province: string | null
           business_type: string | null
           city: string | null
           contact_number: string | null
@@ -929,6 +936,8 @@ export type Database = {
           id: string
           id_number: string | null
           instagram_url: string | null
+          latitude: number | null
+          longitude: number | null
           marketing_consent: boolean | null
           name: string | null
           onboarding_completed: boolean
@@ -960,8 +969,15 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bookings?: string | null
+          business_address?: string | null
+          business_city?: string | null
           business_description?: string | null
+          business_email?: string | null
+          business_hours?: Json | null
           business_name?: string | null
+          business_phone?: string | null
+          business_postal_code?: string | null
+          business_province?: string | null
           business_type?: string | null
           city?: string | null
           contact_number?: string | null
@@ -974,6 +990,8 @@ export type Database = {
           id?: string
           id_number?: string | null
           instagram_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
           marketing_consent?: boolean | null
           name?: string | null
           onboarding_completed?: boolean
@@ -1005,8 +1023,15 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bookings?: string | null
+          business_address?: string | null
+          business_city?: string | null
           business_description?: string | null
+          business_email?: string | null
+          business_hours?: Json | null
           business_name?: string | null
+          business_phone?: string | null
+          business_postal_code?: string | null
+          business_province?: string | null
           business_type?: string | null
           city?: string | null
           contact_number?: string | null
@@ -1019,6 +1044,8 @@ export type Database = {
           id?: string
           id_number?: string | null
           instagram_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
           marketing_consent?: boolean | null
           name?: string | null
           onboarding_completed?: boolean
