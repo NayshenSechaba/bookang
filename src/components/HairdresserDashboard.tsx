@@ -18,6 +18,7 @@ import StylistEarnings from './StylistEarnings';
 import OnboardingTour from './OnboardingTour';
 import { supabase } from '@/integrations/supabase/client';
 import { BusinessVerification } from './BusinessVerification';
+import { SocialMediaEdit } from './SocialMediaEdit';
 
 interface HairdresserDashboardProps {
   userName: string;
@@ -33,6 +34,13 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
   const [verificationStatus, setVerificationStatus] = useState<string>('not_started');
   const [profileId, setProfileId] = useState<string>('');
   const [activeTab, setActiveTab] = useState<string>('calendar');
+  const [showSocialMediaEdit, setShowSocialMediaEdit] = useState(false);
+  const [socialMedia, setSocialMedia] = useState<{
+    instagram?: string;
+    facebook?: string;
+    twitter?: string;
+    tiktok?: string;
+  }>({});
 
   // Check if user needs onboarding tour and fetch services/products
   useEffect(() => {
@@ -42,7 +50,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
         if (user.user) {
           const { data: profile } = await supabase
             .from('profiles')
-            .select('id, onboarding_completed, paystack_status, verification_status, avatar_url, banner_url, full_name')
+            .select('id, onboarding_completed, paystack_status, verification_status, avatar_url, banner_url, full_name, instagram_url, facebook_url, twitter_url, tiktok_url')
             .eq('user_id', user.user.id)
             .single();
           
@@ -58,6 +66,14 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
             if (profile.avatar_url) setProfilePicture(profile.avatar_url);
             if (profile.banner_url) setCoverImage(profile.banner_url);
             if (profile.full_name) setUserName(profile.full_name);
+            
+            // Set social media links
+            setSocialMedia({
+              instagram: profile.instagram_url || undefined,
+              facebook: profile.facebook_url || undefined,
+              twitter: profile.twitter_url || undefined,
+              tiktok: profile.tiktok_url || undefined
+            });
           }
 
           // Fetch services from database
@@ -579,7 +595,20 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
           onUpdateProfilePicture={handleUpdateProfilePicture}
           onUpdateCoverImage={handleUpdateCoverImage}
           onUserNameChange={handleUserNameChange}
+          socialMedia={socialMedia}
         />
+
+        {/* Add Social Media Button */}
+        <div className="mb-6">
+          <Button
+            variant="outline"
+            onClick={() => setShowSocialMediaEdit(true)}
+            className="flex items-center gap-2"
+          >
+            <Settings className="h-4 w-4" />
+            Edit Social Media Links
+          </Button>
+        </div>
 
         {/* Status Display */}
         <div className="mb-6 flex flex-wrap items-center gap-4">
@@ -754,6 +783,14 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
           isVisible={showOnboarding}
           onComplete={() => setShowOnboarding(false)}
           onSkip={() => setShowOnboarding(false)}
+        />
+
+        {/* Social Media Edit Modal */}
+        <SocialMediaEdit
+          isOpen={showSocialMediaEdit}
+          onClose={() => setShowSocialMediaEdit(false)}
+          initialData={socialMedia}
+          onSave={(data) => setSocialMedia(data)}
         />
       </div>
     </div>
