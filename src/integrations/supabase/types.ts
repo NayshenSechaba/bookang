@@ -924,9 +924,11 @@ export type Database = {
           created_at: string | null
           email: string
           email_verified: boolean | null
+          facebook_url: string | null
           full_name: string | null
           id: string
           id_number: string | null
+          instagram_url: string | null
           marketing_consent: boolean | null
           name: string | null
           onboarding_completed: boolean
@@ -942,6 +944,8 @@ export type Database = {
           role: Database["public"]["Enums"]["user_role"]
           sms_marketing_consent: boolean | null
           surname: string | null
+          tiktok_url: string | null
+          twitter_url: string | null
           updated_at: string | null
           user_id: string
           username: string | null
@@ -965,9 +969,11 @@ export type Database = {
           created_at?: string | null
           email: string
           email_verified?: boolean | null
+          facebook_url?: string | null
           full_name?: string | null
           id?: string
           id_number?: string | null
+          instagram_url?: string | null
           marketing_consent?: boolean | null
           name?: string | null
           onboarding_completed?: boolean
@@ -983,6 +989,8 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           sms_marketing_consent?: boolean | null
           surname?: string | null
+          tiktok_url?: string | null
+          twitter_url?: string | null
           updated_at?: string | null
           user_id: string
           username?: string | null
@@ -1006,9 +1014,11 @@ export type Database = {
           created_at?: string | null
           email?: string
           email_verified?: boolean | null
+          facebook_url?: string | null
           full_name?: string | null
           id?: string
           id_number?: string | null
+          instagram_url?: string | null
           marketing_consent?: boolean | null
           name?: string | null
           onboarding_completed?: boolean
@@ -1024,6 +1034,8 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           sms_marketing_consent?: boolean | null
           surname?: string | null
+          tiktok_url?: string | null
+          twitter_url?: string | null
           updated_at?: string | null
           user_id?: string
           username?: string | null
