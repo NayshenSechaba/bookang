@@ -3,6 +3,7 @@ import { useState } from 'react';
 import EditableHeader from './EditableHeader';
 import { useToast } from '@/hooks/use-toast';
 import { CoverPhotoCropModal } from './CoverPhotoCropModal';
+import { supabase } from '@/integrations/supabase/client';
 interface DashboardHeaderProps {
   userName: string;
   profilePicture: string;
@@ -34,7 +35,7 @@ const DashboardHeader = ({
   const {
     toast
   } = useToast();
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       // Validate file type
@@ -47,14 +48,55 @@ const DashboardHeader = ({
         return;
       }
 
-      // Create object URL for the uploaded image
-      const imageUrl = URL.createObjectURL(file);
-      onUpdateProfilePicture(imageUrl);
-      setShowUploadModal(false);
-      toast({
-        title: "Success",
-        description: "Profile picture updated successfully!"
-      });
+      try {
+        // Show loading toast
+        toast({
+          title: "Uploading",
+          description: "Uploading your profile picture..."
+        });
+
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error("User not authenticated");
+        }
+
+        // Upload to Supabase Storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('profile-avatars')
+          .upload(fileName, file, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('profile-avatars')
+          .getPublicUrl(fileName);
+
+        // Update profile in database
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: publicUrl })
+          .eq('user_id', user.id);
+
+        if (updateError) throw updateError;
+
+        onUpdateProfilePicture(publicUrl);
+        setShowUploadModal(false);
+        toast({
+          title: "Success",
+          description: "Profile picture updated successfully!"
+        });
+      } catch (error) {
+        console.error('Error uploading profile picture:', error);
+        toast({
+          title: "Error",
+          description: "Failed to upload profile picture. Please try again.",
+          variant: "destructive"
+        });
+      }
     }
   };
   const handleStoryUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,12 +176,62 @@ const DashboardHeader = ({
     }
   };
 
-  const handleCoverCropComplete = (croppedImageUrl: string) => {
-    if (onUpdateCoverImage) {
-      onUpdateCoverImage(croppedImageUrl);
+  const handleCoverCropComplete = async (croppedImageUrl: string) => {
+    try {
+      // Show loading toast
+      toast({
+        title: "Uploading",
+        description: "Uploading your cover photo..."
+      });
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      // Convert blob URL to blob
+      const response = await fetch(croppedImageUrl);
+      const blob = await response.blob();
+      
+      // Upload to Supabase Storage
+      const fileName = `cover-${user.id}-${Date.now()}.png`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('profile-avatars')
+        .upload(fileName, blob, { 
+          upsert: true,
+          contentType: 'image/png'
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-avatars')
+        .getPublicUrl(fileName);
+
+      // Update profile in database
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ banner_url: publicUrl })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      if (onUpdateCoverImage) {
+        onUpdateCoverImage(publicUrl);
+      }
+      
       toast({
         title: "Success",
         description: "Cover photo updated successfully!"
+      });
+    } catch (error) {
+      console.error('Error uploading cover photo:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload cover photo. Please try again.",
+        variant: "destructive"
       });
     }
   };

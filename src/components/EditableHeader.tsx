@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Edit2, Check, X, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EditableHeaderProps {
   userName: string;
@@ -44,7 +45,7 @@ const EditableHeader = ({
     fileInputRef.current?.click();
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
@@ -56,13 +57,55 @@ const EditableHeader = ({
         return;
       }
 
-      const imageUrl = URL.createObjectURL(file);
-      onProfilePictureChange?.(imageUrl);
-      
-      toast({
-        title: "Success",
-        description: "Profile picture updated successfully!",
-      });
+      try {
+        // Show loading toast
+        toast({
+          title: "Uploading",
+          description: "Uploading your profile picture..."
+        });
+
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error("User not authenticated");
+        }
+
+        // Upload to Supabase Storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('profile-avatars')
+          .upload(fileName, file, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('profile-avatars')
+          .getPublicUrl(fileName);
+
+        // Update profile in database
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: publicUrl })
+          .eq('user_id', user.id);
+
+        if (updateError) throw updateError;
+
+        onProfilePictureChange?.(publicUrl);
+        
+        toast({
+          title: "Success",
+          description: "Profile picture updated successfully!",
+        });
+      } catch (error) {
+        console.error('Error uploading profile picture:', error);
+        toast({
+          title: "Error",
+          description: "Failed to upload profile picture. Please try again.",
+          variant: "destructive"
+        });
+      }
     }
   };
   if (isEditing) {
