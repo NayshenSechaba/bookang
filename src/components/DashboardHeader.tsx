@@ -1,12 +1,14 @@
-import { Camera, Upload, Instagram, Facebook, Twitter, Plus } from 'lucide-react';
+import { Camera, Upload, Instagram, Facebook, Twitter, Plus, ImagePlus } from 'lucide-react';
 import { useState } from 'react';
 import EditableHeader from './EditableHeader';
 import { useToast } from '@/hooks/use-toast';
+import { CoverPhotoCropModal } from './CoverPhotoCropModal';
 interface DashboardHeaderProps {
   userName: string;
   profilePicture: string;
   coverImage?: string;
   onUpdateProfilePicture: (newImageUrl: string) => void;
+  onUpdateCoverImage?: (newImageUrl: string) => void;
   onUserNameChange: (newName: string) => void;
   socialMedia?: {
     instagram?: string;
@@ -20,12 +22,15 @@ const DashboardHeader = ({
   profilePicture,
   coverImage,
   onUpdateProfilePicture,
+  onUpdateCoverImage,
   onUserNameChange,
   socialMedia
 }: DashboardHeaderProps) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showStoryModal, setShowStoryModal] = useState(false);
-  const [hasStory, setHasStory] = useState(true); // Simulate having a story
+  const [showCoverCropModal, setShowCoverCropModal] = useState(false);
+  const [tempCoverImage, setTempCoverImage] = useState<string>('');
+  const [hasStory, setHasStory] = useState(true);
   const {
     toast
   } = useToast();
@@ -110,6 +115,35 @@ const DashboardHeader = ({
       });
     }
   };
+
+  const handleCoverImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Error",
+          description: "Please select an image file.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const imageUrl = URL.createObjectURL(file);
+      setTempCoverImage(imageUrl);
+      setShowCoverCropModal(true);
+    }
+  };
+
+  const handleCoverCropComplete = (croppedImageUrl: string) => {
+    if (onUpdateCoverImage) {
+      onUpdateCoverImage(croppedImageUrl);
+      toast({
+        title: "Success",
+        description: "Cover photo updated successfully!"
+      });
+    }
+  };
+
   const renderSocialIcon = (platform: string, url: string) => {
     const iconProps = "w-6 h-6 text-gray-600 hover:text-primary transition-colors";
     const getIcon = () => {
@@ -135,12 +169,22 @@ const DashboardHeader = ({
   return <>
       <div className="mb-8">
         {/* Headliner Image with Profile Picture Overlay */}
-        <div className="relative mb-16 h-48 w-full rounded-lg overflow-hidden bg-gradient-to-r from-purple-100 to-pink-100">
+        <div className="relative mb-16 h-48 w-full rounded-lg overflow-hidden bg-gradient-to-r from-purple-100 to-pink-100 group cursor-pointer" onClick={() => document.getElementById('cover-image-upload')?.click()}>
           {coverImage && <img src={coverImage} alt="Dashboard header" className="w-full h-full object-cover" />}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent">
-            {/* Profile Picture in Header */}
-            
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent group-hover:bg-black/50 transition-colors">
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="bg-white/90 rounded-full p-4">
+                <ImagePlus className="h-8 w-8 text-primary" />
+              </div>
+            </div>
           </div>
+          <input
+            id="cover-image-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleCoverImageUpload}
+            className="hidden"
+          />
           
           {/* Profile Picture Overlay */}
           <div className="absolute -bottom-16 left-4">
@@ -240,6 +284,13 @@ const DashboardHeader = ({
             </div>
           </div>
         </div>}
+
+      <CoverPhotoCropModal
+        isOpen={showCoverCropModal}
+        onClose={() => setShowCoverCropModal(false)}
+        imageSrc={tempCoverImage}
+        onCropComplete={handleCoverCropComplete}
+      />
     </>;
 };
 export default DashboardHeader;
