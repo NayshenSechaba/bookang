@@ -136,7 +136,7 @@ export const BusinessSettings = ({ isOpen, onClose }: BusinessSettingsProps) => 
           {/* Contact Information */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Phone className="h-5 w-5 text-blue-600" />
+              <Phone className="h-5 w-5 text-blue" />
               Contact Information
             </h3>
             
@@ -167,7 +167,7 @@ export const BusinessSettings = ({ isOpen, onClose }: BusinessSettingsProps) => 
           {/* Address */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-blue-600" />
+              <MapPin className="h-5 w-5 text-blue" />
               Business Address
             </h3>
             
@@ -241,13 +241,13 @@ export const BusinessSettings = ({ isOpen, onClose }: BusinessSettingsProps) => 
           {/* Business Hours */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Clock className="h-5 w-5 text-blue-600" />
+              <Clock className="h-5 w-5 text-blue" />
               Business Hours
             </h3>
             
             <div className="space-y-3">
               {days.map((day) => (
-                <div key={day} className="flex items-center gap-4 py-2 border-b border-blue-100 last:border-0">
+                <div key={day} className="flex items-center gap-4 py-2 border-b border-blue/10 last:border-0">
                   <div className="w-28">
                     <span className="font-medium capitalize">{day}</span>
                   </div>
@@ -296,7 +296,7 @@ export const BusinessSettings = ({ isOpen, onClose }: BusinessSettingsProps) => 
           <Button variant="outline" onClick={onClose} disabled={isSaving}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={handleSave} disabled={isSaving} className="bg-blue hover:opacity-90 text-blue-foreground">
             {isSaving ? 'Saving...' : 'Save Settings'}
           </Button>
         </div>
