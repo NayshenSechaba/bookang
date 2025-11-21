@@ -16,6 +16,7 @@ import FAQSection from '@/components/FAQSection';
 import SMEOnboarding from '@/components/SMEOnboarding';
 import ProfileCompletionModal from '@/components/ProfileCompletionModal';
 import AccountSettings from '@/components/AccountSettings';
+import BusinessProfile from '@/pages/BusinessProfile';
 import { InboxView } from '@/components/InboxView';
 import { NotificationCenter } from '@/components/NotificationCenter';
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +39,7 @@ const Index = () => {
 
   // Navigation state 
   const [currentPage, setCurrentPage] = useState('home');
+  const [businessProfileId, setBusinessProfileId] = useState<string | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showSMEOnboarding, setShowSMEOnboarding] = useState(false);
   const [showProfileCompletionModal, setShowProfileCompletionModal] = useState(false);
@@ -200,6 +202,8 @@ const Index = () => {
         return user ? <InboxView /> : renderHomePage();
       case 'explore':
         return <ExplorePage />;
+      case 'business-profile':
+        return businessProfileId ? <BusinessProfile /> : renderHomePage();
       case 'faq':
         return <FAQSection />;
       default:

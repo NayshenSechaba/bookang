@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,7 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ManageBooking from "./pages/ManageBooking";
-import BusinessProfile from "./components/BusinessProfile";
+import BusinessProfile from "./pages/BusinessProfile";
+import BusinessProfileSettings from "./components/BusinessProfile";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import ClientDetail from "./pages/ClientDetail";
 import AmendmentApproval from "./pages/AmendmentApproval";
@@ -22,7 +22,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/business-profile" element={<BusinessProfile />} />
+          <Route path="/business/:businessId" element={<BusinessProfile />} />
+          <Route path="/business-profile" element={<BusinessProfileSettings />} />
           <Route path="/booking/manage/:token" element={<ManageBooking />} />
           <Route path="/employee" element={<EmployeeDashboard />} />
           <Route path="/employee/client/:clientId" element={<ClientDetail />} />

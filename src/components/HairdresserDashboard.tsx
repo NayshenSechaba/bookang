@@ -19,6 +19,7 @@ import OnboardingTour from './OnboardingTour';
 import { supabase } from '@/integrations/supabase/client';
 import { BusinessVerification } from './BusinessVerification';
 import { SocialMediaEdit } from './SocialMediaEdit';
+import { BusinessSettings } from './BusinessSettings';
 
 interface HairdresserDashboardProps {
   userName: string;
@@ -35,6 +36,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
   const [profileId, setProfileId] = useState<string>('');
   const [activeTab, setActiveTab] = useState<string>('calendar');
   const [showSocialMediaEdit, setShowSocialMediaEdit] = useState(false);
+  const [showBusinessSettings, setShowBusinessSettings] = useState(false);
   const [socialMedia, setSocialMedia] = useState<{
     instagram?: string;
     facebook?: string;
@@ -586,7 +588,7 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
   const verificationConfig = getVerificationStatusConfig();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-pink-50 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 p-6">
       <div className="max-w-7xl mx-auto">
         <DashboardHeader
           userName={userName}
@@ -596,17 +598,27 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
           onUpdateCoverImage={handleUpdateCoverImage}
           onUserNameChange={handleUserNameChange}
           socialMedia={socialMedia}
+          hideStoryFeature={true}
         />
 
         {/* Add Social Media Button */}
-        <div className="mb-6">
+        <div className="mb-6 flex gap-4">
           <Button
             variant="outline"
             onClick={() => setShowSocialMediaEdit(true)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 border-blue-200 text-blue-600 hover:bg-blue-50"
           >
             <Settings className="h-4 w-4" />
             Edit Social Media Links
+          </Button>
+          
+          <Button
+            variant="outline"
+            onClick={() => setShowBusinessSettings(true)}
+            className="flex items-center gap-2 border-blue-200 text-blue-600 hover:bg-blue-50"
+          >
+            <Settings className="h-4 w-4" />
+            Business Settings
           </Button>
         </div>
 
@@ -791,6 +803,12 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
           onClose={() => setShowSocialMediaEdit(false)}
           initialData={socialMedia}
           onSave={(data) => setSocialMedia(data)}
+        />
+
+        {/* Business Settings Modal */}
+        <BusinessSettings
+          isOpen={showBusinessSettings}
+          onClose={() => setShowBusinessSettings(false)}
         />
       </div>
     </div>

@@ -4,6 +4,7 @@ import EditableHeader from './EditableHeader';
 import { useToast } from '@/hooks/use-toast';
 import { CoverPhotoCropModal } from './CoverPhotoCropModal';
 import { supabase } from '@/integrations/supabase/client';
+
 interface DashboardHeaderProps {
   userName: string;
   profilePicture: string;
@@ -17,6 +18,7 @@ interface DashboardHeaderProps {
     twitter?: string;
     tiktok?: string;
   };
+  hideStoryFeature?: boolean;
 }
 const DashboardHeader = ({
   userName,
@@ -25,7 +27,8 @@ const DashboardHeader = ({
   onUpdateProfilePicture,
   onUpdateCoverImage,
   onUserNameChange,
-  socialMedia
+  socialMedia,
+  hideStoryFeature = false
 }: DashboardHeaderProps) => {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showStoryModal, setShowStoryModal] = useState(false);
@@ -237,7 +240,7 @@ const DashboardHeader = ({
   };
 
   const renderSocialIcon = (platform: string, url: string) => {
-    const iconProps = "w-6 h-6 text-gray-600 hover:text-primary transition-colors";
+    const iconProps = "w-6 h-6 text-blue-600 hover:text-blue-700 transition-colors";
     const getIcon = () => {
       switch (platform) {
         case 'instagram':
@@ -254,19 +257,19 @@ const DashboardHeader = ({
           return null;
       }
     };
-    return <a href={url} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-white border border-gray-200 hover:border-primary transition-colors shadow-sm" aria-label={`Visit ${platform} profile`}>
+    return <a href={url} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-blue-100 border border-blue-200 hover:bg-blue-200 hover:border-blue-300 transition-colors shadow-sm" aria-label={`Visit ${platform} profile`}>
         {getIcon()}
       </a>;
   };
   return <>
       <div className="mb-8">
         {/* Headliner Image with Profile Picture Overlay */}
-        <div className="relative mb-16 h-48 w-full rounded-lg overflow-hidden bg-gradient-to-r from-purple-100 to-pink-100 group cursor-pointer" onClick={() => document.getElementById('cover-image-upload')?.click()}>
+        <div className="relative mb-8 h-48 w-full rounded-lg overflow-hidden bg-gradient-to-r from-blue-100 to-blue-200 group cursor-pointer" onClick={() => document.getElementById('cover-image-upload')?.click()}>
           {coverImage && <img src={coverImage} alt="Dashboard header" className="w-full h-full object-cover" />}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent group-hover:bg-black/50 transition-colors">
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
               <div className="bg-white/90 rounded-full p-4">
-                <ImagePlus className="h-8 w-8 text-primary" />
+                <ImagePlus className="h-8 w-8 text-blue-600" />
               </div>
             </div>
           </div>
@@ -277,44 +280,46 @@ const DashboardHeader = ({
             onChange={handleCoverImageUpload}
             className="hidden"
           />
-          
-          {/* Profile Picture Overlay */}
-          <div className="absolute -bottom-16 left-4">
-            <div className="relative">
-              {/* Story Ring */}
-              <div className={`absolute -inset-2 rounded-full ${hasStory ? 'bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-500' : 'bg-gray-300'} p-1 transition-all duration-300`}>
-                <div className="bg-white rounded-full p-1">
-                  <img src={profilePicture} alt="Profile" className="w-64 h-64 rounded-full object-cover shadow-lg transition-transform duration-300 hover:scale-105 cursor-pointer" onClick={() => setShowUploadModal(true)} />
-                </div>
-              </div>
-              
-              {/* Profile Picture Edit Button */}
-              <button onClick={() => setShowUploadModal(true)} className="absolute top-2 right-2 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10">
-                <Camera className="h-4 w-4" />
-              </button>
-
-              {/* Story Upload Button */}
-              <button onClick={() => setShowStoryModal(true)} className="absolute -bottom-2 right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-full shadow-lg hover:scale-110 transition-all duration-200 animate-pulse" title="Add to your story">
-                <Plus className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
         </div>
 
-        {/* Name Section */}
-        <div className="ml-6">
-          <EditableHeader userName={userName} profilePicture={profilePicture} onUserNameChange={onUserNameChange} onProfilePictureChange={onUpdateProfilePicture} />
-          <p className="text-gray-600">
-            Manage your appointments, services, products, and track your earnings.
-          </p>
-          
-          {/* Social Media Links */}
-          {socialMedia && <div className="flex gap-3 mt-4">
-              {socialMedia.instagram && renderSocialIcon('instagram', socialMedia.instagram)}
-              {socialMedia.facebook && renderSocialIcon('facebook', socialMedia.facebook)}
-              {socialMedia.twitter && renderSocialIcon('twitter', socialMedia.twitter)}
-              {socialMedia.tiktok && renderSocialIcon('tiktok', socialMedia.tiktok)}
-            </div>}
+        {/* Name Section with Avatar */}
+        <div className="ml-6 flex items-start gap-6">
+          {/* Avatar */}
+          <div className="relative -mt-20">
+            <div className={`absolute -inset-2 rounded-full ${hasStory && !hideStoryFeature ? 'bg-gradient-to-tr from-blue-500 via-blue-400 to-blue-600' : 'bg-gray-300'} p-1 transition-all duration-300`}>
+              <div className="bg-white rounded-full p-1">
+                <img src={profilePicture} alt="Profile" className="w-32 h-32 rounded-full object-cover shadow-lg transition-transform duration-300 hover:scale-105 cursor-pointer" onClick={() => setShowUploadModal(true)} />
+              </div>
+            </div>
+            
+            {/* Profile Picture Edit Button */}
+            <button onClick={() => setShowUploadModal(true)} className="absolute top-2 right-2 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-10">
+              <Camera className="h-3 w-3" />
+            </button>
+
+            {/* Story Upload Button - Only show if not hidden */}
+            {!hideStoryFeature && (
+              <button onClick={() => setShowStoryModal(true)} className="absolute -bottom-2 right-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white p-2 rounded-full shadow-lg hover:scale-110 transition-all duration-200" title="Add to your story">
+                <Plus className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Name and Description */}
+          <div className="flex-1 pt-2">
+            <EditableHeader userName={userName} profilePicture={profilePicture} onUserNameChange={onUserNameChange} onProfilePictureChange={onUpdateProfilePicture} />
+            <p className="text-gray-600 mt-2">
+              Manage your appointments, services, products, and track your earnings.
+            </p>
+            
+            {/* Social Media Links */}
+            {socialMedia && <div className="flex gap-3 mt-4">
+                {socialMedia.instagram && renderSocialIcon('instagram', socialMedia.instagram)}
+                {socialMedia.facebook && renderSocialIcon('facebook', socialMedia.facebook)}
+                {socialMedia.twitter && renderSocialIcon('twitter', socialMedia.twitter)}
+                {socialMedia.tiktok && renderSocialIcon('tiktok', socialMedia.tiktok)}
+              </div>}
+          </div>
         </div>
       </div>
 
