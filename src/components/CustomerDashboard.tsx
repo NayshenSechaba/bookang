@@ -356,7 +356,7 @@ const CustomerDashboard = ({
       showAlert('error', 'Incomplete Information', 'Please fill in all required fields to book your appointment.');
       return;
     }
-    
+
     // Validate phone number
     if (!bookingData.phone || bookingData.phone.trim() === '') {
       showAlert('error', 'Phone Required', 'Phone number is required for SMS booking confirmation.');
@@ -419,13 +419,12 @@ const CustomerDashboard = ({
       if (!profile) {
         throw new Error('Customer profile not found');
       }
-      
+
       // Update profile with phone if not already set
       if (pendingBooking.phone && (!profile.phone || profile.phone.trim() === '')) {
-        await supabase
-          .from('profiles')
-          .update({ phone: pendingBooking.phone })
-          .eq('user_id', user.user.id);
+        await supabase.from('profiles').update({
+          phone: pendingBooking.phone
+        }).eq('user_id', user.user.id);
       }
 
       // Find hairdresser by name (for demo purposes, we'll use a mock lookup)
@@ -596,30 +595,26 @@ const CustomerDashboard = ({
   // Handle review submission
   const handleReviewSubmission = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (reviewData.rating === 0) {
       showAlert('error', 'Rating Required', 'Please provide a rating for your appointment.');
       return;
     }
-
     if (!selectedAppointment) {
       showAlert('error', 'Error', 'No appointment selected');
       return;
     }
-
     try {
-      const { data: user } = await supabase.auth.getUser();
+      const {
+        data: user
+      } = await supabase.auth.getUser();
       if (!user.user) {
         throw new Error('User not authenticated');
       }
 
       // Get customer profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.user.id)
-        .single();
-
+      const {
+        data: profile
+      } = await supabase.from('profiles').select('id').eq('user_id', user.user.id).single();
       if (!profile) {
         throw new Error('Customer profile not found');
       }
@@ -631,28 +626,25 @@ const CustomerDashboard = ({
       }
 
       // Check if review already exists
-      const { data: existingReview } = await supabase
-        .from('reviews')
-        .select('id')
-        .eq('booking_id', selectedAppointment.id)
-        .maybeSingle();
-
+      const {
+        data: existingReview
+      } = await supabase.from('reviews').select('id').eq('booking_id', selectedAppointment.id).maybeSingle();
       if (existingReview) {
         showAlert('error', 'Already Reviewed', "You've already reviewed this appointment.");
         return;
       }
 
       // Insert review
-      const { error } = await supabase.from('reviews').insert({
+      const {
+        error
+      } = await supabase.from('reviews').insert({
         booking_id: selectedAppointment.id,
         customer_id: profile.id,
         hairdresser_id: selectedAppointment.hairdresser_id,
         rating: reviewData.rating,
-        comment: reviewData.comment.trim() || null,
+        comment: reviewData.comment.trim() || null
       });
-
       if (error) throw error;
-
       showAlert('success', 'Review Submitted!', 'Thank you for your feedback! Your review helps other customers and supports businesses.');
       setShowReviewModal(false);
       setReviewData({
@@ -699,7 +691,11 @@ const CustomerDashboard = ({
         }
 
         // Get current user
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: {
+            user
+          }
+        } = await supabase.auth.getUser();
         if (!user) {
           throw new Error("User not authenticated");
         }
@@ -707,24 +703,28 @@ const CustomerDashboard = ({
         // Upload to Supabase Storage
         const fileExt = file.name.split('.').pop();
         const fileName = `${type}-${user.id}-${Date.now()}.${fileExt}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('profile-avatars')
-          .upload(fileName, file, { upsert: true });
-
+        const {
+          data: uploadData,
+          error: uploadError
+        } = await supabase.storage.from('profile-avatars').upload(fileName, file, {
+          upsert: true
+        });
         if (uploadError) throw uploadError;
 
         // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from('profile-avatars')
-          .getPublicUrl(fileName);
+        const {
+          data: {
+            publicUrl
+          }
+        } = supabase.storage.from('profile-avatars').getPublicUrl(fileName);
 
         // Update profile in database
         const updateField = type === 'profile' ? 'avatar_url' : 'banner_url';
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ [updateField]: publicUrl })
-          .eq('user_id', user.id);
-
+        const {
+          error: updateError
+        } = await supabase.from('profiles').update({
+          [updateField]: publicUrl
+        }).eq('user_id', user.id);
         if (updateError) throw updateError;
 
         // Update local state
@@ -770,7 +770,7 @@ const CustomerDashboard = ({
             {/* Profile Picture Overlay */}
             <div className="absolute top-0 left-4">
               <div className="relative">
-                <img src={profilePicture} alt="Profile" className="w-48 h-48 rounded-full object-cover border-4 border-white shadow-lg cursor-pointer hover-scale transition-all duration-300" onClick={() => setShowProfileUpload(true)} />
+                
                 <button onClick={() => setShowProfileUpload(true)} className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-2 rounded-full shadow-lg hover:bg-blue-700 transition-colors">
                   <Camera className="h-4 w-4" />
                 </button>
@@ -1183,17 +1183,10 @@ const CustomerDashboard = ({
             
             <div>
               <Label htmlFor="phone">Phone Number (for SMS confirmation) *</Label>
-              <Input 
-                id="phone" 
-                type="tel" 
-                placeholder="+27 or 0XX XXX XXXX" 
-                value={bookingData.phone} 
-                onChange={e => setBookingData(prev => ({
-                  ...prev,
-                  phone: e.target.value
-                }))} 
-                required
-              />
+              <Input id="phone" type="tel" placeholder="+27 or 0XX XXX XXXX" value={bookingData.phone} onChange={e => setBookingData(prev => ({
+              ...prev,
+              phone: e.target.value
+            }))} required />
               <p className="text-xs text-muted-foreground mt-1">
                 Required for booking confirmation SMS
               </p>
