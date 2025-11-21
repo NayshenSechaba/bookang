@@ -217,6 +217,7 @@ const DashboardHeader = ({ userName, profilePicture, coverImage, onUpdateProfile
             userName={userName}
             profilePicture={profilePicture}
             onUserNameChange={onUserNameChange}
+            onProfilePictureChange={onUpdateProfilePicture}
           />
           <p className="text-gray-600">
             Manage your appointments, services, products, and track your earnings.
