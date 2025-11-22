@@ -366,20 +366,44 @@ const Index = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
-              {getNavItems().map(item => <Button key={item.id} variant="ghost" className="text-primary-foreground hover:bg-primary/10" onClick={() => {
-              setCurrentPage(item.id);
-              localStorage.setItem('salonconnect_current_page', item.id);
-            }}>
-                  <item.icon className="mr-2 h-4 w-4 text-primary-foreground" />
-                  {item.label}
-                </Button>)}
+              {getNavItems().map(item => {
+                if (item.id === 'settings' && user) {
+                  return (
+                    <DropdownMenu key={item.id}>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="text-primary-foreground hover:bg-primary/10">
+                          <item.icon className="mr-2 h-4 w-4 text-primary-foreground" />
+                          {item.label}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem onClick={() => {
+                          setCurrentPage('settings');
+                          localStorage.setItem('salonconnect_current_page', 'settings');
+                        }}>
+                          <Settings className="mr-2 h-4 w-4" />
+                          Account Settings
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleLogout} className="text-blue-600">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          Logout
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  );
+                }
+                return (
+                  <Button key={item.id} variant="ghost" className="text-primary-foreground hover:bg-primary/10" onClick={() => {
+                    setCurrentPage(item.id);
+                    localStorage.setItem('salonconnect_current_page', item.id);
+                  }}>
+                    <item.icon className="mr-2 h-4 w-4 text-primary-foreground" />
+                    {item.label}
+                  </Button>
+                );
+              })}
               
               {user && <NotificationCenter onNavigateToInbox={() => setCurrentPage('inbox')} />}
-              
-              {user && <Button variant="outline" size="sm" className="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white" onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </Button>}
               
               {!user && <Button variant="outline" size="sm" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" onClick={() => openAuthModal('login')}>
                   Login
