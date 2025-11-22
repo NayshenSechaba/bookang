@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, Star, Heart, User, Scissors, MapPin, Phone, Camera, Upload, Wallet } from 'lucide-react';
+import { Calendar, Clock, Star, Heart, User, Scissors, MapPin, Phone, Camera, Upload, Wallet, Pencil } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import CustomAlert from '@/components/CustomAlert';
 import PaymentProcessing from './PaymentProcessing';
@@ -31,6 +31,15 @@ const CustomerDashboard = ({
   const [showProfileUpload, setShowProfileUpload] = useState(false);
   const [showCoverUpload, setShowCoverUpload] = useState(false);
   const [username, setUsername] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [userPhone, setUserPhone] = useState('');
+  const [userFullName, setUserFullName] = useState('');
+  const [showProfileEditModal, setShowProfileEditModal] = useState(false);
+  const [profileEditData, setProfileEditData] = useState({
+    fullName: '',
+    phone: '',
+    email: ''
+  });
 
   // Currency formatting for South African Rands
   const formatCurrency = (amount: number) => {
@@ -47,9 +56,17 @@ const CustomerDashboard = ({
         if (user.user) {
           const {
             data: profile
-          } = await supabase.from('profiles').select('username, avatar_url, banner_url, phone').eq('user_id', user.user.id).single();
+          } = await supabase.from('profiles').select('username, avatar_url, banner_url, phone, email, full_name').eq('user_id', user.user.id).single();
           if (profile) {
             setUsername(profile.username || '');
+            setUserEmail(profile.email || '');
+            setUserPhone(profile.phone || '');
+            setUserFullName(profile.full_name || '');
+            setProfileEditData({
+              fullName: profile.full_name || '',
+              phone: profile.phone || '',
+              email: profile.email || ''
+            });
             if (profile.avatar_url) {
               setProfilePicture(profile.avatar_url);
             }
@@ -750,11 +767,49 @@ const CustomerDashboard = ({
         setProfilePicture(imageUrl.trim());
         setShowProfileUpload(false);
       } else {
-        setCoverImage(imageUrl.trim());
+      setCoverImage(imageUrl.trim());
         setShowCoverUpload(false);
       }
     }
   };
+
+  // Handle profile edit submission
+  const handleProfileEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) {
+        showAlert('error', 'Error', 'User not authenticated');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: profileEditData.fullName,
+          phone: profileEditData.phone,
+          email: profileEditData.email
+        })
+        .eq('user_id', user.user.id);
+
+      if (error) {
+        showAlert('error', 'Error', 'Failed to update profile: ' + error.message);
+        return;
+      }
+
+      // Update local state
+      setUserFullName(profileEditData.fullName);
+      setUserPhone(profileEditData.phone);
+      setUserEmail(profileEditData.email);
+      setShowProfileEditModal(false);
+      showAlert('success', 'Success', 'Profile updated successfully');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      showAlert('error', 'Error', 'Failed to update profile');
+    }
+  };
+
   return <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Profile Header with Cover Image */}
@@ -787,12 +842,21 @@ const CustomerDashboard = ({
                 {(username || formatName(userName)).charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <div>
+            <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900 mb-1">
                 {username || formatName(userName)}
               </h1>
               <p className="text-gray-600">Manage your appointments </p>
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowProfileEditModal(true)}
+              className="border-blue/20 text-blue hover:bg-blue-muted"
+            >
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit Profile
+            </Button>
           </div>
         </div>
 
@@ -1373,6 +1437,71 @@ const CustomerDashboard = ({
                   </div>
                 </div>)}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Profile Edit Modal */}
+      <Dialog open={showProfileEditModal} onOpenChange={setShowProfileEditModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription>
+              Update your customer details
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleProfileEdit} className="space-y-4">
+            <div>
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                value={profileEditData.fullName}
+                onChange={(e) => setProfileEditData(prev => ({ ...prev, fullName: e.target.value }))}
+                placeholder="Enter your full name"
+                required
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={profileEditData.phone}
+                onChange={(e) => setProfileEditData(prev => ({ ...prev, phone: e.target.value }))}
+                placeholder="Enter your phone number"
+                required
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                type="email"
+                value={profileEditData.email}
+                onChange={(e) => setProfileEditData(prev => ({ ...prev, email: e.target.value }))}
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+            
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowProfileEditModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-blue text-blue-foreground hover:opacity-90"
+              >
+                Save Changes
+              </Button>
+            </div>
+          </form>
         </DialogContent>
       </Dialog>
 
