@@ -46,6 +46,12 @@ const Index = () => {
   const [showProfileCompletionModal, setShowProfileCompletionModal] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(true);
   const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
+  
+  // Swipe gesture state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isSwipeActive, setIsSwipeActive] = useState(false);
 
   // Set up Supabase auth listener
   useEffect(() => {
@@ -141,6 +147,60 @@ const Index = () => {
       if (type) setLoginType(type);
       setShowAuthModal(true);
     }
+  };
+
+  // Swipe gesture handlers
+  const minSwipeDistance = 100;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+    setIsSwipeActive(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isSwipeActive) return;
+    setTouchEnd(e.targetTouches[0].clientX);
+    
+    if (touchStart !== null) {
+      const currentTouch = e.targetTouches[0].clientX;
+      const distance = currentTouch - touchStart;
+      
+      // Only allow swipe from left edge to open (when closed)
+      if (!isMobileMenuOpen && touchStart < 50 && distance > 0) {
+        setSwipeOffset(Math.min(distance, 300));
+      }
+      // Allow swipe right to close (when open)
+      else if (isMobileMenuOpen && distance > 0) {
+        setSwipeOffset(distance);
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isSwipeActive || touchStart === null || touchEnd === null) {
+      setIsSwipeActive(false);
+      setSwipeOffset(0);
+      return;
+    }
+
+    const distance = touchEnd - touchStart;
+    const isLeftSwipe = distance < -minSwipeDistance;
+    const isRightSwipe = distance > minSwipeDistance;
+
+    // Swipe right from left edge to open menu
+    if (!isMobileMenuOpen && isRightSwipe && touchStart < 50) {
+      setIsMobileMenuOpen(true);
+    }
+    // Swipe right to close menu
+    else if (isMobileMenuOpen && isRightSwipe) {
+      setIsMobileMenuOpen(false);
+    }
+
+    setSwipeOffset(0);
+    setIsSwipeActive(false);
+    setTouchStart(null);
+    setTouchEnd(null);
   };
 
   // Navigation items for authenticated users
@@ -354,7 +414,12 @@ const Index = () => {
         </div>
       </section>
     </div>;
-  return <div className="min-h-screen bg-background">
+  return <div 
+    className="min-h-screen bg-background"
+    onTouchStart={handleTouchStart}
+    onTouchMove={handleTouchMove}
+    onTouchEnd={handleTouchEnd}
+  >
       {/* Application Name */}
       <div className="bg-primary text-primary-foreground text-center py-5 font-semibold text-3xl">Bookang</div>
       
@@ -425,116 +490,143 @@ const Index = () => {
 
           {/* Mobile Navigation */}
           {isMobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-primary-foreground/20 bg-primary/95">
-              <div className="flex flex-col space-y-2 px-2">
-                {/* Main Navigation Group */}
-                <Collapsible open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
-                  <CollapsibleTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-between text-primary-foreground hover:bg-primary/80"
-                    >
-                      <span className="font-semibold">Navigation</span>
-                      <ChevronDown className={`h-4 w-4 transition-transform ${mobileNavOpen ? 'rotate-180' : ''}`} />
-                    </Button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-1 pt-2">
-                    {getNavItems()
-                      .filter(item => item.id !== 'settings')
-                      .map(item => (
+            <>
+              {/* Backdrop */}
+              <div 
+                className="fixed inset-0 bg-black/50 z-40 md:hidden animate-fade-in"
+                onClick={() => setIsMobileMenuOpen(false)}
+                style={{
+                  opacity: isSwipeActive ? Math.max(0, 1 - swipeOffset / 300) : 1
+                }}
+              />
+              
+              {/* Mobile Menu */}
+              <div 
+                className="fixed top-0 left-0 bottom-0 w-[300px] bg-primary border-r border-primary-foreground/20 z-50 md:hidden overflow-y-auto"
+                style={{
+                  transform: isSwipeActive 
+                    ? `translateX(${Math.min(swipeOffset, 0)}px)` 
+                    : 'translateX(0)',
+                  transition: isSwipeActive ? 'none' : 'transform 0.3s ease-out'
+                }}
+              >
+                <div className="py-4 px-2">
+                  <div className="flex flex-col space-y-2">
+                    {/* Main Navigation Group */}
+                    <Collapsible open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+                      <CollapsibleTrigger asChild>
                         <Button 
-                          key={item.id} 
-                          variant={currentPage === item.id ? "secondary" : "ghost"}
-                          className={`w-full justify-start ${
-                            currentPage === item.id 
-                              ? "bg-accent text-accent-foreground" 
-                              : "text-primary-foreground hover:bg-primary/80"
-                          }`}
+                          variant="ghost" 
+                          className="w-full justify-between text-primary-foreground hover:bg-primary/80"
+                        >
+                          <span className="font-semibold">Navigation</span>
+                          <ChevronDown className={`h-4 w-4 transition-transform ${mobileNavOpen ? 'rotate-180' : ''}`} />
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="space-y-1 pt-2">
+                        {getNavItems()
+                          .filter(item => item.id !== 'settings')
+                          .map(item => (
+                            <Button 
+                              key={item.id} 
+                              variant={currentPage === item.id ? "secondary" : "ghost"}
+                              className={`w-full justify-start ${
+                                currentPage === item.id 
+                                  ? "bg-accent text-accent-foreground" 
+                                  : "text-primary-foreground hover:bg-primary/80"
+                              }`}
+                              onClick={() => {
+                                setCurrentPage(item.id);
+                                localStorage.setItem('salonconnect_current_page', item.id);
+                                setIsMobileMenuOpen(false);
+                              }}
+                            >
+                              <item.icon className="mr-2 h-4 w-4" />
+                              {item.label}
+                            </Button>
+                          ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+
+                    {/* Account Section for logged-in users */}
+                    {user && (
+                      <Collapsible open={mobileAccountOpen} onOpenChange={setMobileAccountOpen} className="border-t border-primary-foreground/20 pt-2">
+                        <CollapsibleTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            className="w-full justify-between text-primary-foreground hover:bg-primary/80"
+                          >
+                            <div className="flex items-center">
+                              <UserIcon className="mr-2 h-4 w-4" />
+                              <span className="font-semibold">Account</span>
+                            </div>
+                            <ChevronDown className={`h-4 w-4 transition-transform ${mobileAccountOpen ? 'rotate-180' : ''}`} />
+                          </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="space-y-1 pt-2">
+                          <div className="px-3 py-2 text-sm text-primary-foreground/80">
+                            Welcome, <span className="font-medium text-accent">{userName}</span>
+                          </div>
+                          <Button 
+                            variant={currentPage === 'settings' ? "secondary" : "ghost"}
+                            className={`w-full justify-start ${
+                              currentPage === 'settings'
+                                ? "bg-accent text-accent-foreground"
+                                : "text-primary-foreground hover:bg-primary/80"
+                            }`}
+                            onClick={() => {
+                              setCurrentPage('settings');
+                              localStorage.setItem('salonconnect_current_page', 'settings');
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <Settings className="mr-2 h-4 w-4" />
+                            Account Settings
+                          </Button>
+                          <div className="flex items-center justify-end px-3 py-2">
+                            <NotificationCenter onNavigateToInbox={() => {
+                              setCurrentPage('inbox');
+                              setIsMobileMenuOpen(false);
+                            }} />
+                          </div>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={handleLogout} 
+                            className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                          >
+                            <LogOut className="mr-2 h-4 w-4" />
+                            Logout
+                          </Button>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    )}
+
+                    {/* Login button for non-authenticated users */}
+                    {!user && (
+                      <div className="pt-2 border-t border-primary-foreground/20">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" 
                           onClick={() => {
-                            setCurrentPage(item.id);
-                            localStorage.setItem('salonconnect_current_page', item.id);
+                            openAuthModal('login');
                             setIsMobileMenuOpen(false);
                           }}
                         >
-                          <item.icon className="mr-2 h-4 w-4" />
-                          {item.label}
+                          Login
                         </Button>
-                      ))}
-                  </CollapsibleContent>
-                </Collapsible>
-
-                {/* Account Section for logged-in users */}
-                {user && (
-                  <Collapsible open={mobileAccountOpen} onOpenChange={setMobileAccountOpen} className="border-t border-primary-foreground/20 pt-2">
-                    <CollapsibleTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-between text-primary-foreground hover:bg-primary/80"
-                      >
-                        <div className="flex items-center">
-                          <UserIcon className="mr-2 h-4 w-4" />
-                          <span className="font-semibold">Account</span>
-                        </div>
-                        <ChevronDown className={`h-4 w-4 transition-transform ${mobileAccountOpen ? 'rotate-180' : ''}`} />
-                      </Button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="space-y-1 pt-2">
-                      <div className="px-3 py-2 text-sm text-primary-foreground/80">
-                        Welcome, <span className="font-medium text-accent">{userName}</span>
                       </div>
-                      <Button 
-                        variant={currentPage === 'settings' ? "secondary" : "ghost"}
-                        className={`w-full justify-start ${
-                          currentPage === 'settings'
-                            ? "bg-accent text-accent-foreground"
-                            : "text-primary-foreground hover:bg-primary/80"
-                        }`}
-                        onClick={() => {
-                          setCurrentPage('settings');
-                          localStorage.setItem('salonconnect_current_page', 'settings');
-                          setIsMobileMenuOpen(false);
-                        }}
-                      >
-                        <Settings className="mr-2 h-4 w-4" />
-                        Account Settings
-                      </Button>
-                      <div className="flex items-center justify-end px-3 py-2">
-                        <NotificationCenter onNavigateToInbox={() => {
-                          setCurrentPage('inbox');
-                          setIsMobileMenuOpen(false);
-                        }} />
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={handleLogout} 
-                        className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
-                      >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Logout
-                      </Button>
-                    </CollapsibleContent>
-                  </Collapsible>
-                )}
-
-                {/* Login button for non-authenticated users */}
-                {!user && (
-                  <div className="pt-2 border-t border-primary-foreground/20">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" 
-                      onClick={() => {
-                        openAuthModal('login');
-                        setIsMobileMenuOpen(false);
-                      }}
-                    >
-                      Login
-                    </Button>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
-            </div>
+            </>
+          )}
+          
+          {/* Swipe indicator - shows when menu is closed on mobile */}
+          {!isMobileMenuOpen && (
+            <div className="fixed left-0 top-1/2 -translate-y-1/2 w-1 h-16 bg-primary/50 rounded-r-full md:hidden z-30 animate-pulse" />
           )}
         </div>
       </nav>
