@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Star, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut, Bell, User as UserIcon, Settings } from 'lucide-react';
+import { Star, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut, Bell, User as UserIcon, Settings, ChevronDown } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import AuthModal from '@/components/AuthModal';
 import EnhancedRegistrationModal from '@/components/EnhancedRegistrationModal';
 import CustomerDashboard from '@/components/CustomerDashboard';
@@ -43,6 +44,8 @@ const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showSMEOnboarding, setShowSMEOnboarding] = useState(false);
   const [showProfileCompletionModal, setShowProfileCompletionModal] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(true);
+  const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
 
   // Set up Supabase auth listener
   useEffect(() => {
@@ -421,42 +424,118 @@ const Index = () => {
           </div>
 
           {/* Mobile Navigation */}
-          {isMobileMenuOpen && <div className="md:hidden py-4 border-t border-primary-foreground/20">
-              <div className="flex flex-col space-y-2">
-                {getNavItems().map(item => <Button key={item.id} variant={currentPage === item.id ? "secondary" : "ghost"} className={`justify-start ${currentPage === item.id ? "bg-accent text-accent-foreground" : "text-primary-foreground"}`} onClick={() => {
-              setCurrentPage(item.id);
-              localStorage.setItem('salonconnect_current_page', item.id);
-              setIsMobileMenuOpen(false);
-            }}>
-                    <item.icon className="mr-2 h-4 w-4 text-primary-foreground" />
-                    {item.label}
-                  </Button>)}
-                
-                {!user && <div className="pt-4 border-t border-primary-foreground/20">
-                    <Button variant="outline" size="sm" className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" onClick={() => {
-                openAuthModal('login');
-                setIsMobileMenuOpen(false);
-              }}>
+          {isMobileMenuOpen && (
+            <div className="md:hidden py-4 border-t border-primary-foreground/20 bg-primary/95">
+              <div className="flex flex-col space-y-2 px-2">
+                {/* Main Navigation Group */}
+                <Collapsible open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+                  <CollapsibleTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      className="w-full justify-between text-primary-foreground hover:bg-primary/80"
+                    >
+                      <span className="font-semibold">Navigation</span>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${mobileNavOpen ? 'rotate-180' : ''}`} />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-1 pt-2">
+                    {getNavItems()
+                      .filter(item => item.id !== 'settings')
+                      .map(item => (
+                        <Button 
+                          key={item.id} 
+                          variant={currentPage === item.id ? "secondary" : "ghost"}
+                          className={`w-full justify-start ${
+                            currentPage === item.id 
+                              ? "bg-accent text-accent-foreground" 
+                              : "text-primary-foreground hover:bg-primary/80"
+                          }`}
+                          onClick={() => {
+                            setCurrentPage(item.id);
+                            localStorage.setItem('salonconnect_current_page', item.id);
+                            setIsMobileMenuOpen(false);
+                          }}
+                        >
+                          <item.icon className="mr-2 h-4 w-4" />
+                          {item.label}
+                        </Button>
+                      ))}
+                  </CollapsibleContent>
+                </Collapsible>
+
+                {/* Account Section for logged-in users */}
+                {user && (
+                  <Collapsible open={mobileAccountOpen} onOpenChange={setMobileAccountOpen} className="border-t border-primary-foreground/20 pt-2">
+                    <CollapsibleTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full justify-between text-primary-foreground hover:bg-primary/80"
+                      >
+                        <div className="flex items-center">
+                          <UserIcon className="mr-2 h-4 w-4" />
+                          <span className="font-semibold">Account</span>
+                        </div>
+                        <ChevronDown className={`h-4 w-4 transition-transform ${mobileAccountOpen ? 'rotate-180' : ''}`} />
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="space-y-1 pt-2">
+                      <div className="px-3 py-2 text-sm text-primary-foreground/80">
+                        Welcome, <span className="font-medium text-accent">{userName}</span>
+                      </div>
+                      <Button 
+                        variant={currentPage === 'settings' ? "secondary" : "ghost"}
+                        className={`w-full justify-start ${
+                          currentPage === 'settings'
+                            ? "bg-accent text-accent-foreground"
+                            : "text-primary-foreground hover:bg-primary/80"
+                        }`}
+                        onClick={() => {
+                          setCurrentPage('settings');
+                          localStorage.setItem('salonconnect_current_page', 'settings');
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        <Settings className="mr-2 h-4 w-4" />
+                        Account Settings
+                      </Button>
+                      <div className="flex items-center justify-end px-3 py-2">
+                        <NotificationCenter onNavigateToInbox={() => {
+                          setCurrentPage('inbox');
+                          setIsMobileMenuOpen(false);
+                        }} />
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={handleLogout} 
+                        className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Logout
+                      </Button>
+                    </CollapsibleContent>
+                  </Collapsible>
+                )}
+
+                {/* Login button for non-authenticated users */}
+                {!user && (
+                  <div className="pt-2 border-t border-primary-foreground/20">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" 
+                      onClick={() => {
+                        openAuthModal('login');
+                        setIsMobileMenuOpen(false);
+                      }}
+                    >
                       Login
                     </Button>
-                  </div>}
-                
-                {user && <div className="pt-4 border-t border-primary-foreground/20">
-                    <div className="flex items-center justify-between px-3 mb-3">
-                      <p className="text-sm text-primary-foreground">
-                        Welcome, <span className="font-medium text-accent">{userName}</span>
-                      </p>
-                      <NotificationCenter onNavigateToInbox={() => {
-                        setCurrentPage('inbox');
-                        setIsMobileMenuOpen(false);
-                      }} />
-                    </div>
-                    <Button variant="outline" size="sm" onClick={handleLogout} className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
-                      Logout
-                    </Button>
-                  </div>}
+                  </div>
+                )}
               </div>
-            </div>}
+            </div>
+          )}
         </div>
       </nav>
 
