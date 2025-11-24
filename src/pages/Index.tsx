@@ -52,6 +52,12 @@ const Index = () => {
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isSwipeActive, setIsSwipeActive] = useState(false);
+  
+  // Pull-to-refresh state
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isPulling, setIsPulling] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Set up Supabase auth listener
   useEffect(() => {
@@ -201,6 +207,50 @@ const Index = () => {
     setIsSwipeActive(false);
     setTouchStart(null);
     setTouchEnd(null);
+  };
+
+  // Pull-to-refresh handlers
+  const handlePullStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    const target = e.target as HTMLElement;
+    const mainElement = target.closest('main');
+    
+    if (mainElement && mainElement.scrollTop === 0) {
+      setTouchStart(touch.clientY);
+      setIsPulling(true);
+    }
+  };
+
+  const handlePullMove = (e: React.TouchEvent) => {
+    if (!isPulling || touchStart === null || isRefreshing) return;
+    
+    const touch = e.touches[0];
+    const distance = touch.clientY - touchStart;
+    
+    if (distance > 0) {
+      setPullDistance(Math.min(distance, 150));
+    }
+  };
+
+  const handlePullEnd = async () => {
+    if (!isPulling) return;
+    
+    const threshold = 80;
+    if (pullDistance > threshold && !isRefreshing) {
+      setIsRefreshing(true);
+      
+      // Trigger data refresh by updating the key
+      setRefreshKey(prev => prev + 1);
+      
+      // Simulate refresh delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setIsRefreshing(false);
+    }
+    
+    setPullDistance(0);
+    setIsPulling(false);
+    setTouchStart(null);
   };
 
   // Navigation items for authenticated users
@@ -632,8 +682,41 @@ const Index = () => {
       </nav>
 
       {/* Main Content */}
-      <main>
-        {renderCurrentPage()}
+      <main 
+        className="relative overflow-y-auto"
+        onTouchStart={handlePullStart}
+        onTouchMove={handlePullMove}
+        onTouchEnd={handlePullEnd}
+      >
+        {/* Pull-to-refresh indicator */}
+        {(isPulling || isRefreshing) && (
+          <div 
+            className="fixed top-16 left-0 right-0 z-40 flex justify-center items-center transition-all duration-300"
+            style={{
+              transform: `translateY(${isPulling ? pullDistance : isRefreshing ? 60 : 0}px)`,
+              opacity: isPulling ? Math.min(pullDistance / 80, 1) : isRefreshing ? 1 : 0
+            }}
+          >
+            <div className="bg-primary text-primary-foreground rounded-full p-3 shadow-lg">
+              {isRefreshing ? (
+                <div className="animate-spin h-6 w-6 border-2 border-primary-foreground border-t-transparent rounded-full" />
+              ) : (
+                <div 
+                  className="h-6 w-6 flex items-center justify-center"
+                  style={{
+                    transform: `rotate(${pullDistance * 2}deg)`
+                  }}
+                >
+                  ↻
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        
+        <div key={refreshKey}>
+          {renderCurrentPage()}
+        </div>
       </main>
 
       {/* Authentication Modals */}
