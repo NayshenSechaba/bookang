@@ -24,6 +24,10 @@ import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from '@supabase/supabase-js';
 import { sendTestSMS } from '@/utils/sendTestSMS';
 import bookangLogo from '@/assets/bookang-logo.png';
+import heroSalon from '@/assets/hero-salon-1.jpg';
+import heroBarbershop from '@/assets/hero-barbershop.jpg';
+import heroSpa from '@/assets/hero-spa.jpg';
+import heroNails from '@/assets/hero-nails.jpg';
 
 // Make sendTestSMS available globally for console testing
 (window as any).sendTestSMS = sendTestSMS;
@@ -58,6 +62,19 @@ const Index = () => {
   const [isPulling, setIsPulling] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  
+  // Hero slideshow state
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const heroImages = [heroSalon, heroBarbershop, heroSpa, heroNails];
+
+  // Hero slideshow auto-rotate
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    }, 5000); // Change slide every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
 
   // Set up Supabase auth listener
   useEffect(() => {
@@ -327,39 +344,74 @@ const Index = () => {
   // Home page content
   const renderHomePage = () => <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-25 to-white">
       {/* Hero Section */}
-      <section className="relative py-20 px-4 bg-neutral-50">
-        <div className="max-w-6xl mx-auto text-center">
+      <section className="relative py-20 px-4 overflow-hidden min-h-[600px] flex items-center">
+        {/* Background Slideshow */}
+        <div className="absolute inset-0 z-0">
+          {heroImages.map((image, index) => (
+            <div
+              key={index}
+              className="absolute inset-0 transition-opacity duration-1000"
+              style={{
+                opacity: currentSlide === index ? 1 : 0,
+                backgroundImage: `url(${image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
+            />
+          ))}
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-black/50" />
+        </div>
+
+        {/* Content */}
+        <div className="max-w-6xl mx-auto text-center relative z-10">
           <div className="mb-8">
             
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
             Booked in Seconds. Managed with Ease.
           </h1>
           
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">The all-in-one client management and booking platform.</p>
+          <p className="text-xl text-white mb-8 max-w-3xl mx-auto drop-shadow-md">The all-in-one client management and booking platform.</p>
 
           {/* Authentication Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <Button size="lg" className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-3" onClick={() => openAuthModal('login', 'customer')}>
+            <Button size="lg" className="w-full sm:w-auto bg-white hover:bg-gray-100 text-blue-600 px-8 py-3 shadow-lg font-semibold" onClick={() => openAuthModal('login', 'customer')}>
               Book Services
             </Button>
             
-            <Button size="lg" variant="outline" className="w-full sm:w-auto border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3" onClick={() => setShowSMEOnboarding(true)}>
+            <Button size="lg" variant="outline" className="w-full sm:w-auto bg-white/90 hover:bg-white border-white text-blue-600 hover:text-blue-700 px-8 py-3 shadow-lg font-semibold" onClick={() => setShowSMEOnboarding(true)}>
               <Store className="mr-2 h-4 w-4" />
               List Your Business
             </Button>
             
-            <Button size="lg" variant="outline" className="w-full sm:w-auto border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3" onClick={() => openAuthModal('login')}>
+            <Button size="lg" variant="outline" className="w-full sm:w-auto bg-white/90 hover:bg-white border-white text-blue-600 hover:text-blue-700 px-8 py-3 shadow-lg font-semibold" onClick={() => openAuthModal('login')}>
               Login
             </Button>
             
-            <Button size="lg" variant="outline" className="w-full sm:w-auto border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-3" onClick={() => openAuthModal('login', 'hairdresser')}>
+            <Button size="lg" variant="outline" className="w-full sm:w-auto bg-white/90 hover:bg-white border-white text-blue-600 hover:text-blue-700 px-8 py-3 shadow-lg font-semibold" onClick={() => openAuthModal('login', 'hairdresser')}>
               <Store className="mr-2 h-4 w-4" />
               Service Provider Login
             </Button>
             
             
+          </div>
+          
+          {/* Slideshow indicators */}
+          <div className="flex justify-center gap-2">
+            {heroImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  currentSlide === index 
+                    ? 'bg-white w-8' 
+                    : 'bg-white/50 hover:bg-white/75'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
           </div>
         </div>
       </section>
