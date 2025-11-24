@@ -50,19 +50,19 @@ const Index = () => {
   const [showProfileCompletionModal, setShowProfileCompletionModal] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(true);
   const [mobileAccountOpen, setMobileAccountOpen] = useState(false);
-  
+
   // Swipe gesture state
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isSwipeActive, setIsSwipeActive] = useState(false);
-  
+
   // Pull-to-refresh state
   const [pullDistance, setPullDistance] = useState(0);
   const [isPulling, setIsPulling] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  
+
   // Hero slideshow state
   const [currentSlide, setCurrentSlide] = useState(0);
   const heroImages = [heroSalon, heroBarbershop, heroSpa, heroNails];
@@ -70,7 +70,7 @@ const Index = () => {
   // Hero slideshow auto-rotate
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+      setCurrentSlide(prev => (prev + 1) % heroImages.length);
     }, 5000); // Change slide every 5 seconds
 
     return () => clearInterval(interval);
@@ -174,21 +174,18 @@ const Index = () => {
 
   // Swipe gesture handlers
   const minSwipeDistance = 100;
-
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
     setIsSwipeActive(true);
   };
-
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isSwipeActive) return;
     setTouchEnd(e.targetTouches[0].clientX);
-    
     if (touchStart !== null) {
       const currentTouch = e.targetTouches[0].clientX;
       const distance = currentTouch - touchStart;
-      
+
       // Only allow swipe from left edge to open (when closed)
       if (!isMobileMenuOpen && touchStart < 50 && distance > 0) {
         setSwipeOffset(Math.min(distance, 300));
@@ -199,14 +196,12 @@ const Index = () => {
       }
     }
   };
-
   const handleTouchEnd = () => {
     if (!isSwipeActive || touchStart === null || touchEnd === null) {
       setIsSwipeActive(false);
       setSwipeOffset(0);
       return;
     }
-
     const distance = touchEnd - touchStart;
     const isLeftSwipe = distance < -minSwipeDistance;
     const isRightSwipe = distance > minSwipeDistance;
@@ -219,7 +214,6 @@ const Index = () => {
     else if (isMobileMenuOpen && isRightSwipe) {
       setIsMobileMenuOpen(false);
     }
-
     setSwipeOffset(0);
     setIsSwipeActive(false);
     setTouchStart(null);
@@ -231,40 +225,32 @@ const Index = () => {
     const touch = e.touches[0];
     const target = e.target as HTMLElement;
     const mainElement = target.closest('main');
-    
     if (mainElement && mainElement.scrollTop === 0) {
       setTouchStart(touch.clientY);
       setIsPulling(true);
     }
   };
-
   const handlePullMove = (e: React.TouchEvent) => {
     if (!isPulling || touchStart === null || isRefreshing) return;
-    
     const touch = e.touches[0];
     const distance = touch.clientY - touchStart;
-    
     if (distance > 0) {
       setPullDistance(Math.min(distance, 150));
     }
   };
-
   const handlePullEnd = async () => {
     if (!isPulling) return;
-    
     const threshold = 80;
     if (pullDistance > threshold && !isRefreshing) {
       setIsRefreshing(true);
-      
+
       // Trigger data refresh by updating the key
       setRefreshKey(prev => prev + 1);
-      
+
       // Simulate refresh delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
       setIsRefreshing(false);
     }
-    
     setPullDistance(0);
     setIsPulling(false);
     setTouchStart(null);
@@ -347,18 +333,12 @@ const Index = () => {
       <section className="relative py-20 px-4 overflow-hidden min-h-[600px] flex items-center">
         {/* Background Slideshow */}
         <div className="absolute inset-0 z-0">
-          {heroImages.map((image, index) => (
-            <div
-              key={index}
-              className="absolute inset-0 transition-opacity duration-1000"
-              style={{
-                opacity: currentSlide === index ? 1 : 0,
-                backgroundImage: `url(${image})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-              }}
-            />
-          ))}
+          {heroImages.map((image, index) => <div key={index} className="absolute inset-0 transition-opacity duration-1000" style={{
+          opacity: currentSlide === index ? 1 : 0,
+          backgroundImage: `url(${image})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }} />)}
           {/* Dark overlay for text readability */}
           <div className="absolute inset-0 bg-black/50" />
         </div>
@@ -400,18 +380,7 @@ const Index = () => {
           
           {/* Slideshow indicators */}
           <div className="flex justify-center gap-2">
-            {heroImages.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  currentSlide === index 
-                    ? 'bg-white w-8' 
-                    : 'bg-white/50 hover:bg-white/75'
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
+            {heroImages.map((_, index) => <button key={index} onClick={() => setCurrentSlide(index)} className={`w-3 h-3 rounded-full transition-all duration-300 ${currentSlide === index ? 'bg-white w-8' : 'bg-white/50 hover:bg-white/75'}`} aria-label={`Go to slide ${index + 1}`} />)}
           </div>
         </div>
       </section>
@@ -516,12 +485,7 @@ const Index = () => {
         </div>
       </section>
     </div>;
-  return <div 
-    className="min-h-screen bg-background"
-    onTouchStart={handleTouchStart}
-    onTouchMove={handleTouchMove}
-    onTouchEnd={handleTouchEnd}
-  >
+  return <div className="min-h-screen bg-background" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
       {/* Application Name */}
       <div className="bg-primary text-primary-foreground text-center py-5 font-semibold text-3xl">Bookang</div>
       
@@ -531,15 +495,14 @@ const Index = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <img src={bookangLogo} alt="Bookang - Your smart booking platform" className="h-20" />
+              
             </div>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
               {getNavItems().map(item => {
-                if (item.id === 'settings' && user) {
-                  return (
-                    <DropdownMenu key={item.id}>
+              if (item.id === 'settings' && user) {
+                return <DropdownMenu key={item.id}>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="text-primary-foreground hover:bg-primary/10">
                           <item.icon className="mr-2 h-4 w-4 text-primary-foreground" />
@@ -548,9 +511,9 @@ const Index = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem onClick={() => {
-                          setCurrentPage('settings');
-                          localStorage.setItem('salonconnect_current_page', 'settings');
-                        }}>
+                      setCurrentPage('settings');
+                      localStorage.setItem('salonconnect_current_page', 'settings');
+                    }}>
                           <Settings className="mr-2 h-4 w-4" />
                           Account Settings
                         </DropdownMenuItem>
@@ -559,19 +522,16 @@ const Index = () => {
                           Logout
                         </DropdownMenuItem>
                       </DropdownMenuContent>
-                    </DropdownMenu>
-                  );
-                }
-                return (
-                  <Button key={item.id} variant="ghost" className="text-primary-foreground hover:bg-primary/10" onClick={() => {
-                    setCurrentPage(item.id);
-                    localStorage.setItem('salonconnect_current_page', item.id);
-                  }}>
+                    </DropdownMenu>;
+              }
+              return <Button key={item.id} variant="ghost" className="text-primary-foreground hover:bg-primary/10" onClick={() => {
+                setCurrentPage(item.id);
+                localStorage.setItem('salonconnect_current_page', item.id);
+              }}>
                     <item.icon className="mr-2 h-4 w-4 text-primary-foreground" />
                     {item.label}
-                  </Button>
-                );
-              })}
+                  </Button>;
+            })}
               
               {user && <NotificationCenter onNavigateToInbox={() => setCurrentPage('inbox')} />}
               
@@ -591,73 +551,43 @@ const Index = () => {
           </div>
 
           {/* Mobile Navigation */}
-          {isMobileMenuOpen && (
-            <>
+          {isMobileMenuOpen && <>
               {/* Backdrop */}
-              <div 
-                className="fixed inset-0 bg-black/50 z-40 md:hidden animate-fade-in"
-                onClick={() => setIsMobileMenuOpen(false)}
-                style={{
-                  opacity: isSwipeActive ? Math.max(0, 1 - swipeOffset / 300) : 1
-                }}
-              />
+              <div className="fixed inset-0 bg-black/50 z-40 md:hidden animate-fade-in" onClick={() => setIsMobileMenuOpen(false)} style={{
+            opacity: isSwipeActive ? Math.max(0, 1 - swipeOffset / 300) : 1
+          }} />
               
               {/* Mobile Menu */}
-              <div 
-                className="fixed top-0 left-0 bottom-0 w-[300px] bg-primary border-r border-primary-foreground/20 z-50 md:hidden overflow-y-auto"
-                style={{
-                  transform: isSwipeActive 
-                    ? `translateX(${Math.min(swipeOffset, 0)}px)` 
-                    : 'translateX(0)',
-                  transition: isSwipeActive ? 'none' : 'transform 0.3s ease-out'
-                }}
-              >
+              <div className="fixed top-0 left-0 bottom-0 w-[300px] bg-primary border-r border-primary-foreground/20 z-50 md:hidden overflow-y-auto" style={{
+            transform: isSwipeActive ? `translateX(${Math.min(swipeOffset, 0)}px)` : 'translateX(0)',
+            transition: isSwipeActive ? 'none' : 'transform 0.3s ease-out'
+          }}>
                 <div className="py-4 px-2">
                   <div className="flex flex-col space-y-2">
                     {/* Main Navigation Group */}
                     <Collapsible open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
                       <CollapsibleTrigger asChild>
-                        <Button 
-                          variant="ghost" 
-                          className="w-full justify-between text-primary-foreground hover:bg-primary/80"
-                        >
+                        <Button variant="ghost" className="w-full justify-between text-primary-foreground hover:bg-primary/80">
                           <span className="font-semibold">Navigation</span>
                           <ChevronDown className={`h-4 w-4 transition-transform ${mobileNavOpen ? 'rotate-180' : ''}`} />
                         </Button>
                       </CollapsibleTrigger>
                       <CollapsibleContent className="space-y-1 pt-2">
-                        {getNavItems()
-                          .filter(item => item.id !== 'settings')
-                          .map(item => (
-                            <Button 
-                              key={item.id} 
-                              variant={currentPage === item.id ? "secondary" : "ghost"}
-                              className={`w-full justify-start ${
-                                currentPage === item.id 
-                                  ? "bg-accent text-accent-foreground" 
-                                  : "text-primary-foreground hover:bg-primary/80"
-                              }`}
-                              onClick={() => {
-                                setCurrentPage(item.id);
-                                localStorage.setItem('salonconnect_current_page', item.id);
-                                setIsMobileMenuOpen(false);
-                              }}
-                            >
+                        {getNavItems().filter(item => item.id !== 'settings').map(item => <Button key={item.id} variant={currentPage === item.id ? "secondary" : "ghost"} className={`w-full justify-start ${currentPage === item.id ? "bg-accent text-accent-foreground" : "text-primary-foreground hover:bg-primary/80"}`} onClick={() => {
+                      setCurrentPage(item.id);
+                      localStorage.setItem('salonconnect_current_page', item.id);
+                      setIsMobileMenuOpen(false);
+                    }}>
                               <item.icon className="mr-2 h-4 w-4" />
                               {item.label}
-                            </Button>
-                          ))}
+                            </Button>)}
                       </CollapsibleContent>
                     </Collapsible>
 
                     {/* Account Section for logged-in users */}
-                    {user && (
-                      <Collapsible open={mobileAccountOpen} onOpenChange={setMobileAccountOpen} className="border-t border-primary-foreground/20 pt-2">
+                    {user && <Collapsible open={mobileAccountOpen} onOpenChange={setMobileAccountOpen} className="border-t border-primary-foreground/20 pt-2">
                         <CollapsibleTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            className="w-full justify-between text-primary-foreground hover:bg-primary/80"
-                          >
+                          <Button variant="ghost" className="w-full justify-between text-primary-foreground hover:bg-primary/80">
                             <div className="flex items-center">
                               <UserIcon className="mr-2 h-4 w-4" />
                               <span className="font-semibold">Account</span>
@@ -669,102 +599,61 @@ const Index = () => {
                           <div className="px-3 py-2 text-sm text-primary-foreground/80">
                             Welcome, <span className="font-medium text-accent">{userName}</span>
                           </div>
-                          <Button 
-                            variant={currentPage === 'settings' ? "secondary" : "ghost"}
-                            className={`w-full justify-start ${
-                              currentPage === 'settings'
-                                ? "bg-accent text-accent-foreground"
-                                : "text-primary-foreground hover:bg-primary/80"
-                            }`}
-                            onClick={() => {
-                              setCurrentPage('settings');
-                              localStorage.setItem('salonconnect_current_page', 'settings');
-                              setIsMobileMenuOpen(false);
-                            }}
-                          >
+                          <Button variant={currentPage === 'settings' ? "secondary" : "ghost"} className={`w-full justify-start ${currentPage === 'settings' ? "bg-accent text-accent-foreground" : "text-primary-foreground hover:bg-primary/80"}`} onClick={() => {
+                      setCurrentPage('settings');
+                      localStorage.setItem('salonconnect_current_page', 'settings');
+                      setIsMobileMenuOpen(false);
+                    }}>
                             <Settings className="mr-2 h-4 w-4" />
                             Account Settings
                           </Button>
                           <div className="flex items-center justify-end px-3 py-2">
                             <NotificationCenter onNavigateToInbox={() => {
-                              setCurrentPage('inbox');
-                              setIsMobileMenuOpen(false);
-                            }} />
+                        setCurrentPage('inbox');
+                        setIsMobileMenuOpen(false);
+                      }} />
                           </div>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={handleLogout} 
-                            className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary"
-                          >
+                          <Button variant="outline" size="sm" onClick={handleLogout} className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
                             <LogOut className="mr-2 h-4 w-4" />
                             Logout
                           </Button>
                         </CollapsibleContent>
-                      </Collapsible>
-                    )}
+                      </Collapsible>}
 
                     {/* Login button for non-authenticated users */}
-                    {!user && (
-                      <div className="pt-2 border-t border-primary-foreground/20">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" 
-                          onClick={() => {
-                            openAuthModal('login');
-                            setIsMobileMenuOpen(false);
-                          }}
-                        >
+                    {!user && <div className="pt-2 border-t border-primary-foreground/20">
+                        <Button variant="outline" size="sm" className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary" onClick={() => {
+                    openAuthModal('login');
+                    setIsMobileMenuOpen(false);
+                  }}>
                           Login
                         </Button>
-                      </div>
-                    )}
+                      </div>}
                   </div>
                 </div>
               </div>
-            </>
-          )}
+            </>}
           
           {/* Swipe indicator - shows when menu is closed on mobile */}
-          {!isMobileMenuOpen && (
-            <div className="fixed left-0 top-1/2 -translate-y-1/2 w-1 h-16 bg-primary/50 rounded-r-full md:hidden z-30 animate-pulse" />
-          )}
+          {!isMobileMenuOpen && <div className="fixed left-0 top-1/2 -translate-y-1/2 w-1 h-16 bg-primary/50 rounded-r-full md:hidden z-30 animate-pulse" />}
         </div>
       </nav>
 
       {/* Main Content */}
-      <main 
-        className="relative overflow-y-auto"
-        onTouchStart={handlePullStart}
-        onTouchMove={handlePullMove}
-        onTouchEnd={handlePullEnd}
-      >
+      <main className="relative overflow-y-auto" onTouchStart={handlePullStart} onTouchMove={handlePullMove} onTouchEnd={handlePullEnd}>
         {/* Pull-to-refresh indicator */}
-        {(isPulling || isRefreshing) && (
-          <div 
-            className="fixed top-16 left-0 right-0 z-40 flex justify-center items-center transition-all duration-300"
-            style={{
-              transform: `translateY(${isPulling ? pullDistance : isRefreshing ? 60 : 0}px)`,
-              opacity: isPulling ? Math.min(pullDistance / 80, 1) : isRefreshing ? 1 : 0
-            }}
-          >
+        {(isPulling || isRefreshing) && <div className="fixed top-16 left-0 right-0 z-40 flex justify-center items-center transition-all duration-300" style={{
+        transform: `translateY(${isPulling ? pullDistance : isRefreshing ? 60 : 0}px)`,
+        opacity: isPulling ? Math.min(pullDistance / 80, 1) : isRefreshing ? 1 : 0
+      }}>
             <div className="bg-primary text-primary-foreground rounded-full p-3 shadow-lg">
-              {isRefreshing ? (
-                <div className="animate-spin h-6 w-6 border-2 border-primary-foreground border-t-transparent rounded-full" />
-              ) : (
-                <div 
-                  className="h-6 w-6 flex items-center justify-center"
-                  style={{
-                    transform: `rotate(${pullDistance * 2}deg)`
-                  }}
-                >
+              {isRefreshing ? <div className="animate-spin h-6 w-6 border-2 border-primary-foreground border-t-transparent rounded-full" /> : <div className="h-6 w-6 flex items-center justify-center" style={{
+            transform: `rotate(${pullDistance * 2}deg)`
+          }}>
                   ↻
-                </div>
-              )}
+                </div>}
             </div>
-          </div>
-        )}
+          </div>}
         
         <div key={refreshKey}>
           {renderCurrentPage()}
