@@ -145,6 +145,8 @@ export const BusinessSettings = ({ isOpen, onClose }: BusinessSettingsProps) => 
                 <Label htmlFor="business_phone">Business Phone</Label>
                 <Input
                   id="business_phone"
+                  type="tel"
+                  inputMode="tel"
                   placeholder="+27 12 345 6789"
                   value={businessData.business_phone}
                   onChange={(e) => setBusinessData({ ...businessData, business_phone: e.target.value })}
@@ -156,6 +158,7 @@ export const BusinessSettings = ({ isOpen, onClose }: BusinessSettingsProps) => 
                 <Input
                   id="business_email"
                   type="email"
+                  inputMode="email"
                   placeholder="contact@business.com"
                   value={businessData.business_email}
                   onChange={(e) => setBusinessData({ ...businessData, business_email: e.target.value })}
@@ -207,6 +210,8 @@ export const BusinessSettings = ({ isOpen, onClose }: BusinessSettingsProps) => 
                   <Label htmlFor="business_postal_code">Postal Code</Label>
                   <Input
                     id="business_postal_code"
+                    type="text"
+                    inputMode="numeric"
                     placeholder="2000"
                     value={businessData.business_postal_code}
                     onChange={(e) => setBusinessData({ ...businessData, business_postal_code: e.target.value })}

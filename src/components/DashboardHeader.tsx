@@ -338,7 +338,7 @@ const DashboardHeader = ({
               
               <form onSubmit={handleImageUrlSubmit}>
                 <label className="block text-sm font-medium mb-2">Image URL</label>
-                <input type="url" name="imageUrl" placeholder="https://example.com/image.jpg" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4" />
+                <input type="url" inputMode="url" name="imageUrl" placeholder="https://example.com/image.jpg" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4" />
                 <div className="flex justify-end space-x-2">
                   <button type="button" onClick={() => setShowUploadModal(false)} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
                     Cancel
@@ -367,7 +367,7 @@ const DashboardHeader = ({
               
               <form onSubmit={handleStoryUrlSubmit}>
                 <label className="block text-sm font-medium mb-2">Media URL</label>
-                <input type="url" name="mediaUrl" placeholder="https://example.com/media.jpg" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
+                <input type="url" inputMode="url" name="mediaUrl" placeholder="https://example.com/media.jpg" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 mb-4" />
                 <div className="flex justify-end space-x-2">
                   <button type="button" onClick={() => setShowStoryModal(false)} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
                     Cancel

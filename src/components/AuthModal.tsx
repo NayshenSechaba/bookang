@@ -347,6 +347,7 @@ const AuthModal = ({
                     <Input
                       id="email"
                       type="email"
+                      inputMode="email"
                       placeholder="Enter your email"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
@@ -410,6 +411,7 @@ const AuthModal = ({
                     <Input
                       id="reg-email"
                       type="email"
+                      inputMode="email"
                       placeholder="Enter your email"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
@@ -491,6 +493,7 @@ const AuthModal = ({
                     <Input
                       id="phone"
                       type="tel"
+                      inputMode="tel"
                       placeholder="+27 or 0XX XXX XXXX"
                       value={formData.phoneNumber}
                       onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
@@ -537,6 +540,7 @@ const AuthModal = ({
                         <Input
                           id="telephone"
                           type="tel"
+                          inputMode="tel"
                           placeholder="Enter your telephone number"
                           value={formData.telephoneNumber}
                           onChange={(e) => handleInputChange('telephoneNumber', e.target.value)}
@@ -549,6 +553,7 @@ const AuthModal = ({
                         <Input
                           id="id-number"
                           type="text"
+                          inputMode="numeric"
                           placeholder="Enter your ID or Passport number"
                           value={formData.idNumber}
                           onChange={(e) => handleInputChange('idNumber', e.target.value)}
@@ -598,6 +603,7 @@ const AuthModal = ({
                           <Input
                             id="instagram-url"
                             type="url"
+                            inputMode="url"
                             placeholder="https://instagram.com/yourprofile"
                             value={formData.instagramUrl}
                             onChange={(e) => handleInputChange('instagramUrl', e.target.value)}
@@ -610,6 +616,7 @@ const AuthModal = ({
                           <Input
                             id="tiktok-url"
                             type="url"
+                            inputMode="url"
                             placeholder="https://tiktok.com/@yourprofile"
                             value={formData.tiktokUrl}
                             onChange={(e) => handleInputChange('tiktokUrl', e.target.value)}
@@ -622,6 +629,7 @@ const AuthModal = ({
                           <Input
                             id="facebook-url"
                             type="url"
+                            inputMode="url"
                             placeholder="https://facebook.com/yourpage"
                             value={formData.facebookUrl}
                             onChange={(e) => handleInputChange('facebookUrl', e.target.value)}

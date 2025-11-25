@@ -1256,7 +1256,7 @@ const CustomerDashboard = ({
             
             <div>
               <Label htmlFor="phone">Phone Number (for SMS confirmation) *</Label>
-              <Input id="phone" type="tel" placeholder="+27 or 0XX XXX XXXX" value={bookingData.phone} onChange={e => setBookingData(prev => ({
+              <Input id="phone" type="tel" inputMode="tel" placeholder="+27 or 0XX XXX XXXX" value={bookingData.phone} onChange={e => setBookingData(prev => ({
               ...prev,
               phone: e.target.value
             }))} required />
@@ -1336,7 +1336,7 @@ const CustomerDashboard = ({
               
               <form onSubmit={handleImageUrlSubmit('profile')}>
                 <label className="block text-sm font-medium mb-2">Image URL</label>
-                <input type="url" name="imageUrl" placeholder="https://example.com/image.jpg" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4" />
+                <input type="url" inputMode="url" name="imageUrl" placeholder="https://example.com/image.jpg" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4" />
                 <div className="flex justify-end space-x-2">
                   <button type="button" onClick={() => setShowProfileUpload(false)} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
                     Cancel
@@ -1366,7 +1366,7 @@ const CustomerDashboard = ({
               
               <form onSubmit={handleImageUrlSubmit('cover')}>
                 <label className="block text-sm font-medium mb-2">Image URL</label>
-                <input type="url" name="imageUrl" placeholder="https://example.com/image.jpg" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4" />
+                <input type="url" inputMode="url" name="imageUrl" placeholder="https://example.com/image.jpg" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4" />
                 <div className="flex justify-end space-x-2">
                   <button type="button" onClick={() => setShowCoverUpload(false)} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50">
                     Cancel

@@ -515,6 +515,7 @@ const AccountSettings = ({ userName }: AccountSettingsProps) => {
                   <Input
                     id="email"
                     type="email"
+                    inputMode="email"
                     value={email}
                     disabled
                     className="bg-muted"
@@ -531,6 +532,7 @@ const AccountSettings = ({ userName }: AccountSettingsProps) => {
                   <Input
                     id="phone"
                     type="tel"
+                    inputMode="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="0662386107 or +27662386107"
