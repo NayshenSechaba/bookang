@@ -94,6 +94,7 @@ const ServiceEditDialog = ({ service, isOpen, onClose, onSave, isAdding = false 
             <Input
               id="duration"
               type="number"
+              inputMode="numeric"
               value={formData.duration}
               onChange={(e) => handleInputChange('duration', Number(e.target.value))}
               required
@@ -107,6 +108,7 @@ const ServiceEditDialog = ({ service, isOpen, onClose, onSave, isAdding = false 
             <Input
               id="price"
               type="number"
+              inputMode="decimal"
               value={formData.price}
               onChange={(e) => handleInputChange('price', Number(e.target.value))}
               required

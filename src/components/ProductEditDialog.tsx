@@ -100,6 +100,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false 
             <Input
               id="price"
               type="number"
+              inputMode="decimal"
               value={formData.price}
               onChange={(e) => handleInputChange('price', Number(e.target.value))}
               required
@@ -114,6 +115,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false 
             <Input
               id="costPrice"
               type="number"
+              inputMode="decimal"
               value={formData.costPrice}
               onChange={(e) => handleInputChange('costPrice', Number(e.target.value))}
               required
@@ -128,6 +130,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false 
             <Input
               id="weight"
               type="number"
+              inputMode="decimal"
               value={formData.weight}
               onChange={(e) => handleInputChange('weight', Number(e.target.value))}
               required
@@ -142,6 +145,7 @@ const ProductEditDialog = ({ product, isOpen, onClose, onSave, isAdding = false 
             <Input
               id="stock"
               type="number"
+              inputMode="numeric"
               value={formData.stock}
               onChange={(e) => handleInputChange('stock', Number(e.target.value))}
               required

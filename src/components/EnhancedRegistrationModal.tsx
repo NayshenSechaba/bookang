@@ -433,6 +433,7 @@ const EnhancedRegistrationModal: React.FC<EnhancedRegistrationModalProps> = ({
                       <Input
                         id="email"
                         type="email"
+                        inputMode="email"
                         placeholder="Enter your email"
                         value={formData.email}
                         onChange={(e) => handleInputChange('email', e.target.value)}
@@ -448,6 +449,7 @@ const EnhancedRegistrationModal: React.FC<EnhancedRegistrationModalProps> = ({
                       <Input
                         id="phone"
                         type="tel"
+                        inputMode="tel"
                         placeholder="+27 or 0XX XXX XXXX"
                         value={formData.phone}
                         onChange={(e) => handleInputChange('phone', e.target.value)}

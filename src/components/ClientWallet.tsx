@@ -171,6 +171,7 @@ const ClientWallet = ({ userName }: ClientWalletProps) => {
                     <Input
                       id="amount"
                       type="number"
+                      inputMode="decimal"
                       value={addAmount}
                       onChange={(e) => setAddAmount(e.target.value)}
                       placeholder="100.00"

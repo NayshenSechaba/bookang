@@ -234,6 +234,7 @@ const ContactSection = () => {
                       <Input
                         id="email"
                         type="email"
+                        inputMode="email"
                         placeholder="Enter your email"
                         value={formData.email}
                         onChange={(e) => handleInputChange('email', e.target.value)}
@@ -248,6 +249,7 @@ const ContactSection = () => {
                       <Input
                         id="phone"
                         type="tel"
+                        inputMode="tel"
                         placeholder="(555) 123-4567"
                         value={formData.phone}
                         onChange={(e) => handleInputChange('phone', e.target.value)}
