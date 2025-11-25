@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Star, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut, Bell, User as UserIcon, Settings, ChevronDown } from 'lucide-react';
+import { Star, Calendar, Users, MapPin, Phone, Mail, HelpCircle, UserCheck, Clock, CheckCircle, Store, LogOut, Bell, User as UserIcon, Settings, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import AuthModal from '@/components/AuthModal';
@@ -75,6 +75,15 @@ const Index = () => {
 
     return () => clearInterval(interval);
   }, [heroImages.length]);
+
+  // Slideshow navigation handlers
+  const goToNextSlide = () => {
+    setCurrentSlide(prev => (prev + 1) % heroImages.length);
+  };
+
+  const goToPrevSlide = () => {
+    setCurrentSlide(prev => (prev - 1 + heroImages.length) % heroImages.length);
+  };
 
   // Set up Supabase auth listener
   useEffect(() => {
@@ -342,6 +351,23 @@ const Index = () => {
           {/* Dark overlay for text readability */}
           <div className="absolute inset-0 bg-black/50" />
         </div>
+
+        {/* Navigation Arrows */}
+        <button 
+          onClick={goToPrevSlide}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 text-white p-3 rounded-full backdrop-blur-sm transition-all duration-300 group"
+          aria-label="Previous slide"
+        >
+          <ChevronLeft className="h-6 w-6 group-hover:scale-110 transition-transform" />
+        </button>
+        
+        <button 
+          onClick={goToNextSlide}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 text-white p-3 rounded-full backdrop-blur-sm transition-all duration-300 group"
+          aria-label="Next slide"
+        >
+          <ChevronRight className="h-6 w-6 group-hover:scale-110 transition-transform" />
+        </button>
 
         {/* Content */}
         <div className="max-w-6xl mx-auto text-center relative z-10">
