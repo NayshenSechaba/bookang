@@ -1382,7 +1382,13 @@ const CustomerDashboard = ({
         </div>}
 
       {/* Payment Processing Modal */}
-      {pendingBooking && <PaymentProcessing appointmentDetails={pendingBooking} isOpen={showPaymentModal} onClose={() => setShowPaymentModal(false)} onPaymentComplete={handlePaymentComplete} />}
+      {pendingBooking && <PaymentProcessing 
+        appointmentDetails={pendingBooking} 
+        customerEmail={userEmail}
+        isOpen={showPaymentModal} 
+        onClose={() => setShowPaymentModal(false)} 
+        onPaymentComplete={handlePaymentComplete} 
+      />}
 
       {/* Booking Confirmation */}
       {showConfirmation && pendingBooking && <BookingConfirmation bookingDetails={pendingBooking} onGoHome={() => {

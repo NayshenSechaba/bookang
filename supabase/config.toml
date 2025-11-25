@@ -26,3 +26,10 @@ verify_jwt = false
 
 [functions.update-booking-status]
 verify_jwt = false
+
+[functions.initialize-payment]
+verify_jwt = false
+
+[functions.verify-payment]
+verify_jwt = false
+
