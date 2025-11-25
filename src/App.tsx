@@ -11,6 +11,7 @@ import BusinessProfileSettings from "./components/BusinessProfile";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import ClientDetail from "./pages/ClientDetail";
 import AmendmentApproval from "./pages/AmendmentApproval";
+import PaymentCallback from "./pages/PaymentCallback";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/employee" element={<EmployeeDashboard />} />
           <Route path="/employee/client/:clientId" element={<ClientDetail />} />
           <Route path="/employee/amendments" element={<AmendmentApproval />} />
+          <Route path="/payment/callback" element={<PaymentCallback />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
