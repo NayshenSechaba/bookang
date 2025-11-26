@@ -20,6 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { BusinessVerification } from './BusinessVerification';
 import { SocialMediaEdit } from './SocialMediaEdit';
 import { BusinessSettings } from './BusinessSettings';
+import { VerificationEmailHistory } from './VerificationEmailHistory';
 
 interface HairdresserDashboardProps {
   userName: string;
@@ -747,46 +748,53 @@ const HairdresserDashboard = ({ userName: initialUserName }: HairdresserDashboar
           </TabsContent>
 
           <TabsContent value="verification">
-            {verificationStatus === 'approved' ? (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center space-y-4">
-                    <div className="flex justify-center">
-                      <div className="rounded-full bg-green-100 p-3">
-                        <ShieldAlert className="h-8 w-8 text-green-600" />
+            <div className="space-y-6">
+              {verificationStatus === 'approved' ? (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center space-y-4">
+                      <div className="flex justify-center">
+                        <div className="rounded-full bg-green-100 p-3">
+                          <ShieldAlert className="h-8 w-8 text-green-600" />
+                        </div>
                       </div>
+                      <h3 className="text-xl font-semibold">Verification Approved</h3>
+                      <p className="text-muted-foreground">
+                        Your business has been successfully verified. You can now receive payments.
+                      </p>
                     </div>
-                    <h3 className="text-xl font-semibold">Verification Approved</h3>
-                    <p className="text-muted-foreground">
-                      Your business has been successfully verified. You can now receive payments.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : verificationStatus === 'pending' ? (
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center space-y-4">
-                    <div className="flex justify-center">
-                      <div className="rounded-full bg-orange-100 p-3">
-                        <ShieldAlert className="h-8 w-8 text-orange-600" />
+                  </CardContent>
+                </Card>
+              ) : verificationStatus === 'pending' ? (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="text-center space-y-4">
+                      <div className="flex justify-center">
+                        <div className="rounded-full bg-orange-100 p-3">
+                          <ShieldAlert className="h-8 w-8 text-orange-600" />
+                        </div>
                       </div>
+                      <h3 className="text-xl font-semibold">Verification Under Review</h3>
+                      <p className="text-muted-foreground">
+                        Your documents are being reviewed by our compliance team. We'll notify you by email once the verification is complete.
+                      </p>
                     </div>
-                    <h3 className="text-xl font-semibold">Verification Under Review</h3>
-                    <p className="text-muted-foreground">
-                      Your documents are being reviewed by our compliance team. We'll notify you by email once the verification is complete.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : (
-              <BusinessVerification 
-                profileId={profileId}
-                onComplete={() => {
-                  setVerificationStatus('pending');
-                }}
-              />
-            )}
+                  </CardContent>
+                </Card>
+              ) : (
+                <BusinessVerification 
+                  profileId={profileId}
+                  onComplete={() => {
+                    setVerificationStatus('pending');
+                  }}
+                />
+              )}
+              
+              {/* Email Notification History */}
+              {profileId && (
+                <VerificationEmailHistory profileId={profileId} />
+              )}
+            </div>
           </TabsContent>
         </Tabs>
 
