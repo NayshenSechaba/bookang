@@ -12,6 +12,7 @@ import EmployeeDashboard from "./pages/EmployeeDashboard";
 import ClientDetail from "./pages/ClientDetail";
 import AmendmentApproval from "./pages/AmendmentApproval";
 import PaymentCallback from "./pages/PaymentCallback";
+import BusinessPaymentSettings from "./pages/BusinessPaymentSettings";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/employee" element={<EmployeeDashboard />} />
           <Route path="/employee/client/:clientId" element={<ClientDetail />} />
           <Route path="/employee/amendments" element={<AmendmentApproval />} />
+          <Route path="/employee/payment-settings" element={<BusinessPaymentSettings />} />
           <Route path="/payment/callback" element={<PaymentCallback />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
