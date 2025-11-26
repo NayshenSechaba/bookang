@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { toast } from "@/hooks/use-toast";
 import { Search, DollarSign, CheckCircle, AlertCircle, Edit, Plus } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PaymentStatisticsWidget } from "./PaymentStatisticsWidget";
 
 interface BusinessProfile {
   id: string;
@@ -184,6 +185,8 @@ export const BusinessPaymentSettings = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      <PaymentStatisticsWidget />
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
