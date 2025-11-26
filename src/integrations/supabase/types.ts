@@ -384,6 +384,175 @@ export type Database = {
           },
         ]
       }
+      business_verification_checklist: {
+        Row: {
+          created_at: string
+          documents_uploaded: boolean
+          documents_verified_at: string | null
+          documents_verified_by: string | null
+          final_approval: boolean
+          final_approved_at: string | null
+          final_approved_by: string | null
+          id: string
+          paystack_business_name: string | null
+          paystack_business_verified: boolean
+          paystack_business_verified_at: string | null
+          paystack_business_verified_by: string | null
+          paystack_code_added: boolean
+          paystack_code_verified_at: string | null
+          paystack_code_verified_by: string | null
+          profile_id: string
+          updated_at: string
+          verification_notes: string | null
+        }
+        Insert: {
+          created_at?: string
+          documents_uploaded?: boolean
+          documents_verified_at?: string | null
+          documents_verified_by?: string | null
+          final_approval?: boolean
+          final_approved_at?: string | null
+          final_approved_by?: string | null
+          id?: string
+          paystack_business_name?: string | null
+          paystack_business_verified?: boolean
+          paystack_business_verified_at?: string | null
+          paystack_business_verified_by?: string | null
+          paystack_code_added?: boolean
+          paystack_code_verified_at?: string | null
+          paystack_code_verified_by?: string | null
+          profile_id: string
+          updated_at?: string
+          verification_notes?: string | null
+        }
+        Update: {
+          created_at?: string
+          documents_uploaded?: boolean
+          documents_verified_at?: string | null
+          documents_verified_by?: string | null
+          final_approval?: boolean
+          final_approved_at?: string | null
+          final_approved_by?: string | null
+          id?: string
+          paystack_business_name?: string | null
+          paystack_business_verified?: boolean
+          paystack_business_verified_at?: string | null
+          paystack_business_verified_by?: string | null
+          paystack_code_added?: boolean
+          paystack_code_verified_at?: string | null
+          paystack_code_verified_by?: string | null
+          profile_id?: string
+          updated_at?: string
+          verification_notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_verification_checkli_paystack_business_verified_b_fkey"
+            columns: ["paystack_business_verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_verification_checkli_paystack_business_verified_b_fkey"
+            columns: ["paystack_business_verified_by"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "business_verification_checkli_paystack_business_verified_b_fkey"
+            columns: ["paystack_business_verified_by"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "business_verification_checklist_documents_verified_by_fkey"
+            columns: ["documents_verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_verification_checklist_documents_verified_by_fkey"
+            columns: ["documents_verified_by"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "business_verification_checklist_documents_verified_by_fkey"
+            columns: ["documents_verified_by"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "business_verification_checklist_final_approved_by_fkey"
+            columns: ["final_approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_verification_checklist_final_approved_by_fkey"
+            columns: ["final_approved_by"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "business_verification_checklist_final_approved_by_fkey"
+            columns: ["final_approved_by"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "business_verification_checklist_paystack_code_verified_by_fkey"
+            columns: ["paystack_code_verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_verification_checklist_paystack_code_verified_by_fkey"
+            columns: ["paystack_code_verified_by"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "business_verification_checklist_paystack_code_verified_by_fkey"
+            columns: ["paystack_code_verified_by"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "business_verification_checklist_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "business_verification_checklist_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "business_verification_checklist_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
       client_profiles: {
         Row: {
           address: string | null

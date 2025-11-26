@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AmendmentRequestModal } from "@/components/AmendmentRequestModal";
+import { BusinessVerificationChecklist } from "@/components/BusinessVerificationChecklist";
 import { ArrowLeft, Edit, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -409,7 +410,7 @@ export default function ClientDetail() {
           </div>
 
           {/* Documents Sidebar */}
-          <div className="md:col-span-1">
+          <div className="md:col-span-1 space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -440,6 +441,15 @@ export default function ClientDetail() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Business Verification Checklist */}
+            {client?.source_type === 'business' && (
+              <BusinessVerificationChecklist
+                profileId={client.profile_id}
+                businessName={client.business_name || client.full_name}
+                onVerificationComplete={fetchClientDetails}
+              />
+            )}
           </div>
         </div>
       </div>
