@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,9 +23,33 @@ serve(async (req) => {
       );
     }
 
-    const { email, amount, currency, reference, split, callback_url, metadata } = await req.json();
+    const { email, amount, currency, reference, callback_url, metadata, business_id } = await req.json();
 
-    console.log('Initializing payment:', { email, amount, currency, reference });
+    console.log('Initializing payment:', { email, amount, currency, reference, business_id });
+
+    // Fetch subaccount code from database if business_id provided
+    let subaccounts = [];
+    if (business_id) {
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+      const { data: paymentSettings, error: fetchError } = await supabase
+        .from('business_payment_settings')
+        .select('paystack_subaccount_code')
+        .eq('profile_id', business_id)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching payment settings:', fetchError);
+      } else if (paymentSettings?.paystack_subaccount_code) {
+        console.log('Using subaccount code from database');
+        subaccounts = [{
+          subaccount: paymentSettings.paystack_subaccount_code,
+          share: 85 // Business gets 85%, platform gets 15%
+        }];
+      }
+    }
 
     // Initialize transaction with Paystack
     const paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
@@ -40,10 +65,10 @@ serve(async (req) => {
         reference,
         callback_url: callback_url || `${req.headers.get('origin')}/payment/callback`,
         metadata: metadata || {},
-        split: split ? {
-          type: split.type || 'percentage',
-          bearer_type: split.bearer_type || 'account',
-          subaccounts: split.subaccounts || []
+        split: subaccounts.length > 0 ? {
+          type: 'percentage',
+          bearer_type: 'account',
+          subaccounts: subaccounts
         } : undefined
       }),
     });
