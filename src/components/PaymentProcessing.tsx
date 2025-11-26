@@ -22,6 +22,7 @@ interface PaymentProcessingProps {
     cost: number;
     salon: string;
     bookingId?: string;
+    businessId?: string;
   };
   customerEmail: string;
   subaccounts?: SubAccount[];
@@ -64,14 +65,10 @@ const PaymentProcessing = ({
           amount: amountInKobo,
           currency: 'ZAR',
           reference,
-          split: subaccounts.length > 0 ? {
-            type: 'percentage',
-            bearer_type: 'account',
-            bearer_subaccount: null,
-            subaccounts
-          } : undefined,
+          business_id: appointmentDetails.businessId,
           metadata: {
             booking_id: appointmentDetails.bookingId,
+            customer_id: appointmentDetails.businessId,
             service: appointmentDetails.service,
             stylist: appointmentDetails.stylist,
             date: appointmentDetails.date,
