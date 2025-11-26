@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -68,6 +69,34 @@ serve(async (req) => {
       status: transaction.status,
       amount: transaction.amount
     });
+
+    // Save payment record to database
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const paymentRecord = {
+      reference: transaction.reference,
+      amount: transaction.amount,
+      currency: transaction.currency,
+      status: transaction.status,
+      customer_email: transaction.customer.email,
+      customer_id: transaction.metadata?.customer_id || null,
+      booking_id: transaction.metadata?.booking_id || null,
+      metadata: transaction.metadata || {},
+      paid_at: transaction.paid_at ? new Date(transaction.paid_at).toISOString() : null,
+    };
+
+    const { error: insertError } = await supabase
+      .from('payments')
+      .insert(paymentRecord);
+
+    if (insertError) {
+      console.error('Error saving payment record:', insertError);
+      // Don't fail the verification if database insert fails
+    } else {
+      console.log('Payment record saved successfully');
+    }
 
     return new Response(
       JSON.stringify({
