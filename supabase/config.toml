@@ -1,5 +1,8 @@
 project_id = "qbkgyervpdcgzhojqfch"
 
+[functions.send-verification-status-email]
+verify_jwt = true
+
 [functions.send-appointment-reminders]
 verify_jwt = false
 

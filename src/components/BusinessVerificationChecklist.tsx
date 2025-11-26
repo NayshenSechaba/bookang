@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { CheckCircle2, FileCheck, CreditCard, Building2, UserCheck, Loader2 } from 'lucide-react';
+import { CheckCircle2, FileCheck, CreditCard, Building2, UserCheck, Loader2, Mail } from 'lucide-react';
 
 interface VerificationChecklistProps {
   profileId: string;
@@ -47,9 +48,12 @@ export const BusinessVerificationChecklist = ({
   const [paystackBusinessName, setPaystackBusinessName] = useState('');
   const [verificationNotes, setVerificationNotes] = useState('');
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<string>('pending');
+  const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
     fetchChecklist();
+    fetchProfile();
     getCurrentUser();
   }, [profileId]);
 
@@ -65,6 +69,65 @@ export const BusinessVerificationChecklist = ({
       if (profile) {
         setCurrentUserId(profile.id);
       }
+    }
+  };
+
+  const fetchProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('verification_status')
+        .eq('id', profileId)
+        .single();
+
+      if (error) throw error;
+      
+      if (data) {
+        setProfile(data);
+        setVerificationStatus(data.verification_status || 'pending');
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    setSaving(true);
+    try {
+      // Update profile status
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          verification_status: newStatus,
+          ...(newStatus === 'in_review' && { verification_submitted_at: new Date().toISOString() })
+        })
+        .eq('id', profileId);
+
+      if (profileError) throw profileError;
+
+      // Send email notification
+      await supabase.functions.invoke('send-verification-status-email', {
+        body: {
+          profile_id: profileId,
+          status: newStatus,
+          notes: verificationNotes || undefined,
+        },
+      });
+
+      setVerificationStatus(newStatus);
+      toast({
+        title: "Status Updated",
+        description: `Verification status changed to ${newStatus.replace('_', ' ')} and email sent.`
+      });
+    } catch (error: any) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update verification status.",
+        variant: "destructive"
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -262,6 +325,15 @@ export const BusinessVerificationChecklist = ({
 
       if (profileError) throw profileError;
 
+      // Send approval email notification
+      await supabase.functions.invoke('send-verification-status-email', {
+        body: {
+          profile_id: profileId,
+          status: 'approved',
+          notes: verificationNotes || undefined,
+        },
+      });
+
       toast({
         title: "Business Approved",
         description: `${businessName} has been successfully verified and approved.`
@@ -311,6 +383,46 @@ export const BusinessVerificationChecklist = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Verification Status */}
+        <div className="space-y-3 bg-muted/50 p-4 rounded-lg">
+          <Label htmlFor="status" className="text-base font-medium">
+            Verification Status
+          </Label>
+          <div className="flex gap-3 items-center">
+            <Select
+              value={verificationStatus}
+              onValueChange={handleStatusChange}
+              disabled={saving || checklist.final_approval}
+            >
+              <SelectTrigger id="status" className="max-w-xs">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="in_review">In Review</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+            <Badge 
+              variant={
+                verificationStatus === 'approved' ? 'default' :
+                verificationStatus === 'in_review' ? 'secondary' :
+                verificationStatus === 'rejected' ? 'destructive' :
+                'outline'
+              }
+              className="gap-1"
+            >
+              <Mail className="h-3 w-3" />
+              Email sent on status change
+            </Badge>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Changing the status will automatically send an email notification to the business.
+          </p>
+        </div>
+
+        <Separator />
         {/* Documents Verification */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
