@@ -144,6 +144,22 @@ serve(async (req) => {
 
     console.log('Verification status email sent successfully to:', recipientEmail);
 
+    // Log the email in verification_email_logs
+    const { error: logError } = await supabase
+      .from('verification_email_logs')
+      .insert({
+        profile_id,
+        status,
+        email_subject: subject,
+        email_body: htmlContent,
+        sent_to: recipientEmail,
+        success: true,
+      });
+
+    if (logError) {
+      console.error('Error logging email:', logError);
+    }
+
     return new Response(
       JSON.stringify({ success: true, message: 'Email sent successfully' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -151,6 +167,29 @@ serve(async (req) => {
 
   } catch (error: any) {
     console.error('Error sending verification status email:', error);
+    
+    // Log failed email attempt
+    try {
+      const { profile_id, status } = await req.json();
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      
+      await supabase
+        .from('verification_email_logs')
+        .insert({
+          profile_id,
+          status,
+          email_subject: 'Failed to send',
+          email_body: 'Email sending failed',
+          sent_to: 'unknown',
+          success: false,
+          error_message: error.message,
+        });
+    } catch (logError) {
+      console.error('Error logging failed email:', logError);
+    }
+    
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

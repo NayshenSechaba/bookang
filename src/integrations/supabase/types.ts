@@ -1891,6 +1891,91 @@ export type Database = {
           },
         ]
       }
+      verification_email_logs: {
+        Row: {
+          created_at: string | null
+          email_body: string
+          email_subject: string
+          error_message: string | null
+          id: string
+          profile_id: string
+          sent_at: string | null
+          sent_by: string | null
+          sent_to: string
+          status: string
+          success: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          email_body: string
+          email_subject: string
+          error_message?: string | null
+          id?: string
+          profile_id: string
+          sent_at?: string | null
+          sent_by?: string | null
+          sent_to: string
+          status: string
+          success?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          email_body?: string
+          email_subject?: string
+          error_message?: string | null
+          id?: string
+          profile_id?: string
+          sent_at?: string | null
+          sent_by?: string | null
+          sent_to?: string
+          status?: string
+          success?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_email_logs_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verification_email_logs_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "verification_email_logs_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+          {
+            foreignKeyName: "verification_email_logs_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "verification_email_logs_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "vw_customer_rankings"
+            referencedColumns: ["customer_id"]
+          },
+          {
+            foreignKeyName: "verification_email_logs_sent_by_fkey"
+            columns: ["sent_by"]
+            isOneToOne: false
+            referencedRelation: "vw_onboarding_status"
+            referencedColumns: ["profile_id"]
+          },
+        ]
+      }
     }
     Views: {
       vw_booking_status: {

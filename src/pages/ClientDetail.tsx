@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AmendmentRequestModal } from "@/components/AmendmentRequestModal";
 import { BusinessVerificationChecklist } from "@/components/BusinessVerificationChecklist";
+import { VerificationEmailHistory } from "@/components/VerificationEmailHistory";
 import { ArrowLeft, Edit, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -444,11 +445,18 @@ export default function ClientDetail() {
 
             {/* Business Verification Checklist */}
             {client?.source_type === 'business' && (
-              <BusinessVerificationChecklist
-                profileId={client.profile_id}
-                businessName={client.business_name || client.full_name}
-                onVerificationComplete={fetchClientDetails}
-              />
+              <>
+                <BusinessVerificationChecklist
+                  profileId={client.profile_id}
+                  businessName={client.business_name || client.full_name}
+                  onVerificationComplete={fetchClientDetails}
+                />
+                
+                {/* Email Notification History */}
+                <VerificationEmailHistory
+                  profileId={client.profile_id}
+                />
+              </>
             )}
           </div>
         </div>
