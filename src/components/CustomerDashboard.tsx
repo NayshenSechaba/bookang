@@ -837,9 +837,9 @@ const CustomerDashboard = ({
           {/* Welcome Header */}
           <div className="ml-8 flex items-center gap-4">
             <div className="relative">
-              <Avatar className="h-24 w-24 border-4 border-blue/20">
+              <Avatar className="h-32 w-32 border-4 border-blue/20">
                 <AvatarImage src={profilePicture} alt={username || formatName(userName)} />
-                <AvatarFallback className="bg-blue text-blue-foreground text-2xl">
+                <AvatarFallback className="bg-blue text-blue-foreground text-4xl">
                   {(username || formatName(userName)).charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
