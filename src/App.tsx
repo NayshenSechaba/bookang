@@ -14,6 +14,8 @@ import AmendmentApproval from "./pages/AmendmentApproval";
 import PaymentCallback from "./pages/PaymentCallback";
 import BusinessPaymentSettings from "./pages/BusinessPaymentSettings";
 import BusinessVerificationManagement from "./pages/BusinessVerificationManagement";
+import { NotificationPermissionBanner } from "./components/NotificationPermissionBanner";
+import { WebNotificationManager } from "./components/WebNotificationManager";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +25,8 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <WebNotificationManager />
+        <NotificationPermissionBanner />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/business/:businessId" element={<BusinessProfile />} />
