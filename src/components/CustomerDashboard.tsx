@@ -836,12 +836,20 @@ const CustomerDashboard = ({
           
           {/* Welcome Header */}
           <div className="ml-8 flex items-center gap-4">
-            <Avatar className="h-16 w-16 border-2 border-blue/20">
-              <AvatarImage src={profilePicture} alt={username || formatName(userName)} />
-              <AvatarFallback className="bg-blue text-blue-foreground text-lg">
-                {(username || formatName(userName)).charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="h-24 w-24 border-4 border-blue/20">
+                <AvatarImage src={profilePicture} alt={username || formatName(userName)} />
+                <AvatarFallback className="bg-blue text-blue-foreground text-2xl">
+                  {(username || formatName(userName)).charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <button 
+                onClick={() => setShowProfileUpload(true)} 
+                className="absolute -bottom-1 -right-1 bg-blue text-blue-foreground p-2 rounded-full shadow-lg hover:opacity-90 transition-opacity"
+              >
+                <Camera className="h-4 w-4" />
+              </button>
+            </div>
             <div className="flex-1">
               <h1 className="text-3xl font-bold text-gray-900 mb-1">
                 {username || formatName(userName)}
@@ -1457,6 +1465,32 @@ const CustomerDashboard = ({
           </DialogHeader>
           
           <form onSubmit={handleProfileEdit} className="space-y-4">
+            {/* Profile Picture Upload */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="relative">
+                <Avatar className="h-24 w-24 border-4 border-blue/20">
+                  <AvatarImage src={profilePicture} alt={profileEditData.fullName} />
+                  <AvatarFallback className="bg-blue text-blue-foreground text-2xl">
+                    {profileEditData.fullName.charAt(0).toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <label 
+                  htmlFor="profilePictureUpload"
+                  className="absolute -bottom-1 -right-1 bg-blue text-blue-foreground p-2 rounded-full shadow-lg hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  <Camera className="h-4 w-4" />
+                </label>
+                <input
+                  id="profilePictureUpload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload('profile')}
+                />
+              </div>
+              <span className="text-sm text-muted-foreground">Click camera icon to upload photo</span>
+            </div>
+
             <div>
               <Label htmlFor="fullName">Full Name</Label>
               <Input
@@ -1473,6 +1507,7 @@ const CustomerDashboard = ({
               <Input
                 id="phone"
                 type="tel"
+                inputMode="tel"
                 value={profileEditData.phone}
                 onChange={(e) => setProfileEditData(prev => ({ ...prev, phone: e.target.value }))}
                 placeholder="Enter your phone number"
@@ -1485,6 +1520,7 @@ const CustomerDashboard = ({
               <Input
                 id="email"
                 type="email"
+                inputMode="email"
                 value={profileEditData.email}
                 onChange={(e) => setProfileEditData(prev => ({ ...prev, email: e.target.value }))}
                 placeholder="Enter your email"
